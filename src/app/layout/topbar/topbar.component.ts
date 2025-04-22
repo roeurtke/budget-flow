@@ -10,15 +10,4 @@ import { Router } from '@angular/router';
 })
 export class TopbarComponent {
   @Input() userName: string = 'User Name';
-
-  // constructor(
-  //   private authService: AuthService,
-  //   private router: Router
-  // ) {}
-
-  // logout() {
-  //   if (confirm('Are you sure you want to logout?')) {
-  //     this.authService.logout();
-  //   }
-  // }
 }
