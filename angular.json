@@ -24,12 +24,23 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/assets",
+              "src/favicon.ico"
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "src/assets/theme-style/css/sb-admin-2.min.css",
+              "src/assets/theme-style/fonts/css2.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/jquery/dist/jquery.min.js",
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+              "node_modules/jquery.easing/jquery.easing.min.js",
+              "src/assets/theme-style/js/sb-admin-2.min.js"
+            ]
           },
           "configurations": {
             "production": {

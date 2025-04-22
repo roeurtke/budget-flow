@@ -1,1 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+/* @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400&display=swap');
+ */
+@import 'typeface-rubik/index.css';
+
+@font-face {
+    font-family: 'Khmer OS Battambang';
+    src: url('/assets/fonts/KhmerOSbattambang.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Rubik', 'Khmer OS Battambang', sans-serif;
+}
