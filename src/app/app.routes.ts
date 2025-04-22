@@ -19,7 +19,7 @@ export const routes: Routes = [
         path: '',
         component: MainComponent,
         children: [
-          { path: 'layout/dashboard', component: DashboardComponent },
+          { path: 'dashboard', component: DashboardComponent },
           { path: 'pages/incomes', component: IncomesComponent },
           { path: 'pages/expenses', component: ExpensesComponent },
           { path: 'pages/income_categories', component: IncomeCategoriesComponent },
