@@ -100,8 +100,3 @@ body .input-group > :not(:first-child):not(.dropdown-menu):not(.valid-tooltip):n
     border-top-left-radius: 25px !important;
     border-bottom-left-radius: 25px !important;
 }
-
-*{
-    color:red;
-    /* background-color: red; */
-}
