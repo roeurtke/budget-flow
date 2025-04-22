@@ -1,3 +1,5 @@
+@import 'typeface-rubik/index.css';
+
 body {
     margin: 0;
     height: 100vh;
@@ -5,9 +7,16 @@ body {
     justify-content: center;
     align-items: center;
     background: #4e73df; /* Updated background color */
-    font-family: Arial, sans-serif;
+    font-family: 'Rubik', 'Khmer OS Battambang', sans-serif;
     perspective: 1000px;
 }
+
+@font-face {
+    font-family: 'Khmer OS Battambang';
+    src: url('/assets/fonts/KhmerOSbattambang.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
 
 .login-container {
     width: 400px;
