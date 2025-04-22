@@ -18,8 +18,8 @@ body {
     font-style: normal;
   }
 
-.login-container {
-    width: 400px;
+  .login-container {
+    width: 420px;
     padding: 40px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
@@ -47,7 +47,7 @@ h2 {
 
 input {
     width: 100%;
-    padding: 12px;
+    padding: 8px;
     border: none;
     border-radius: 25px;
     background: rgba(255, 255, 255, 0.2);
@@ -76,7 +76,7 @@ label {
 
 button {
     width: 100%;
-    padding: 12px;
+    padding: 8px;
     border: none;
     border-radius: 25px;
     background: linear-gradient(45deg, #ff6b6b, #ff8e53);
