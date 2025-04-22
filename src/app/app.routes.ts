@@ -11,6 +11,7 @@ import { ExpenseCategoriesComponent } from './pages/expense-categories/expense-c
 import { UsersComponent } from './pages/users/users.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { PermissionsComponent } from './pages/permissions/permissions.component';
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -30,4 +31,5 @@ export const routes: Routes = [
           { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent }
         ]
     },
+    { path: '**', component: PageNotFoundComponent }
 ];
