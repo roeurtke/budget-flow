@@ -15,4 +15,15 @@ export class TopbarComponent {
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  logout() {
+    if (confirm('Are you sure you want to logout?')) {
+      this.authService.logout();
+    }
+  }
 }
