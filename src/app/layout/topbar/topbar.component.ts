@@ -10,4 +10,9 @@ import { Router } from '@angular/router';
 })
 export class TopbarComponent {
   @Input() userName: string = 'User Name';
+
+  isDropdownOpen = false;
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
 }
