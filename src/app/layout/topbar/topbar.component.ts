@@ -22,8 +22,6 @@ export class TopbarComponent {
   ) {}
 
   logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      this.authService.logout();
-    }
+    this.authService.logout();
   }
 }
