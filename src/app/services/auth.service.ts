@@ -1,222 +1,79 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, map, tap, of, throwError } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 interface LoginResponse {
-  token: string;
-  permissions?: string[];
-  user?: any;
+  access: string;
+  refresh: string;
 }
 
-interface TokenPayload {
-  exp?: number;
-  [key: string]: any;
+interface RefreshResponse {
+  access: string; // New access token
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/api/login/`;
-  private readonly refreshTokenUrl = `${environment.apiUrl}/api/refresh-token/`;
-  private readonly tokenStorageKey = 'auth_token';
-  private readonly permissionsStorageKey = 'auth_permissions';
-  
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  private userPermissionsSubject = new BehaviorSubject<string[]>([]);
-  private tokenExpirationTimer: ReturnType<typeof setTimeout> | null = null;
-  
-  // Public observables
-  public readonly isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  public readonly userPermissions$ = this.userPermissionsSubject.asObservable();
+  private apiUrl = `${environment.apiUrl}/api/login/`;
+  private refreshApiUrl = `${environment.apiUrl}/api/refresh-token/`;
+  private isAuthenticated = signal<boolean>(false);
+  private accessToken = signal<string | null>(null);
+  private refreshTokenSignal = signal<string | null>(null);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {
-    this.initializeAuthState();
+  constructor(private http: HttpClient) {
+    // Check if tokens exist on initialization
+    const storedAccessToken = localStorage.getItem('accessToken');
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    if (storedAccessToken && storedRefreshToken) {
+      this.accessToken.set(storedAccessToken);
+      this.refreshTokenSignal.set(storedRefreshToken);
+      this.isAuthenticated.set(true);
+    }
   }
 
-  /**
-   * Logs in a user with the provided credentials
-   * @param username User's username
-   * @param password User's password
-   * @returns Observable with login response
-   */
-  public login(username: string, password: string): Observable<LoginResponse> {
+  login(username: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(this.apiUrl, { username, password }).pipe(
-      tap({
-        next: (response) => this.handleLoginSuccess(response),
-        error: (error) => this.handleLoginError(error)
+      tap((response) => {
+        localStorage.setItem('accessToken', response.access);
+        localStorage.setItem('refreshToken', response.refresh);
+        this.accessToken.set(response.access);
+        this.refreshTokenSignal.set(response.refresh);
+        this.isAuthenticated.set(true);
       })
     );
   }
 
-  /**
-   * Logs out the current user and clears authentication data
-   */
-  public logout(): void {
-    this.clearAuthData();
-    this.isAuthenticatedSubject.next(false);
-    this.userPermissionsSubject.next([]);
-    this.router.navigate(['/login']);
-  }
-
-  /**
-   * Checks if the user is authenticated (synchronous)
-   */
-  public get isAuthenticated(): boolean {
-    return this.isAuthenticatedSubject.value && !!this.getToken();
-  }
-
-  /**
-   * Checks if the user has a specific permission
-   * @param permission Permission to check
-   * @returns boolean indicating if the permission is present
-   */
-  public hasPermission(permission: string): boolean {
-    return this.userPermissionsSubject.value.includes(permission);
-  }
-
-  /**
-   * Checks if the user has all required permissions
-   * @param requiredPermissions Array of permissions to check
-   * @returns Observable that emits boolean indicating permission status
-   */
-  public checkPermissions(requiredPermissions: string[]): Observable<boolean> {
-    if (requiredPermissions.length === 0) {
-      return of(true);
+  refreshToken(): Observable<RefreshResponse> {
+    const refresh = this.refreshTokenSignal();
+    if (!refresh) {
+      return new Observable((observer) => {
+        observer.error(new Error('No refresh token available'));
+      });
     }
-
-    return this.userPermissions$.pipe(
-      map(userPermissions => 
-        requiredPermissions.every(perm => userPermissions.includes(perm))
-      )
-    );
-  }
-
-  /**
-   * Refreshes the authentication token
-   * @returns Observable with refresh response
-   */
-  public refreshToken(): Observable<LoginResponse> {
-    const token = this.getToken();
-    if (!token) {
-      this.logout();
-      return throwError(() => new Error('No token available for refresh'));
-    }
-
-    return this.http.post<LoginResponse>(this.refreshTokenUrl, { token }).pipe(
-      tap({
-        next: (response) => this.handleRefreshSuccess(response),
-        error: () => this.logout()
+    return this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh }).pipe(
+      tap((response) => {
+        localStorage.setItem('accessToken', response.access);
+        this.accessToken.set(response.access);
+        this.isAuthenticated.set(true);
       })
     );
   }
 
-  /**
-   * Gets the current authentication token
-   * @returns The token or null if not available
-   */
-  public getToken(): string | null {
-    return localStorage.getItem(this.tokenStorageKey);
+  logout(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    this.accessToken.set(null);
+    this.refreshTokenSignal.set(null);
+    this.isAuthenticated.set(false);
   }
 
-  // Private methods
-
-  private initializeAuthState(): void {
-    const token = this.getToken();
-    const permissions = this.getStoredPermissions();
-    
-    this.isAuthenticatedSubject.next(!!token);
-    this.userPermissionsSubject.next(permissions);
-    
-    if (token) {
-      this.scheduleTokenRefresh();
-    }
+  isLoggedIn(): boolean {
+    return this.isAuthenticated();
   }
 
-  private handleLoginSuccess(response: LoginResponse): void {
-    this.storeAuthData(response.token, response.permissions || []);
-    this.isAuthenticatedSubject.next(true);
-    this.userPermissionsSubject.next(response.permissions || []);
-    this.router.navigate(['/dashboard']);
-  }
-
-  private handleLoginError(error: any): void {
-    // You could add specific error handling here if needed
-    console.error('Login failed:', error);
-  }
-
-  private handleRefreshSuccess(response: LoginResponse): void {
-    this.storeAuthData(response.token, response.permissions || []);
-    this.isAuthenticatedSubject.next(true);
-    this.userPermissionsSubject.next(response.permissions || []);
-  }
-
-  private scheduleTokenRefresh(): void {
-    const token = this.getToken();
-    if (!token) return;
-
-    const expirationDate = this.getTokenExpirationDate(token);
-    if (!expirationDate) return;
-
-    const now = new Date().getTime();
-    const refreshTime = expirationDate.getTime() - now - 60000; // Refresh 1 minute before expiration
-
-    if (refreshTime > 0) {
-      this.clearTokenRefreshTimer();
-      this.tokenExpirationTimer = setTimeout(() => {
-        this.refreshToken().subscribe();
-      }, refreshTime);
-    }
-  }
-
-  private getTokenExpirationDate(token: string): Date | null {
-    try {
-      const payload = this.decodeTokenPayload(token);
-      if (!payload.exp) return null;
-      return new Date(payload.exp * 1000);
-    } catch (e) {
-      console.error('Error decoding token:', e);
-      return null;
-    }
-  }
-
-  private decodeTokenPayload(token: string): TokenPayload {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    return JSON.parse(atob(base64));
-  }
-
-  private storeAuthData(token: string, permissions: string[]): void {
-    localStorage.setItem(this.tokenStorageKey, token);
-    localStorage.setItem(this.permissionsStorageKey, JSON.stringify(permissions));
-    this.scheduleTokenRefresh();
-  }
-
-  private clearAuthData(): void {
-    localStorage.removeItem(this.tokenStorageKey);
-    localStorage.removeItem(this.permissionsStorageKey);
-    this.clearTokenRefreshTimer();
-  }
-
-  private clearTokenRefreshTimer(): void {
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-      this.tokenExpirationTimer = null;
-    }
-  }
-
-  private getStoredPermissions(): string[] {
-    try {
-      const permissions = localStorage.getItem(this.permissionsStorageKey);
-      return permissions ? JSON.parse(permissions) : [];
-    } catch (e) {
-      console.error('Error parsing permissions:', e);
-      return [];
-    }
+  getAccessToken(): string | null {
+    return this.accessToken();
   }
 }

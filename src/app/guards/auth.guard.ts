@@ -11,12 +11,12 @@ export const authGuard: CanActivateFn = (
   const router = inject(Router);
 
   // Check authentication synchronously first for quick response
-  if (authService.isAuthenticated) {
+  if (authService.isLoggedIn()) {
     return true;
   }
 
   // Optional: Add automatic token refresh attempt before final rejection
-  const token = authService.getToken();
+  const token = authService.getAccessToken();
   if (token) {
     // If token exists but user isn't authenticated, try refreshing
     return authService.refreshToken().pipe(
@@ -41,9 +41,5 @@ export const authGuard: CanActivateFn = (
 function redirectToLogin(router: Router, returnUrl: string): UrlTree {
   return router.createUrlTree(
     ['/login'],
-    {
-      queryParams: { returnUrl },
-      queryParamsHandling: 'merge'
-    }
   );
 }
