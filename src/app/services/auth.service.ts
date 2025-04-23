@@ -21,6 +21,7 @@ export class AuthService {
   private isAuthenticated = signal<boolean>(false);
   private accessToken = signal<string | null>(null);
   private refreshTokenSignal = signal<string | null>(null);
+  
 
   constructor(private http: HttpClient) {
     // Check if tokens exist on initialization
@@ -76,4 +77,19 @@ export class AuthService {
   getAccessToken(): string | null {
     return this.accessToken();
   }
+
+  getRefreshToken(): string | null {
+    return this.refreshTokenSignal();
+  }
+
+  setAccessToken(token: string): void {
+    this.accessToken.set(token);
+    localStorage.setItem('accessToken', token);
+  }
+
+  setRefreshToken(token: string): void {
+    this.refreshTokenSignal.set(token);
+    localStorage.setItem('refreshToken', token);
+  }
+  
 }
