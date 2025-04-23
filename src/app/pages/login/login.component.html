@@ -16,7 +16,7 @@
                     <div class="text-danger small">Password is required</div>
                 }
             </div>
-            <button type="submit">Login</button>
+            <button type="submit" class="btn btn-block" [disabled]="loginForm.invalid">Login</button>
         </form>
         <hr>
         @if (errorMessage) {
