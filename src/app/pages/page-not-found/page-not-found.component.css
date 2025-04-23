@@ -1,0 +1,29 @@
+html body {
+    height: 100%;
+    background-color: #f2f4f4;
+    direction: ltr;
+}
+
+body {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: #727e8c;
+}
+
+.btn-danger {
+    border-color: #ff2829 !important;
+    background-color: #ff5b5c !important;
+    color: #fff;
+}
+
+.round {
+    border-radius: 1.5rem;
+}
+
+.btn-secondary {
+    border-color: #34465b !important;
+    background-color: #475f7b !important;
+    color: #fff;
+}
