@@ -1,16 +1,28 @@
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form onsubmit="handleLogin(event)">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username">
+                <input type="text" id="username" name="username" formControlName="username" placeholder="Enter your username">
+                @if (loginForm.controls.username.invalid && loginForm.controls.username.touched) {
+                    <div class="text-danger small">Username is required</div>
+                }
             </div>
             <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password">
+                <input type="password" id="password" name="password" formControlName="password" placeholder="Enter your password">
+                @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+                    <div class="text-danger small">Password is required</div>
+                }
             </div>
             <button type="submit">Login</button>
         </form>
+        <hr>
+        @if (errorMessage) {
+        <div class="text-center text-danger mt-2">
+            {{ errorMessage }}
+        </div>
+        }
     </div>
 </body>
