@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink,RouterLinkActive } from '@angular/router';
+import { TopToggleSidebarDirective } from '../../shared/directives/top-toggle-sidebar.directive';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TopToggleSidebarDirective],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
@@ -67,19 +68,19 @@ export class SidebarComponent implements OnInit {
     item.collapsed = !item.collapsed;
   }
 
-  toggleSidebar(): void {
-    const body = document.body;
-    const sidebar = document.querySelector('.sidebar');
+  // toggleSidebar(): void {
+  //   const body = document.body;
+  //   const sidebar = document.querySelector('.sidebar');
   
-    // Toggle the sidebar-toggled class on the body
-    body.classList.toggle('sidebar-toggled');
-    sidebar?.classList.toggle('toggled');
+  //   // Toggle the sidebar-toggled class on the body
+  //   body.classList.toggle('sidebar-toggled');
+  //   sidebar?.classList.toggle('toggled');
   
-    // Collapse all expanded menu items when the sidebar is toggled
-    if (body.classList.contains('sidebar-toggled')) {
-      this.navItems.forEach(item => {
-        item.collapsed = true; // Collapse all items
-      });
-    }
-  }
+  //   // Collapse all expanded menu items when the sidebar is toggled
+  //   if (body.classList.contains('sidebar-toggled')) {
+  //     this.navItems.forEach(item => {
+  //       item.collapsed = true; // Collapse all items
+  //     });
+  //   }
+  // }
 }
