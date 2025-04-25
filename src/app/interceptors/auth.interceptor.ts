@@ -9,12 +9,7 @@ import {
 import { Observable, throwError, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
-
-// Define the token response type
-interface TokenResponse {
-  access: string;
-  refresh?: string;  // Make refresh optional if your backend doesn't always return it
-}
+import { TokenResponse } from '../interfaces/auth.interface';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,

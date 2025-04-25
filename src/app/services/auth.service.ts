@@ -2,15 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-interface LoginResponse {
-  access: string;
-  refresh: string;
-}
-
-interface RefreshResponse {
-  access: string; // New access token
-}
+import { LoginResponse, RefreshResponse } from '../interfaces/auth.interface';
 
 @Injectable({
   providedIn: 'root'
