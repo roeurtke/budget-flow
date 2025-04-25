@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink,RouterLinkActive } from '@angular/router';
-import { TopToggleSidebarDirective } from '../../shared/directives/top-toggle-sidebar.directive';
+import { ToggleSidebarDirective } from '../../shared/directives/toggle-sidebar.directive';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, TopToggleSidebarDirective],
+  imports: [RouterLink, RouterLinkActive, ToggleSidebarDirective],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })

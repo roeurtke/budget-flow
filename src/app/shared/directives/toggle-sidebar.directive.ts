@@ -1,11 +1,11 @@
 import { Directive, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[appTopToggleSidebar]'
+  selector: '[appToggleSidebar]'
 })
-export class TopToggleSidebarDirective {
+export class ToggleSidebarDirective {
   @HostListener('click')
-  topToggleSidebar() {
+  toggleSidebar() {
     const sidebar = document.querySelector('#accordionSidebar');
     const body = document.body;
     const collapseElements = document.querySelectorAll('.bg-white.py-2.collapse-inner.rounded');
