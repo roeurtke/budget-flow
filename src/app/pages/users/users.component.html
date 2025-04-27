@@ -2,7 +2,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">LIST USER</h6>
-        <a href="#" class="btn btn-primary btn-sm">
+        <a href="#" class="btn btn-primary btn-sm" (click)="onCreate($event)">
             <i class="fas fa-plus"></i> Create
         </a>
     </div>
@@ -24,9 +24,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Loop through the incomes and display them in the table -->
+                    <!-- Loop through the users and display them in the table -->
+                    <tr *ngFor="let user of users">
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.limit_balance | currency }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.created_at | date:'short' }}</td>
+                        <td>{{ user.updated_at | date:'short' }}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm mr-1" (click)="onEdit(user)">Edit</button>
+                            <button class="btn btn-danger btn-sm" (click)="onDelete(user)">Delete</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
+            <!-- Display error message if API call fails -->
+            <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+            <!-- Display loading state -->
+            <div *ngIf="loading" class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
