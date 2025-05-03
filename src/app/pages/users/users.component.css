@@ -2,38 +2,38 @@
 table.dataTable {
     width: 100% !important;
     margin: 0 !important;
-  }
+}
   
-  /* Style for the table header */
-  .thead-dark th {
-    background-color: #343a40;
-    color: white;
-  }
+/* Style for the table header */
+.thead-dark th {
+  background-color: #343a40;
+  color: white;
+}
   
-  /* Button spacing */
-  .btn-sm {
-    margin-right: 5px;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .table-responsive {
-      display: block;
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-  }
-  
-  /* Spinner styling */
-  .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    margin: 2rem auto;
+/* Button spacing */
+.btn-sm {
+  margin-right: 5px;
+}
+
+/* Spinner styling */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin: 2rem auto;
+  display: block;
+}
+
+/* Error message styling */
+.alert-danger {
+  margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-responsive {
     display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  
-  /* Error message styling */
-  .alert-danger {
-    margin-top: 1rem;
-  }
+}

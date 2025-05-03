@@ -24,6 +24,7 @@
     "datatables.net": "^2.3.0",
     "datatables.net-bs5": "^2.2.2",
     "datatables.net-dt": "^2.3.0",
+    "date-fns": "^4.1.0",
     "glob": "^11.0.1",
     "jquery": "^3.7.1",
     "jquery.easing": "^1.4.1",

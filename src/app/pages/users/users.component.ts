@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
+import { format } from 'date-fns';
 import 'datatables.net';
 
 @Component({
@@ -37,7 +38,17 @@ export class UsersComponent implements OnInit, OnDestroy {
       processing: true,
       data: [], // Initialize empty, will be filled by API
       columns: [
-        { data: 'id', title: 'ID' },
+        { 
+          data: null,
+          title: 'ID',
+          render: (data: any, type: any, row: any, meta: any) => {
+            if (type === 'display') {
+              // Just show the position, ignoring actual sort order
+              return meta.row + 1;
+            }
+            return '';
+          }
+        },
         { data: 'username',
           title: 'Username',
           render: (data: string) => data || 'None'
@@ -69,12 +80,16 @@ export class UsersComponent implements OnInit, OnDestroy {
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => (data ? new Date(data).toLocaleString() : '')
+          render: (data: string) => {
+            return data ? format(new Date(data), 'dd/MM/yyyy') : '';
+          }
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => (data ? new Date(data).toLocaleString() : '')
+          render: (data: string) => {
+            return data ? format(new Date(data), 'dd/MM/yyyy') : '';
+          }
         },
         {
           data: null,
@@ -95,26 +110,28 @@ export class UsersComponent implements OnInit, OnDestroy {
     };
   }
 
-  loadUsers(): void {
-    this.loading = true;
-    this.userService.getUserList().subscribe({
-      next: (users) => {
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            // No longer need the explicit cast
-            dtInstance.clear();
-            dtInstance.rows.add(users);
-            dtInstance.draw();
-          });
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
+loadUsers(): void {
+  this.loading = true;
+  this.userService.getUserList().subscribe({
+    next: (users) => {
+      this.users = users.sort((a, b) => b.id - a.id);
+      
+      if (this.dtElement && this.dtElement.dtInstance) {
+        this.dtElement.dtInstance.then((dtInstance: any) => {
+          dtInstance.clear();
+          dtInstance.rows.add(this.users);
+          dtInstance.draw(); // This will regenerate the sequential IDs
+        });
       }
-    });
-  }
+      
+      this.loading = false;
+    },
+    error: (err) => {
+      this.error = err.message;
+      this.loading = false;
+    }
+  });
+}
 
   ngAfterViewInit(): void {
     document.querySelector('table')?.addEventListener('click', (event) => {
