@@ -16,11 +16,15 @@ export class UserService {
 
   // Fetches the list of users
   getUserList(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl).pipe(
-      catchError((error) => {
-        console.error('Error fetching user list:', error);
-        return throwError(() => new Error('Failed to fetch users. Please try again later.'));
-      })
-    );
+    return this.http.get<User[]>(`${this.apiUrl}`);
   }
 }
+//   getUserList(): Observable<User[]> {
+//     return this.http.get<User[]>(this.apiUrl).pipe(
+//       catchError((error) => {
+//         console.error('Error fetching user list:', error);
+//         return throwError(() => new Error('Failed to fetch users. Please try again later.'));
+//       })
+//     );
+//   }
+// }

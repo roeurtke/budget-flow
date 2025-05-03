@@ -1,30 +1,94 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { User } from '../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
+import { DataTablesModule } from 'angular-datatables';
+import { Subject } from 'rxjs';
+import { DataTableDirective } from 'angular-datatables';
+import 'datatables.net';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule],
+  imports: [CommonModule, DataTablesModule],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
+  @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
+
   users: User[] = [];
   loading = false;
   error: string | null = null;
 
-  constructor(private userService: UserService) { }
+  // DataTables properties
+  dtOptions: any = {};
+  dtTrigger: Subject<any> = new Subject<any>();
+
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
-    this.fetchUsers();
+    this.initializeDataTable();
+    this.loadUsers();
   }
 
-  fetchUsers(): void {
+  initializeDataTable(): void {
+    this.dtOptions = {
+      serverSide: false, // Change to client-side processing
+      processing: true,
+      data: [], // Initialize empty, will be filled by API
+      columns: [
+        { data: 'id', title: 'ID' },
+        { data: 'username', title: 'Username' },
+        { data: 'email', title: 'Email' },
+        { data: 'first_name', title: 'First Name' },
+        { data: 'last_name', title: 'Last Name' },
+        { data: 'spending_limit', title: 'Limit' },
+        {
+          data: 'role',
+          title: 'Role',
+          render: (data: string) => data || 'None'
+        },
+        {
+          data: 'created_at',
+          title: 'Created',
+          render: (data: string) => (data ? new Date(data).toLocaleString() : '')
+        },
+        {
+          data: 'updated_at',
+          title: 'Updated',
+          render: (data: string) => (data ? new Date(data).toLocaleString() : '')
+        },
+        {
+          data: null,
+          title: 'Actions',
+          orderable: false,
+          render: (data: any, type: any, row: any) => {
+            return `
+              <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            `;
+          }
+        }
+      ]
+    };
+  }
+
+  loadUsers(): void {
     this.loading = true;
     this.userService.getUserList().subscribe({
       next: (users) => {
-        this.users = users;
+        if (this.dtElement && this.dtElement.dtInstance) {
+          this.dtElement.dtInstance.then((dtInstance: any) => {
+            // No longer need the explicit cast
+            dtInstance.clear();
+            dtInstance.rows.add(users);
+            dtInstance.draw();
+          });
+        }
         this.loading = false;
       },
       error: (err) => {
@@ -34,19 +98,46 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const userId = target.getAttribute('data-id');
+
+      if (target.classList.contains('btn-edit') && userId) {
+        this.onEdit(userId); // Pass only if userId is not null
+      } else if (target.classList.contains('btn-delete') && userId) {
+        this.onDelete(userId); // Pass only if userId is not null
+      }
+    });
+  }
+
   onCreate(event: Event): void {
-    event.preventDefault(); // Prevent default anchor behavior
-    // Implement navigation or modal for creating a new user
+    event.preventDefault();
     console.log('Create user clicked');
   }
 
-  onEdit(user: User): void {
-    // Implement edit functionality (e.g., open a modal or navigate to edit page)
-    console.log('Edit user:', user);
+  onEdit(userId: string): void {
+    if (!userId) {
+      console.error('No user ID provided for edit');
+      return;
+    }
+    console.log('Editing user with ID:', userId);
+    // Implement your edit logic here
   }
 
-  onDelete(user: User): void {
-    // Implement delete functionality (e.g., confirm dialog and API call)
-    console.log('Delete user:', user);
+  onDelete(userId: string): void {
+    if (!userId) {
+      console.error('No user ID provided for delete');
+      return;
+    }
+    
+    if (confirm('Are you sure you want to delete this user?')) {
+      console.log('Deleting user with ID:', userId);
+      // Implement your delete logic here
+    }
+  }
+  ngOnDestroy(): void {
+    // Unsubscribe from the DataTables trigger
+    this.dtTrigger.unsubscribe();
   }
 }

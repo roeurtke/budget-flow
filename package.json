@@ -18,6 +18,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@types/datatables.net": "^1.10.28",
     "angular-datatables": "^19.0.0",
     "bootstrap": "^5.3.5",
     "datatables.net": "^2.3.0",
