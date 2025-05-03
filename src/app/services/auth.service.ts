@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginResponse, RefreshResponse } from '../interfaces/auth.interface';
 
@@ -9,7 +9,7 @@ import { LoginResponse, RefreshResponse } from '../interfaces/auth.interface';
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/api/login/`;
-  private refreshApiUrl = `${environment.apiUrl}/api/refresh-token/`;
+  private refreshApiUrl = `${environment.apiUrl}/api/token/refresh/`;
   private isAuthenticated = signal<boolean>(false);
   private accessToken = signal<string | null>(null);
   private refreshTokenSignal = signal<string | null>(null);

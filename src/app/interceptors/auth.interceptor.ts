@@ -6,8 +6,7 @@ import {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, switchMap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, throwError, switchMap, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TokenResponse } from '../interfaces/auth.interface';
 
@@ -17,62 +16,58 @@ export const authInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
 
-  // Skip endpoints that don't need authorization
-  if (
-    req.url.includes('/api/login/') ||
-    req.url.includes('/api/refresh-token/')
-  ) {
-    return next(req);
+  // Skip login and refresh token endpoints from attaching token
+  const isAuthEndpoint =
+    req.url.includes('/api/login/') || req.url.includes('/api/token/refresh/');
+
+  if (isAuthEndpoint) {
+    return next(req); // Do not attach tokens to auth endpoints
   }
 
-  // Add authorization header if token exists
-  const token = authService.getAccessToken();
-  const authReq = token
+  // Add access token if available
+  const accessToken = authService.getAccessToken();
+  const authReq = accessToken
     ? req.clone({
         setHeaders: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       })
     : req;
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Only handle 401 errors and skip login/refresh endpoints
-      if (error.status === 401 && !req.url.includes('/api/login/')) {
+      if (error.status === 401 && !isAuthEndpoint) {
         const refreshToken = authService.getRefreshToken();
-        
-        // Attempt token refresh if we have a refresh token
-        if (refreshToken) {
-          return authService.refreshToken().pipe(
-            switchMap((response: TokenResponse) => {
-              // Store new tokens
-              authService.setAccessToken(response.access);
-              if (response.refresh) {
-                authService.setRefreshToken(response.refresh);
-              }
-              
-              // Retry the original request with new token
-              const retryReq = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${response.access}`,
-                },
-              });
-              
-              return next(retryReq);
-            }),
-            catchError((refreshError: any) => {
-              // If refresh fails, clear auth state and redirect to login
-              authService.logout();
-              return throwError(() => refreshError);
-            })
-          );
+
+        if (!refreshToken) {
+          authService.logout();
+          return throwError(() => new Error('No refresh token. Logging out.'));
         }
-        
-        // If no refresh token, clear auth state
-        authService.logout();
+
+        return authService.refreshToken().pipe(
+          switchMap((response: TokenResponse) => {
+            authService.setAccessToken(response.access);
+            if (response.refresh) {
+              authService.setRefreshToken(response.refresh);
+            }
+
+            // Retry original request with new access token
+            const retryReq = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${response.access}`,
+              },
+            });
+
+            return next(retryReq);
+          }),
+          catchError((refreshError: any) => {
+            console.error('Refresh token failed', refreshError);
+            authService.logout();
+            return throwError(() => new Error('Session expired. Please log in again.'));
+          })
+        );
       }
-      
-      // Re-throw other errors
+
       return throwError(() => error);
     })
   );

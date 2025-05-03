@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, switchMap, map } from 'rxjs/operators';
 import { User } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,11 @@ import { environment } from '../../environments/environment';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/api/users/`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { } // Inject AuthService
 
   // Fetches the list of users
   getUserList(): Observable<User[]> {
-    const headers = { Authorization: `Bearer your-token` }; // Replace with actual token
-    return this.http.get<User[]>(this.apiUrl, { headers }).pipe(
+    return this.http.get<User[]>(this.apiUrl).pipe(
       catchError((error) => {
         console.error('Error fetching user list:', error);
         return throwError(() => new Error('Failed to fetch users. Please try again later.'));

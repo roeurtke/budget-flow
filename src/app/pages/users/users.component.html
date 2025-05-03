@@ -31,8 +31,8 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.last_name }}</td>
-                        <td>{{ user.limit_balance | currency }}</td>
-                        <td>{{ user.role }}</td>
+                        <td>{{ user.spending_limit }}</td>
+                        <td>{{ user.role.name }}</td>
                         <td>{{ user.created_at | date:'short' }}</td>
                         <td>{{ user.updated_at | date:'short' }}</td>
                         <td>
