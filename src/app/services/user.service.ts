@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap, map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { User } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -19,12 +18,3 @@ export class UserService {
     return this.http.get<User[]>(`${this.apiUrl}`);
   }
 }
-//   getUserList(): Observable<User[]> {
-//     return this.http.get<User[]>(this.apiUrl).pipe(
-//       catchError((error) => {
-//         console.error('Error fetching user list:', error);
-//         return throwError(() => new Error('Failed to fetch users. Please try again later.'));
-//       })
-//     );
-//   }
-// }

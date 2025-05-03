@@ -38,15 +38,33 @@ export class UsersComponent implements OnInit, OnDestroy {
       data: [], // Initialize empty, will be filled by API
       columns: [
         { data: 'id', title: 'ID' },
-        { data: 'username', title: 'Username' },
-        { data: 'email', title: 'Email' },
-        { data: 'first_name', title: 'First Name' },
-        { data: 'last_name', title: 'Last Name' },
+        { data: 'username',
+          title: 'Username',
+          render: (data: string) => data || 'None'
+        },
+        { data: 'email',
+          title: 'Email',
+          render: (data: string) => data || 'None'
+        },
+        { data: 'first_name',
+          title: 'First Name',
+          render: (data: string) => data || 'None'
+        },
+        { data: 'last_name',
+          title: 'Last Name',
+          render: (data: string) => data || 'None'
+        },
         { data: 'spending_limit', title: 'Limit' },
         {
           data: 'role',
           title: 'Role',
-          render: (data: string) => data || 'None'
+          render: (data: any) => {
+            // Handle cases where role might be null/undefined or an object
+            if (typeof data === 'string') {
+              return data || 'None';
+            }
+            return data?.name || 'None';
+          }
         },
         {
           data: 'created_at',
