@@ -12,37 +12,21 @@ body {
 }
 
 table.dataTable thead > 
-tr > 
-th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-th.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-th.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-th.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-th.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-td.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-td.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-td.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-td.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-td.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > 
-tr > 
-td.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > 
-tr > 
-td.dt-ordering-desc span.dt-column-order:after {
+tr > th.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > 
+tr > th.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > 
+tr > th.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > 
+tr > th.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > 
+tr > th.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > 
+tr > th.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > 
+tr > th.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > 
+tr > th.dt-ordering-desc span.dt-column-order:after, table.dataTable thead > 
+tr > td.dt-orderable-asc span.dt-column-order:before, table.dataTable thead > 
+tr > td.dt-orderable-asc span.dt-column-order:after, table.dataTable thead > 
+tr > td.dt-orderable-desc span.dt-column-order:before, table.dataTable thead > 
+tr > td.dt-orderable-desc span.dt-column-order:after, table.dataTable thead > 
+tr > td.dt-ordering-asc span.dt-column-order:before, table.dataTable thead > 
+tr > td.dt-ordering-asc span.dt-column-order:after, table.dataTable thead > 
+tr > td.dt-ordering-desc span.dt-column-order:before, table.dataTable thead > 
+tr > td.dt-ordering-desc span.dt-column-order:after {
     font-size: .5em;
 }
