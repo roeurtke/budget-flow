@@ -13,7 +13,6 @@ export class UserService {
 
   constructor(private http: HttpClient, private authService: AuthService) { } // Inject AuthService
 
-  // Fetches the list of users
   getUserList(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}`);
   }

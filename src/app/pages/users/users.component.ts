@@ -34,20 +34,14 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   initializeDataTable(): void {
     this.dtOptions = {
-      serverSide: false, // Change to client-side processing
+      serverSide: false,
       processing: true,
-      data: [], // Initialize empty, will be filled by API
+      data: [],
       columns: [
         { 
           data: null,
           title: 'ID',
-          render: (data: any, type: any, row: any, meta: any) => {
-            if (type === 'display') {
-              // Just show the position, ignoring actual sort order
-              return meta.row + 1;
-            }
-            return '';
-          }
+          render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         { data: 'username',
           title: 'Username',
@@ -65,31 +59,24 @@ export class UsersComponent implements OnInit, OnDestroy {
           title: 'Last Name',
           render: (data: string) => data || 'None'
         },
-        { data: 'spending_limit', title: 'Limit' },
+        { data: 'spending_limit',
+          title: 'Limit (USD)',
+          render: (data: string) => data || 'None'
+        },
         {
           data: 'role',
           title: 'Role',
-          render: (data: any) => {
-            // Handle cases where role might be null/undefined or an object
-            if (typeof data === 'string') {
-              return data || 'None';
-            }
-            return data?.name || 'None';
-          }
+          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
         },
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => {
-            return data ? format(new Date(data), 'dd/MM/yyyy') : '';
-          }
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => {
-            return data ? format(new Date(data), 'dd/MM/yyyy') : '';
-          }
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
         },
         {
           data: null,
