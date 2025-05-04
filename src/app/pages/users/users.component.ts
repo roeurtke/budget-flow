@@ -97,28 +97,28 @@ export class UsersComponent implements OnInit, OnDestroy {
     };
   }
 
-loadUsers(): void {
-  this.loading = true;
-  this.userService.getUserList().subscribe({
-    next: (users) => {
-      this.users = users.sort((a, b) => b.id - a.id);
-      
-      if (this.dtElement && this.dtElement.dtInstance) {
-        this.dtElement.dtInstance.then((dtInstance: any) => {
-          dtInstance.clear();
-          dtInstance.rows.add(this.users);
-          dtInstance.draw(); // This will regenerate the sequential IDs
-        });
+  loadUsers(): void {
+    this.loading = true;
+    this.userService.getUserList().subscribe({
+      next: (users) => {
+        this.users = users.sort((a, b) => b.id - a.id);
+        
+        if (this.dtElement && this.dtElement.dtInstance) {
+          this.dtElement.dtInstance.then((dtInstance: any) => {
+            dtInstance.clear();
+            dtInstance.rows.add(this.users);
+            dtInstance.draw(); // This will regenerate the sequential IDs
+          });
+        }
+        
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = err.message;
+        this.loading = false;
       }
-      
-      this.loading = false;
-    },
-    error: (err) => {
-      this.error = err.message;
-      this.loading = false;
-    }
-  });
-}
+    });
+  }
 
   ngAfterViewInit(): void {
     document.querySelector('table')?.addEventListener('click', (event) => {
