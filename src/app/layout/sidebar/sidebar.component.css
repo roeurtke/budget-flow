@@ -1,3 +1,7 @@
 .sidebar-dark #sidebarToggle {
     margin-top: 16px;
 }
+
+#accordionSidebar {
+    height: 100%
+}
