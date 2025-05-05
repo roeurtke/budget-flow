@@ -30,3 +30,15 @@ tr > td.dt-ordering-desc span.dt-column-order:before, table.dataTable thead >
 tr > td.dt-ordering-desc span.dt-column-order:after {
     font-size: .5em;
 }
+
+table.dataTable thead > 
+tr > th div.dt-column-header span.dt-column-title, table.dataTable thead > 
+tr > th div.dt-column-footer span.dt-column-title, table.dataTable thead > 
+tr > td div.dt-column-header span.dt-column-title, table.dataTable thead > 
+tr > td div.dt-column-footer span.dt-column-title, table.dataTable tfoot > 
+tr > th div.dt-column-header span.dt-column-title, table.dataTable tfoot > 
+tr > th div.dt-column-footer span.dt-column-title, table.dataTable tfoot > 
+tr > td div.dt-column-header span.dt-column-title, table.dataTable tfoot > 
+tr > td div.dt-column-footer span.dt-column-title {
+    text-transform: uppercase;
+}
