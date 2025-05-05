@@ -41,4 +41,90 @@ tr > th div.dt-column-footer span.dt-column-title, table.dataTable tfoot >
 tr > td div.dt-column-header span.dt-column-title, table.dataTable tfoot > 
 tr > td div.dt-column-footer span.dt-column-title {
     text-transform: uppercase;
+    color: #5c5c5c;
+}
+
+table.dataTable > thead > tr > th, table.dataTable > thead > tr > td {
+    padding: 8px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+    background-color: #eee;
+    font-size: 14px;
+}
+
+table.dataTable > tbody > tr > th, table.dataTable > tbody > tr > td {
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+table.dataTable[_ngcontent-ng-c4153547308] {
+    border: none;
+}
+
+table.dataTable th, table.dataTable td {
+    border: none;
+}
+
+.table-bordered > :not(caption) > * {
+    border-width: 0;
+}
+
+div.dt-container select.dt-input {
+    padding: 2px;
+}
+
+div.dt-container .dt-search input {
+    padding: 2px;
+}
+
+/* Pagination buttons */
+div.dt-container .dt-paging .dt-paging-button {
+    padding: 2px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1.2;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Current page indicator */
+div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.current:hover {
+    background-color: #4e73df !important;
+    color: white !important;
+    border-radius: 5px;
+}
+
+.btn.btn-sm.btn-icon {
+    padding: 0.1rem 0.3rem;
+}
+
+.btn {
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dt-container .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .dt-container .dt-buttons .btn-export {
+        flex: 1;
+        min-width: 80px;
+    }
+
+    /* Make the table responsive */
+    .dt-container table.dataTable {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .dt-container .dataTables_length {
+        margin-right: 5px;
+    }
 }

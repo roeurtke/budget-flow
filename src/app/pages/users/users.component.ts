@@ -84,11 +84,17 @@ export class UsersComponent implements OnInit, OnDestroy {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             return `
-              <button class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">
-                <i class="fas fa-edit"></i> Edit
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+                <i class="fa fa-sm fa-list-alt"></i>
               </button>
-              <button class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">
-                <i class="fas fa-trash"></i> Delete
+              <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
+                <i class="fa fa-key"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+                <i class="fas fa-sm fa-edit"></i>
+              </button>
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete">
+                <i class="fas fa-trash"></i>
               </button>
             `;
           }
