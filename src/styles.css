@@ -44,6 +44,14 @@ tr > td div.dt-column-footer span.dt-column-title {
     color: #5c5c5c;
 }
 
+label {
+    font-size: 14px;
+}
+
+.dt-info{
+    font-size: 14px;
+}
+
 table.dataTable > thead > tr > th, table.dataTable > thead > tr > td {
     padding: 8px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.3);
