@@ -36,7 +36,15 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.dtOptions = {
       serverSide: false,
       processing: true,
+      pagingType: 'simple_numbers',
       data: [],
+      language: {
+        lengthMenu: 'Show _MENU_ Entries',
+        paginate: {
+          previous: 'Previous',
+          next: 'Next'
+        }
+      },
       columns: [
         { 
           data: null,

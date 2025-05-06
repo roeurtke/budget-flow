@@ -88,6 +88,12 @@ div.dt-container .dt-paging .dt-paging-button {
     justify-content: center;
 }
 
+div.dt-container .dt-paging .dt-paging-button:hover {
+    background: none !important;
+    color: inherit !important;
+    border-radius: 5px;
+}
+
 /* Current page indicator */
 div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-paging .dt-paging-button.current:hover {
     background-color: #4e73df !important;
