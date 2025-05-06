@@ -64,11 +64,7 @@ table.dataTable > tbody > tr > th, table.dataTable > tbody > tr > td {
     font-size: 14px;
 }
 
-table.dataTable[_ngcontent-ng-c4153547308] {
-    border: none;
-}
-
-table.dataTable[_ngcontent-ng-c3675574989] {
+table.dataTable {
     border: none;
 }
 
