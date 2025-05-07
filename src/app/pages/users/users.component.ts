@@ -62,19 +62,18 @@ export class UsersComponent implements OnInit, OnDestroy {
         {
           extend: 'excel',
           text: 'EXCEL &nbsp;&nbsp;|',
-          className: 'btn btn-sm mx-1'
+          className: 'btn btn-sm'
         },
         {
           extend: 'pdf',
           text: 'PDF',
-          className: 'btn btn-outline-secondary btn-sm mx-1'
+          className: 'btn btn-sm'
         }
       ],
       pagingType: 'simple_numbers',
       data: [],
       language: {
         lengthMenu: 'Show _MENU_ Entries',
-        search: 'Search',
         paginate: {
           previous: 'Previous',
           next: 'Next'
