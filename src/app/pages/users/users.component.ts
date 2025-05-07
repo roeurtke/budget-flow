@@ -11,7 +11,8 @@ import 'datatables.net-buttons';
 import 'datatables.net-buttons/js/buttons.html5';
 import 'datatables.net-buttons/js/buttons.print';
 import jszip from 'jszip';
-import pdfmake from 'pdfmake';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 @Component({
   selector: 'app-users',
@@ -34,7 +35,10 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
-    (window as any).pdfMake = pdfmake;
+    (window as any).pdfMake = pdfMake;
+
+    // Set pdfMake fonts
+    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
     this.loadUsers();
