@@ -57,6 +57,18 @@ label {
     border-radius: 5px;
 }
 
+/* Ensure table takes full width */
+table.dataTable {
+    width: 100% !important;
+    margin: 0 !important;
+}
+  
+/* Style for the table header */
+.thead-dark th {
+  background-color: #343a40;
+  color: white;
+}
+
 table.dataTable > thead > tr > th, table.dataTable > thead > tr > td {
     padding: 8px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.3);
@@ -160,9 +172,5 @@ div.dt-buttons > .dt-button:hover:not(.disabled), div.dt-buttons > div.dt-button
         display: block;
         overflow-x: auto;
         white-space: nowrap;
-    }
-
-    .dt-container .dataTables_length {
-        margin-right: 5px;
     }
 }
