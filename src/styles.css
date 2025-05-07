@@ -124,17 +124,33 @@ div.dt-container .dt-paging .dt-paging-button.current, div.dt-container .dt-pagi
     font-size: 14px;
 }
 
+div.dt-buttons {
+    flex: 1;
+}
+
+div.dt-buttons > .dt-button, div.dt-buttons > div.dt-button-split .dt-button{
+    border: none;
+    font-weight: bold;
+    padding: .2em .01em;
+    font-size: .80em;
+    background: none;
+}
+
+div.dt-buttons > .dt-button:hover:not(.disabled), div.dt-buttons > div.dt-button-split .dt-button:hover:not(.disabled) {
+    border: none;
+    background: none;
+}
+
+.ml-1, .mx-1 {
+    margin-left: 0.8rem !important;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .dt-container .dt-buttons {
         display: flex;
         flex-wrap: wrap;
         gap: 5px;
-    }
-    
-    .dt-container .dt-buttons .btn-export {
-        flex: 1;
-        min-width: 80px;
     }
 
     /* Make the table responsive */

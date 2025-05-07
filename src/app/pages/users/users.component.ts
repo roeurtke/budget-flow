@@ -7,6 +7,11 @@ import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
 import 'datatables.net';
+import 'datatables.net-buttons';
+import 'datatables.net-buttons/js/buttons.html5';
+import 'datatables.net-buttons/js/buttons.print';
+import jszip from 'jszip';
+import pdfmake from 'pdfmake';
 
 @Component({
   selector: 'app-users',
@@ -28,6 +33,9 @@ export class UsersComponent implements OnInit, OnDestroy {
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
+    (window as any).jsZip = jszip;
+    (window as any).pdfMake = pdfmake;
+
     this.initializeDataTable();
     this.loadUsers();
   }
@@ -36,10 +44,33 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.dtOptions = {
       serverSide: false,
       processing: true,
+      dom: `
+        <"d-flex justify-content-between align-items-center mb-3"lBf>
+        t
+        <"d-flex justify-content-between align-items-center mt-3"ip>
+      `,
+      buttons: [
+        {
+          extend: 'csv',
+          text: 'CSV &nbsp;&nbsp;|',
+          className: 'btn btn-sm mx-1',
+        },
+        {
+          extend: 'excel',
+          text: 'EXCEL &nbsp;&nbsp;|',
+          className: 'btn btn-sm mx-1'
+        },
+        {
+          extend: 'pdf',
+          text: 'PDF',
+          className: 'btn btn-outline-secondary btn-sm mx-1'
+        }
+      ],
       pagingType: 'simple_numbers',
       data: [],
       language: {
         lengthMenu: 'Show _MENU_ Entries',
+        search: 'Search',
         paginate: {
           previous: 'Previous',
           next: 'Next'
