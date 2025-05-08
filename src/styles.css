@@ -41,7 +41,7 @@ tr > th div.dt-column-footer span.dt-column-title, table.dataTable tfoot >
 tr > td div.dt-column-header span.dt-column-title, table.dataTable tfoot > 
 tr > td div.dt-column-footer span.dt-column-title {
     text-transform: uppercase;
-    color: #5c5c5c;
+    color: white;
 }
 
 label {
@@ -64,15 +64,10 @@ table.dataTable {
 }
   
 /* Style for the table header */
-.thead-dark th {
-  background-color: #343a40;
-  color: white;
-}
-
 table.dataTable > thead > tr > th, table.dataTable > thead > tr > td {
     padding: 8px;
     border-bottom: 2px solid rgba(0, 0, 0, 0.3);
-    background-color: #eee;
+    background-color: #475f7b;
     font-size: 14px;
 }
 
