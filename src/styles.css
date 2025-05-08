@@ -41,15 +41,17 @@ tr > th div.dt-column-footer span.dt-column-title, table.dataTable tfoot >
 tr > td div.dt-column-header span.dt-column-title, table.dataTable tfoot > 
 tr > td div.dt-column-footer span.dt-column-title {
     text-transform: uppercase;
-    color: white;
+    color: #ffffffd1;
 }
 
 label {
     font-size: 14px;
+    color: #333333c4;
 }
 
 .dt-info{
     font-size: 14px;
+    color: #333333c4 !important;
 }
 
 .btn-sm {
@@ -74,6 +76,7 @@ table.dataTable > thead > tr > th, table.dataTable > thead > tr > td {
 table.dataTable > tbody > tr > th, table.dataTable > tbody > tr > td {
     padding: 4px 8px;
     font-size: 14px;
+    color: #333333c4;
 }
 
 table.dataTable {
