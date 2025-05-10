@@ -11,6 +11,7 @@ import { ExpenseCategoriesComponent } from './pages/expense-categories/expense-c
 import { UsersComponent } from './pages/users/users.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { PermissionsComponent } from './pages/permissions/permissions.component';
+import { AbilitiesComponent } from './pages/abilities/abilities.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
@@ -28,7 +29,8 @@ export const routes: Routes = [
           { path: 'pages/expense_categories', canActivate: [authGuard], component: ExpenseCategoriesComponent },
           { path: 'pages/users', canActivate: [authGuard], component: UsersComponent },
           { path: 'pages/roles', canActivate: [authGuard], component: RolesComponent },
-          { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent }
+          { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent },
+          { path: 'pages/abilities', canActivate: [authGuard], component: AbilitiesComponent }
         ]
     },
     { path: '**', component: PageNotFoundComponent }

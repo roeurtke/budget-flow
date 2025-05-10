@@ -89,3 +89,20 @@ export interface ExpenseCategory {
         username: string;
     }
 }
+
+export interface RolePermission {
+    id: number;
+    role: {
+        id: number;
+        name: string;
+        description: string;
+    };
+    permission: {
+        id: number;
+        name: string;
+        codename: string;
+        description: string;
+    };
+    created_at: string;
+    updated_at: string;
+}

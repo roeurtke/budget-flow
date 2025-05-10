@@ -32,7 +32,8 @@ export class SidebarComponent implements OnInit {
       subItems: [
         { label: 'User', link: '/pages/users' },
         { label: 'Role', link: '/pages/roles' },
-        { label: 'Permission', link: '/pages/permissions' }
+        { label: 'Permission', link: '/pages/permissions' },
+        { label: 'Ability', link: '/pages/abilities' }
       ],
       collapsed: false
     }
