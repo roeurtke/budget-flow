@@ -23,8 +23,6 @@ export class IncomesComponent {
   incomes: Income[] = [];
   loading = false;
   error: string | null = null;
-
-  // DataTables properties
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
@@ -33,8 +31,6 @@ export class IncomesComponent {
   ngOnInit(): void {
     (window as any).jsZip = jszip;
     (window as any).pdfMake = pdfMake;
-
-    // Set pdfMake fonts
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
@@ -72,7 +68,7 @@ export class IncomesComponent {
         },
         { data: 'amount',
           title: 'Amount',
-          render: (data: string) => data || 'None'
+          render: (data: number) => data || 'None'
         },
         { data: 'currency',
           title: 'Currency',

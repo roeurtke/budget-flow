@@ -20,7 +20,6 @@ export class RolesComponent {
   roles: Role[] = [];
   loading = false;
   error: string | null = null;
-
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
@@ -106,7 +105,7 @@ export class RolesComponent {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
             dtInstance.rows.add(this.roles);
-            dtInstance.draw(); // This will regenerate the sequential IDs
+            dtInstance.draw();
           });
         }
         

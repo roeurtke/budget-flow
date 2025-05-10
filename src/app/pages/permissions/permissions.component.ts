@@ -20,7 +20,6 @@ export class PermissionsComponent {
   permissions: Permission[] = [];
   loading = false;
   error: string | null = null;
-
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
@@ -110,7 +109,7 @@ export class PermissionsComponent {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
             dtInstance.rows.add(this.permissions);
-            dtInstance.draw(); // This will regenerate the sequential IDs
+            dtInstance.draw();
           });
         }
 

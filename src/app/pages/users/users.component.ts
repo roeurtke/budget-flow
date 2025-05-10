@@ -75,7 +75,7 @@ export class UsersComponent implements OnInit, OnDestroy {
         },
         { data: 'spending_limit',
           title: 'Limit (USD)',
-          render: (data: string) => data || 'None'
+          render: (data: number) => data || 'None'
         },
         {
           data: 'role',

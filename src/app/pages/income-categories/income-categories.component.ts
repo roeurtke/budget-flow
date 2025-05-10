@@ -6,7 +6,6 @@ import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../shared/datatables/datatables-config';
-import { format } from 'date-fns';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -23,8 +22,6 @@ export class IncomeCategoriesComponent {
   incomeCategories: IncomeCategory[] = [];
   loading = false;
   error: string | null = null;
-
-  // DataTables properties
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
@@ -33,8 +30,6 @@ export class IncomeCategoriesComponent {
   ngOnInit(): void {
     (window as any).jsZip = jszip;
     (window as any).pdfMake = pdfMake;
-
-    // Set pdfMake fonts
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
