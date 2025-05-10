@@ -158,6 +158,19 @@ div.dt-buttons > .dt-button:hover:not(.disabled), div.dt-buttons > div.dt-button
     margin-left: 0.8rem !important;
 }
 
+/* Spinner styling */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    margin: 2rem auto;
+    display: block;
+  }
+  
+  /* Error message styling */
+  .alert-danger {
+    margin-top: 1rem;
+  }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .dt-container .dt-buttons {
