@@ -66,8 +66,9 @@ export class IncomesComponent {
           title: 'Description',
           render: (data: string) => data || 'None'
         },
-        { data: 'amount',
-          title: 'Amount',
+        { data: 'income_amount',
+          title: 'Income Amount',
+          type: 'string',
           render: (data: number) => data || 'None'
         },
         { data: 'currency',

@@ -35,7 +35,7 @@ export interface Income {
     date: string;
     name: string;
     description: string;
-    amount: number;
+    income_amount: number;
     currency: string;
     income_category: {
         id: number;
@@ -53,7 +53,7 @@ export interface Expense {
     date: string;
     name: string;
     description: string;
-    amount: number;
+    spent_amount: number;
     currency: string;
     expense_category: {
         id: number;
