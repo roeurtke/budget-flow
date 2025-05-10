@@ -2,13 +2,14 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap} from 'rxjs';
 import { environment } from '../../environments/environment';
-import { LoginResponse, RefreshResponse } from '../interfaces/auth.interface';
+import { LoginResponse, RefreshResponse, RegisterResponse } from '../interfaces/auth.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/api/login/`;
+  private loginUrl = `${environment.apiUrl}/api/login/`;
+  private registerUrl = `${environment.apiUrl}/api/register/`;
   private refreshApiUrl = `${environment.apiUrl}/api/token/refresh/`;
   private isAuthenticated = signal<boolean>(false);
   private accessToken = signal<string | null>(null);
@@ -27,13 +28,29 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(this.apiUrl, { username, password }).pipe(
+    return this.http.post<LoginResponse>(this.loginUrl, { username, password }).pipe(
       tap((response) => {
         localStorage.setItem('accessToken', response.access);
         localStorage.setItem('refreshToken', response.refresh);
         this.accessToken.set(response.access);
         this.refreshTokenSignal.set(response.refresh);
         this.isAuthenticated.set(true);
+      })
+    );
+  }
+
+  register(first_name: string, last_name: string, username: string, email: string, password: string, password2: string): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(this.registerUrl, { 
+      first_name, 
+      last_name, 
+      username, 
+      email, 
+      password, 
+      password2 
+    }).pipe(
+      tap((response) => {
+        console.log('Registration successful:', response.message);
+        console.log('Registered user:', response.user);
       })
     );
   }
