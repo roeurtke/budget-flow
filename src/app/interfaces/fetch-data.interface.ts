@@ -12,3 +12,80 @@ export interface User {
     created_at: string;
     updated_at: string;
 }
+
+export interface Role {
+    id: number;
+    name: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Permission {
+    id: number;
+    name: string;
+    codename: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Income {
+    id: number;
+    date: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    income_category: {
+        id: number;
+        name: string;
+    }
+    status: string;
+    user: {
+        id: number;
+        username: string;
+    }
+}
+
+export interface Expense {
+    id: number;
+    date: string;
+    name: string;
+    description: string;
+    amount: number;
+    currency: string;
+    expense_category: {
+        id: number;
+        name: string;
+    }
+    status: string;
+    user: {
+        id: number;
+        username: string;
+    }
+}
+
+export interface IncomeCategory {
+    id: number;
+    name: string;
+    description: string;
+    master_report: string;
+    status: string;
+    user: {
+        id: number;
+        username: string;
+    }
+}
+
+export interface ExpenseCategory {
+    id: number;
+    name: string;
+    description: string;
+    master_report: string;
+    status: string;
+    user: {
+        id: number;
+        username: string;
+    }
+}
