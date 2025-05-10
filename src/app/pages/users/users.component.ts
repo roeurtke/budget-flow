@@ -5,11 +5,8 @@ import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
+import { dataTablesConfig } from '../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
-import 'datatables.net';
-import 'datatables.net-buttons';
-import 'datatables.net-buttons/js/buttons.html5';
-import 'datatables.net-buttons/js/buttons.print';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -46,6 +43,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   initializeDataTable(): void {
     this.dtOptions = {
+      ...dataTablesConfig,
       serverSide: false,
       processing: true,
       dom: `
@@ -53,32 +51,6 @@ export class UsersComponent implements OnInit, OnDestroy {
         t
         <"d-flex justify-content-between align-items-center mt-3"ip>
       `,
-      buttons: [
-        {
-          extend: 'csv',
-          text: 'CSV &nbsp;&nbsp;|',
-          className: 'btn btn-sm mx-1',
-        },
-        {
-          extend: 'excel',
-          text: 'EXCEL &nbsp;&nbsp;|',
-          className: 'btn btn-sm'
-        },
-        {
-          extend: 'pdf',
-          text: 'PDF',
-          className: 'btn btn-sm'
-        }
-      ],
-      pagingType: 'simple_numbers',
-      data: [],
-      language: {
-        lengthMenu: 'Show _MENU_ Entries',
-        paginate: {
-          previous: 'Previous',
-          next: 'Next'
-        }
-      },
       columns: [
         { 
           data: null,
