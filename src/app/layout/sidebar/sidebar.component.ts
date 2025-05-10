@@ -68,20 +68,4 @@ export class SidebarComponent implements OnInit {
 
     item.collapsed = !item.collapsed;
   }
-
-  // toggleSidebar(): void {
-  //   const body = document.body;
-  //   const sidebar = document.querySelector('.sidebar');
-  
-  //   // Toggle the sidebar-toggled class on the body
-  //   body.classList.toggle('sidebar-toggled');
-  //   sidebar?.classList.toggle('toggled');
-  
-  //   // Collapse all expanded menu items when the sidebar is toggled
-  //   if (body.classList.contains('sidebar-toggled')) {
-  //     this.navItems.forEach(item => {
-  //       item.collapsed = true; // Collapse all items
-  //     });
-  //   }
-  // }
 }
