@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap} from 'rxjs';
+import { Observable, tap, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginResponse, RefreshResponse, RegisterResponse } from '../interfaces/auth.interface';
 
@@ -14,7 +14,6 @@ export class AuthService {
   private isAuthenticated = signal<boolean>(false);
   private accessToken = signal<string | null>(null);
   private refreshTokenSignal = signal<string | null>(null);
-  
 
   constructor(private http: HttpClient) {
     // Check if tokens exist on initialization
@@ -100,5 +99,44 @@ export class AuthService {
     this.refreshTokenSignal.set(token);
     localStorage.setItem('refreshToken', token);
   }
-  
+
+  getCurrentUserName(): Observable<{ firstName: string; lastName: string }> {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) {
+      console.warn('Access token is missing.');
+      return this.createEmptyUserObservable();
+    }
+
+    const userId = this.extractUserIdFromToken(accessToken);
+    if (!userId) {
+      console.warn('User ID is missing in the token.');
+      return this.createEmptyUserObservable();
+    }
+
+    return this.fetchUserDetails(userId);
+  }
+
+  private extractUserIdFromToken(token: string): number | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.user_id || null;
+    } catch (error) {
+      console.error('Failed to decode access token:', error);
+      return null;
+    }
+  }
+
+  private fetchUserDetails(userId: number): Observable<{ firstName: string; lastName: string }> {
+    const userDetailsUrl = `${environment.apiUrl}/api/users/${userId}/`;
+    return this.http.get<{ first_name: string; last_name: string }>(userDetailsUrl).pipe(
+      map((response) => ({
+        firstName: response.first_name,
+        lastName: response.last_name,
+      }))
+    );
+  }
+
+  private createEmptyUserObservable(): Observable<{ firstName: string; lastName: string }> {
+    return new Observable((observer) => observer.next({ firstName: '', lastName: '' }));
+  }
 }

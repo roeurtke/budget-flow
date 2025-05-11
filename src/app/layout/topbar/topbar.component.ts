@@ -19,6 +19,14 @@ export class TopbarComponent {
   ) {}
   
   isDropdownOpen = false;
+
+  ngOnInit(): void {
+    this.authService.getCurrentUserName().subscribe(({ firstName, lastName }) => {
+      this.userName = `${firstName} ${lastName}`.trim() || 'User Name';
+      // console.log('Current User Name:', this.userName);
+    });
+  }
+
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }
