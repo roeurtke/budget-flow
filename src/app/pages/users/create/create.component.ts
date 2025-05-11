@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create',
@@ -7,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrl: './create.component.css'
 })
 export class CreateComponent {
+  constructor(private router: Router) {}
 
+  onCancel(): void {
+    this.router.navigate(['/pages/users']);
+  }
 }
