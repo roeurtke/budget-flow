@@ -1,0 +1,15 @@
+label {
+    color: #475f7b;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+small.required {
+    color: red;
+}
+
+.table-bordered td, .table-bordered th {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
