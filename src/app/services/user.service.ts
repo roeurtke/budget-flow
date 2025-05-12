@@ -9,11 +9,16 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/api/users/`;
+  // private apiUrl = `${environment.apiUrl}/api/users/`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) { } // Inject AuthService
 
   getUserList(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}`);
+    return this.http.get<User[]>(`${this.apiUrl}/api/users/`);
+  }
+
+  createUser(userData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/api/users/`, userData);
   }
 }
