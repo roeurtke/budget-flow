@@ -29,7 +29,12 @@
                   </tr>
                   <tr>
                     <td width="20%" class="text-right" rowspan="" colspan=""><label for="role">Role <small class="required">*</small></label></td>
-                    <td rowspan="" colspan=""><input type="text" name="role" id="role" class="form-control"></td>
+                    <td rowspan="" colspan="">
+                      <select name="role" id="role" class="form-control" required>
+                        <option value="" disabled selected>Select a role</option>
+                        <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+                      </select>
+                    </td>
                   </tr>
                   <tr>
                     <td width="20%" class="text-right" rowspan="" colspan=""><label for="password">Password <small class="required">*</small></label></td>

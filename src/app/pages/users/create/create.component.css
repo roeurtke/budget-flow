@@ -22,6 +22,14 @@ small.required {
     font-size: 0.85rem; /* Match font size with table */
 }
 
+.table-bordered select.form-control {
+    height: 34px; /* Reduce input height */
+    padding: 2px 8px; /* Adjust padding inside inputs */
+    font-size: 0.85rem; /* Match font size with table */
+    text-transform: uppercase;
+    color: #475f7b;
+}
+
 /* Optional: Adjust section headers for better spacing */
 .tw-bg-gray-100 {
     padding: 8px; /* Reduce padding for section headers */
