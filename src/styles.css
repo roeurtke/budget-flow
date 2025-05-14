@@ -111,13 +111,14 @@ div.dt-container .dt-paging .dt-paging-button {
     text-align: center;
     align-items: center;
     justify-content: center;
+    color: #475f7b !important;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
 div.dt-container .dt-paging .dt-paging-button:hover {
     background: none !important;
-    color: inherit !important;
+    color: #475f7b !important;
     border-radius: 5px;
 }
 
