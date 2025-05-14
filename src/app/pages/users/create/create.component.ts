@@ -17,7 +17,8 @@ export class CreateComponent {
   private fb = inject(FormBuilder);
 
   userForm: FormGroup = this.fb.group({
-    name: ['', Validators.required],
+    first_name: ['', Validators.required],
+    last_name: ['', Validators.required],
     limit_balance: ['', [Validators.required, Validators.min(0)]],
     email: ['', [Validators.required, Validators.email]],
     username: ['', Validators.required],
