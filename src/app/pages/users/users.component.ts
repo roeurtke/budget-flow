@@ -147,7 +147,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       const userId = target.getAttribute('data-id');
 
       if (target.classList.contains('btn-edit') && userId) {
-        this.onEdit(userId); // Pass only if userId is not null
+        this.onUpdate(userId); // Pass only if userId is not null
       } else if (target.classList.contains('btn-delete') && userId) {
         this.onDelete(userId); // Pass only if userId is not null
       }
@@ -155,11 +155,11 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   onCreate(event: Event): void {
-    event.preventDefault();
+    // event.preventDefault();
     this.router.navigate(['/pages/users/create']);
   }
 
-  onEdit(userId: string): void {
+  onUpdate(userId: string): void {
     if (!userId) {
       console.error('No user ID provided for edit');
       return;
