@@ -69,6 +69,8 @@ export const authInterceptor: HttpInterceptorFn = (
       }
 
       return throwError(() => error);
+      // Suppress the error log for the original 401 response
+      // return of();
     })
   );
 };
