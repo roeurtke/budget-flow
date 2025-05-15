@@ -16,4 +16,8 @@ export class RoleService {
   getRoleList(): Observable<Role[]> {
     return this.http.get<Role[]>(`${this.apiUrl}`);
   }
+
+  getRoleById(roleId: string): Observable<Role> {
+    return this.http.get<Role>(`${this.apiUrl}${roleId}/`);
+  }
 }

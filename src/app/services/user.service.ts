@@ -17,6 +17,10 @@ export class UserService {
   getUserList(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/api/users/`);
   }
+  
+  getUserById(userId: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/api/users/${userId}/`);
+  }
 
   createUser(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/users/`, userData);
