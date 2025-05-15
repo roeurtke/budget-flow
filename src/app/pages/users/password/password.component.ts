@@ -34,7 +34,7 @@ export class PasswordComponent implements OnInit {
 
   loadUser(userId: string): void {
     this.userService.getUserById(userId).subscribe({
-      next: (user) => {
+      next: () => {
         this.passwordForm.patchValue({
           password: '',
           confirm_password: ''
@@ -46,14 +46,10 @@ export class PasswordComponent implements OnInit {
     });
   }
 
-  passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirm_password');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      return { 'passwordMismatch': true };
-    }
-    return null;
+  private passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirm_password')?.value;
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
 
   updatePassword(): void {
