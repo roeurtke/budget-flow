@@ -53,7 +53,7 @@ export class UpdateComponent implements OnInit {
           value: role.id,
           label: role.name
         }));
-        const matchedRole = this.roles.find(r => r.value === Number(user.role.id));
+        const matchedRole = this.roles.find(r => r.label.toLowerCase() === user.role.name.toLowerCase());
         this.userForm.patchValue({
           first_name: user.first_name,
           last_name: user.last_name,
@@ -62,8 +62,6 @@ export class UpdateComponent implements OnInit {
           username: user.username,
           role: matchedRole ? matchedRole.value : null
         });
-        console.log('Matched role:', matchedRole);
-        console.log('Role form control value:', this.userForm.get('role')?.value);
       },
       error: (err) => console.error('Failed to load user or roles:', err)
     });
