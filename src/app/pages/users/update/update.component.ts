@@ -31,8 +31,6 @@ export class UpdateComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
       role: ['', Validators.required],
-      password: [''],
-      confirm_password: ['']
     });
   }
 
