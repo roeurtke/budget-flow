@@ -8,7 +8,7 @@ import { IncomesComponent } from './pages/incomes/incomes.component';
 import { IncomeCategoriesComponent } from './pages/income-categories/income-categories.component';
 import { ExpensesComponent } from './pages/expenses/expenses.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/expense-categories.component';
-import { UsersComponent } from './pages/users/users.component';
+import { UsersComponent } from './pages/users/list/users.component';
 import { CreateComponent } from './pages/users/create/create.component';
 import { UpdateComponent } from './pages/users/update/update.component';
 import { RolesComponent } from './pages/roles/roles.component';

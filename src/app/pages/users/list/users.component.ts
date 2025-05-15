@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { UserService } from '../../services/user.service';
-import { User } from '../../interfaces/fetch-data.interface';
+import { UserService } from '../../../services/user.service';
+import { User } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { format } from 'date-fns';
 import jszip from 'jszip';
