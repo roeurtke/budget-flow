@@ -155,7 +155,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   onCreate(event: Event): void {
-    // event.preventDefault();
+    event.preventDefault();
     this.router.navigate(['/pages/users/create']);
   }
 
