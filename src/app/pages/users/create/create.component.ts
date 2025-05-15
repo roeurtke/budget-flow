@@ -23,7 +23,7 @@ export class CreateComponent {
     email: ['', [Validators.required, Validators.email]],
     username: ['', Validators.required],
     role: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
     confirm_password: ['', Validators.required]
   }, { validators: this.passwordMatchValidator });
 
@@ -36,7 +36,6 @@ export class CreateComponent {
   loadRoles(): void {
     this.roleService.getRoleList().subscribe({
         next: (roles) => {
-        // console.log('Fetched roles:', roles);
         this.roles = roles.map(role => ({
           value: role.id,
           label: role.name
@@ -55,10 +54,17 @@ export class CreateComponent {
     }
 
     const userData = this.createForm.value;
-
-    this.userService.createUser(userData).subscribe({
-      next: (response) => {
-        console.log('User created successfully:', response);
+    const createData = {
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+      spending_limit: userData.limit_balance,
+      username: userData.username,
+      email: userData.email,
+      role: userData.role,
+      password: userData.password
+    }
+    this.userService.createUser(createData).subscribe({
+      next: () => {
         this.router.navigate(['/pages/users']);
       },
       error: (err) => {
