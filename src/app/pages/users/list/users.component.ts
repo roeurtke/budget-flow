@@ -99,7 +99,7 @@ export class UsersComponent implements OnInit, OnDestroy {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Detail">
                 <i class="fa fa-sm fa-list-alt"></i>
               </button>
               <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
@@ -168,12 +168,12 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  onShow(userId: string): void {
+  onDetail(userId: string): void {
     if (!userId) {
       console.error('No user ID provided for show');
       return;
     }
-    this.router.navigate([`/pages/users/show/${userId}`]);
+    this.router.navigate([`/pages/users/detail/${userId}`]);
   }
 
   onCreate(event: Event): void {
