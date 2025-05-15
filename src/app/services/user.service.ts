@@ -29,4 +29,8 @@ export class UserService {
   updateUser(userId: number, userData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/api/users/${userId}/`, userData);
   }
+
+  updatePassword(userId: number, passwordData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/api/users/${userId}/`, passwordData);
+  }
 }
