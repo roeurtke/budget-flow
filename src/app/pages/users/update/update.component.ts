@@ -22,8 +22,7 @@ export class UpdateComponent implements OnInit {
     private userService: UserService,
     private roleService: RoleService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {
+    private router: Router) {
     this.updateForm = this.fb.group({
       first_name: [''],
       last_name: [''],
