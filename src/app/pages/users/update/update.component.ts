@@ -25,12 +25,12 @@ export class UpdateComponent implements OnInit {
     private router: Router
   ) {
     this.userForm = this.fb.group({
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
-      limit_balance: ['', [Validators.required, Validators.min(0)]],
-      email: ['', [Validators.required, Validators.email]],
-      username: ['', Validators.required],
-      role: ['', Validators.required],
+      first_name: [''],
+      last_name: [''],
+      limit_balance: ['', [Validators.min(0)]],
+      email: ['', [Validators.email]],
+      username: [''],
+      role: [''],
     });
   }
 
@@ -71,10 +71,19 @@ export class UpdateComponent implements OnInit {
       return;
     }
 
-    const updatedData = this.userForm.value;
+    const formValues = this.userForm.value;
+
+    const updatedData = {
+      first_name: formValues.first_name,
+      last_name: formValues.last_name,
+      spending_limit: formValues.limit_balance,
+      username: formValues.username,
+      email: formValues.email,
+      role: formValues.role
+    };
+
     this.userService.updateUser(Number(this.userId), updatedData).subscribe({
       next: () => {
-        console.log('User updated successfully');
         this.router.navigate(['/pages/users']);
       },
       error: (err) => {
