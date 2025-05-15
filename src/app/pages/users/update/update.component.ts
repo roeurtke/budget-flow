@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-update',
@@ -14,7 +15,7 @@ import { CommonModule } from '@angular/common';
 export class UpdateComponent implements OnInit {
   userForm: FormGroup;
   userId: string | null = null;
-  roles: { value: number; label: string }[] = []; 
+  roles: { value: number; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -30,53 +31,41 @@ export class UpdateComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
       role: ['', Validators.required],
-      password: [''], // Optional for updates
-      confirm_password: [''] // Optional for updates
+      password: [''],
+      confirm_password: ['']
     });
   }
 
   ngOnInit(): void {
     this.userId = this.route.snapshot.paramMap.get('id');
-    this.loadRoles();
     if (this.userId) {
-      this.loadUserData(this.userId);
+      this.loadUserAndRoles(this.userId);
     }
   }
 
-  loadRoles(): void {
-    this.roleService.getRoleList().subscribe({
-      next: (roles) => {
+  loadUserAndRoles(userId: string): void {
+    forkJoin({
+      roles: this.roleService.getRoleList(),
+      user: this.userService.getUserById(userId)
+    }).subscribe({
+      next: ({ roles, user }) => {
         this.roles = roles.map(role => ({
           value: role.id,
           label: role.name
         }));
-  
-        // Ensure the user's current role is displayed after roles are loaded
-        if (this.userId) {
-          this.loadUserData(this.userId);
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load roles:', err);
-      }
-    });
-  }
-
-  loadUserData(userId: string): void {
-    this.userService.getUserById(userId).subscribe({
-      next: (user) => {
+        const matchedRole = this.roles.find(r => r.value === Number(user.role.id));
         this.userForm.patchValue({
           first_name: user.first_name,
           last_name: user.last_name,
           limit_balance: user.spending_limit,
           email: user.email,
           username: user.username,
-          role: user.role
+          role: matchedRole ? matchedRole.value : null
         });
+        console.log('Matched role:', matchedRole);
+        console.log('Role form control value:', this.userForm.get('role')?.value);
       },
-      error: (err) => {
-        console.error('Failed to load user data:', err);
-      }
+      error: (err) => console.error('Failed to load user or roles:', err)
     });
   }
 
