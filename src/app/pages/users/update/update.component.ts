@@ -50,6 +50,11 @@ export class UpdateComponent implements OnInit {
           value: role.id,
           label: role.name
         }));
+  
+        // Ensure the user's current role is displayed after roles are loaded
+        if (this.userId) {
+          this.loadUserData(this.userId);
+        }
       },
       error: (err) => {
         console.error('Failed to load roles:', err);

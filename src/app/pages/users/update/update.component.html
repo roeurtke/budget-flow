@@ -1,33 +1,63 @@
-<div class="container">
-    <h2>Update User</h2>
-    <form [formGroup]="userForm" (ngSubmit)="updateUser()">
-      <div class="form-group">
-        <label for="first_name">First Name</label>
-        <input id="first_name" formControlName="first_name" class="form-control" />
-      </div>
-      <div class="form-group">
-        <label for="last_name">Last Name</label>
-        <input id="last_name" formControlName="last_name" class="form-control" />
-      </div>
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" formControlName="email" class="form-control" />
-      </div>
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input id="username" formControlName="username" class="form-control" />
-      </div>
-      <div class="form-group">
-        <label for="role">Role</label>
-        <select id="role" formControlName="role" class="form-control">
-          <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="limit_balance">Limit Balance</label>
-        <input id="limit_balance" formControlName="limit_balance" type="number" class="form-control" />
-      </div>
-      <button type="submit" class="btn btn-primary" [disabled]="userForm.invalid">Update</button>
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-    </form>
-  </div>
+<div class="card shadow mb-4">
+    <div class="card-header py-2 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">UPDATE USER</h6>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="userForm.invalid" (click)="updateUser()">
+            <i class="fas fa-save"></i> Save
+        </button>
+    </div>
+    <div class="card-body">
+        <form [formGroup]="userForm">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover" width="100%" cellspacing="0">
+                    <tbody>
+                        <tr><td colspan="4" class="text-left tw-bg-gray-100"><label>User Information</label></td></tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="first_name">First Name <small class="required">*</small></label></td>
+                            <td><input type="text" id="first_name" formControlName="first_name" class="form-control" required autofocus></td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="last_name">Last Name <small class="required">*</small></label></td>
+                            <td><input type="text" id="last_name" formControlName="last_name" class="form-control" required autofocus></td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="limit_balance">Limit Balance</label></td>
+                            <td><input type="text" id="limit_balance" formControlName="limit_balance" class="form-control"></td>
+                        </tr>
+                        <tr><td colspan="4" class="text-left tw-bg-gray-100"><label>User Account Information</label></td></tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="username">Username <small class="required">*</small></label></td>
+                            <td><input type="text" id="username" formControlName="username" class="form-control" required></td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="email">Email</label></td>
+                            <td><input type="email" id="email" formControlName="email" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="role">Role <small class="required">*</small></label></td>
+                            <td>
+                                <select id="role" formControlName="role" class="form-control" required>
+                                    <option value="" disabled>Select a role</option>
+                                    <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="password">Password</label></td>
+                            <td><input type="password" id="password" formControlName="password" class="form-control"></td>
+                        </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="password_confirmation">Confirm Password</label></td>
+                            <td><input type="password" id="password_confirmation" formControlName="confirm_password" class="form-control"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+    <div class="card-footer text-right">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="userForm.invalid" (click)="updateUser()">
+            <i class="fas fa-save"></i> Save
+        </button>
+    </div>
+</div>
