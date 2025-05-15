@@ -13,7 +13,7 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./update.component.css']
 })
 export class UpdateComponent implements OnInit {
-  userForm: FormGroup;
+  updateForm: FormGroup;
   userId: string | null = null;
   roles: { value: number; label: string }[] = [];
 
@@ -24,7 +24,7 @@ export class UpdateComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {
-    this.userForm = this.fb.group({
+    this.updateForm = this.fb.group({
       first_name: [''],
       last_name: [''],
       limit_balance: ['', [Validators.min(0)]],
@@ -52,7 +52,7 @@ export class UpdateComponent implements OnInit {
           label: role.name
         }));
         const matchedRole = this.roles.find(r => r.label.toLowerCase() === user.role.name.toLowerCase());
-        this.userForm.patchValue({
+        this.updateForm.patchValue({
           first_name: user.first_name,
           last_name: user.last_name,
           limit_balance: user.spending_limit,
@@ -66,12 +66,12 @@ export class UpdateComponent implements OnInit {
   }
 
   updateUser(): void {
-    if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
+    if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
       return;
     }
 
-    const formValues = this.userForm.value;
+    const formValues = this.updateForm.value;
 
     const updatedData = {
       first_name: formValues.first_name,

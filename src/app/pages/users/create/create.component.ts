@@ -16,7 +16,7 @@ export class CreateComponent {
   roles: { value: number; label: string }[] = [];
   private fb = inject(FormBuilder);
 
-  userForm: FormGroup = this.fb.group({
+  createForm: FormGroup = this.fb.group({
     first_name: ['', Validators.required],
     last_name: ['', Validators.required],
     limit_balance: ['', [Validators.required, Validators.min(0)]],
@@ -49,12 +49,12 @@ export class CreateComponent {
   }
 
   createUser(): void {
-    if (this.userForm.invalid) {
-      this.userForm.markAllAsTouched();
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
       return;
     }
 
-    const userData = this.userForm.value;
+    const userData = this.createForm.value;
 
     this.userService.createUser(userData).subscribe({
       next: (response) => {
