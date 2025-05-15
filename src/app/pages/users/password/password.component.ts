@@ -22,8 +22,8 @@ export class PasswordComponent implements OnInit {
     this.passwordForm = this.fb.group({
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirm_password: ['', [Validators.required]],
-      }, { validators: this.passwordMatchValidator });
-    }
+    }, { validators: this.passwordMatchValidator });
+  }
 
   ngOnInit(): void {
     this.userId = this.route.snapshot.paramMap.get('id');

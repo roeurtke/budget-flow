@@ -13,21 +13,25 @@ import { CommonModule } from '@angular/common';
   styleUrl: './create.component.css'
 })
 export class CreateComponent {
+  createForm: FormGroup;
   roles: { value: number; label: string }[] = [];
-  private fb = inject(FormBuilder);
 
-  createForm: FormGroup = this.fb.group({
-    first_name: ['', Validators.required],
-    last_name: ['', Validators.required],
-    limit_balance: ['', [Validators.required, Validators.min(0)]],
-    email: ['', [Validators.required, Validators.email]],
-    username: ['', Validators.required],
-    role: ['', Validators.required],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirm_password: ['', Validators.required]
-  }, { validators: this.passwordMatchValidator });
-
-  constructor(private userService: UserService, private roleService: RoleService, private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserService,
+    private roleService: RoleService,
+    private router: Router) {
+    this.createForm = this.fb.group({
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      limit_balance: ['', [Validators.required, Validators.min(0)]],
+      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
+      role: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirm_password: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
+  }
 
   ngOnInit(): void {
     this.loadRoles();
