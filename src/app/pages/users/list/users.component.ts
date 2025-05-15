@@ -144,15 +144,36 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngAfterViewInit(): void {
     document.querySelector('table')?.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
-      const button = target.closest('.btn-secondary');
-      const userId = button?.getAttribute('data-id');
-  
-      if (button && userId) {
-        this.onUpdate(userId); // Redirect to update form
-      } else if (target.closest('.btn-danger') && userId) {
-        this.onDelete(userId); // Handle delete logic
+      const btn_update = target.closest('.btn-secondary');
+      const btn_change_password = target.closest('.btn-dark');
+      const btn_delete = target.closest('.btn-danger');
+      
+      if (btn_update) {
+        const userId = btn_update?.getAttribute('data-id');
+        if (userId) {
+          this.onUpdate(userId); // Redirect to update form
+        } 
+      } else if (btn_change_password){
+        const userId = btn_change_password?.getAttribute('data-id');
+        if (userId) {
+          this.onChangePassword(userId);
+        } 
+      }
+      else if (btn_delete) {
+        const userId = btn_delete?.getAttribute('data-id');
+        if (userId) {
+          this.onDelete(userId);
+        }
       }
     });
+  }
+
+  onShow(userId: string): void {
+    if (!userId) {
+      console.error('No user ID provided for show');
+      return;
+    }
+    this.router.navigate([`/pages/users/show/${userId}`]);
   }
 
   onCreate(event: Event): void {
@@ -166,6 +187,14 @@ export class UsersComponent implements OnInit, OnDestroy {
       return;
     }
     this.router.navigate([`/pages/users/update/${userId}`]);
+  }
+
+  onChangePassword(userId: string): void {
+    if (!userId) {
+      console.error('No user ID provided for change password');
+      return;
+    }
+    this.router.navigate([`/pages/users/password/${userId}`]);
   }
 
   onDelete(userId: string): void {
