@@ -10,6 +10,7 @@ import { ExpensesComponent } from './pages/expenses/expenses.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/expense-categories.component';
 import { UsersComponent } from './pages/users/users.component';
 import { CreateComponent } from './pages/users/create/create.component';
+import { UpdateComponent } from './pages/users/update/update.component';
 import { RolesComponent } from './pages/roles/roles.component';
 import { PermissionsComponent } from './pages/permissions/permissions.component';
 import { AbilitiesComponent } from './pages/abilities/abilities.component';
@@ -30,6 +31,7 @@ export const routes: Routes = [
           { path: 'pages/expense_categories', canActivate: [authGuard], component: ExpenseCategoriesComponent },
           { path: 'pages/users', canActivate: [authGuard], component: UsersComponent },
           { path: 'pages/users/create', canActivate: [authGuard], component: CreateComponent },
+          { path: 'pages/users/update/:id', canActivate: [authGuard], component: UpdateComponent },
           { path: 'pages/roles', canActivate: [authGuard], component: RolesComponent },
           { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent },
           { path: 'pages/abilities', canActivate: [authGuard], component: AbilitiesComponent }

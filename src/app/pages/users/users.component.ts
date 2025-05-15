@@ -144,12 +144,13 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngAfterViewInit(): void {
     document.querySelector('table')?.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
-      const userId = target.getAttribute('data-id');
-
-      if (target.classList.contains('btn-edit') && userId) {
-        this.onUpdate(userId); // Pass only if userId is not null
-      } else if (target.classList.contains('btn-delete') && userId) {
-        this.onDelete(userId); // Pass only if userId is not null
+      const button = target.closest('.btn-secondary');
+      const userId = button?.getAttribute('data-id');
+  
+      if (button && userId) {
+        this.onUpdate(userId); // Redirect to update form
+      } else if (target.closest('.btn-danger') && userId) {
+        this.onDelete(userId); // Handle delete logic
       }
     });
   }
@@ -164,8 +165,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       console.error('No user ID provided for edit');
       return;
     }
-    console.log('Editing user with ID:', userId);
-    // Implement your edit logic here
+    this.router.navigate([`/pages/users/update/${userId}`]);
   }
 
   onDelete(userId: string): void {
