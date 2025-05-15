@@ -144,14 +144,21 @@ export class UsersComponent implements OnInit, OnDestroy {
   ngAfterViewInit(): void {
     document.querySelector('table')?.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
       const btn_update = target.closest('.btn-secondary');
       const btn_change_password = target.closest('.btn-dark');
       const btn_delete = target.closest('.btn-danger');
       
-      if (btn_update) {
+      if (btn_detail) {
+        const userId = btn_detail?.getAttribute('data-id');
+        if (userId) {
+          this.onDetail(userId); // Redirect to detail page
+        }
+      }
+      else if (btn_update) {
         const userId = btn_update?.getAttribute('data-id');
         if (userId) {
-          this.onUpdate(userId); // Redirect to update form
+          this.onUpdate(userId);
         } 
       } else if (btn_change_password){
         const userId = btn_change_password?.getAttribute('data-id');
