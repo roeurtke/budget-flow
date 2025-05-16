@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-users',
@@ -209,12 +210,37 @@ export class UsersComponent implements OnInit, OnDestroy {
       console.error('No user ID provided for delete');
       return;
     }
-    
-    if (confirm('Are you sure you want to delete this user?')) {
-      console.log('Deleting user with ID:', userId);
-      // Implement your delete logic here
-    }
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn', // Add animation
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.deleteUser(Number(userId)).subscribe({
+          next: () => {
+            Swal.fire('Deleted!', 'User has been deleted.', 'success');
+            this.loadUsers(); // Reload the list
+          },
+          error: (err) => {
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete user.', 'error');
+          }
+        });
+      }
+    });
   }
+  
   ngOnDestroy(): void {
     // Unsubscribe from the DataTables trigger
     this.dtTrigger.unsubscribe();
