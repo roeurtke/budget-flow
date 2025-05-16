@@ -211,6 +211,12 @@ export class UsersComponent implements OnInit, OnDestroy {
       return;
     }
   
+    const id = Number(userId);
+    if (isNaN(id)) {
+      console.error('Invalid user ID:', userId);
+      return;
+    }
+  
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone!',
@@ -221,18 +227,35 @@ export class UsersComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Yes, delete it!',
       cancelButtonText: 'Cancel',
       customClass: {
-        popup: 'animated bounceIn', // Add animation
+        popup: 'animated bounceIn',
         confirmButton: 'btn btn-sm btn-danger',
         cancelButton: 'btn btn-sm btn-secondary ml-2'
-      },
+      }
     }).then((result) => {
       if (result.isConfirmed) {
-        this.userService.deleteUser(Number(userId)).subscribe({
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the user',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.userService.deleteUser(id).subscribe({
           next: () => {
-            Swal.fire('Deleted!', 'User has been deleted.', 'success');
-            this.loadUsers(); // Reload the list
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'User has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            this.loadUsers();
           },
           error: (err) => {
+            Swal.close();
             console.error('Delete failed', err);
             Swal.fire('Error', 'Failed to delete user.', 'error');
           }
