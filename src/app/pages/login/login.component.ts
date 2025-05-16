@@ -29,7 +29,13 @@ export class LoginComponent {
       this.authService.login(username!, password!).subscribe({
         next: () => this.router.navigate(['/dashboard']),
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Login failed';
+          if (err.status === 400) {
+            this.errorMessage = err.error?.message || 'Login failed';
+          } else if (err.status === 403) {
+            this.errorMessage = err.error?.error || 'Access denied';
+          } else {
+            this.errorMessage = err.error?.message || 'Login failed';
+          }
         }
       });
     }
