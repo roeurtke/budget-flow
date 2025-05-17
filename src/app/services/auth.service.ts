@@ -70,6 +70,20 @@ export class AuthService {
     );
   }
 
+  isTokenExpired(token: string): boolean {
+    try {
+      const [, payloadBase64] = token.split('.');
+      const payload = JSON.parse(atob(payloadBase64));
+      const exp = payload.exp;
+
+      if (!exp) return true;
+
+      return Date.now() >= exp * 1000;
+    } catch (e) {
+      return true;
+    }
+  }
+
   logout(): void {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
