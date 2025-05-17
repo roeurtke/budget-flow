@@ -83,7 +83,11 @@ export class IncomesComponent {
         {
           data: 'status',
           title: 'Status',
-          render: (data: string) => data || 'None'
+          render: (data: boolean) => {
+            const statusText = data ? 'Active' : 'Inactive';
+            const badgeClass = data ? 'badge badge-primary' : 'badge badge-danger';
+            return `<span class="${badgeClass}">${statusText}</span>`;
+          }
         },
         {
           data: 'user',
