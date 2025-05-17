@@ -1,39 +1,33 @@
 import { Component, ViewChild } from '@angular/core';
-import { ExpenseCategoryService } from '../../services/expense-category.service';
-import { ExpenseCategory } from '../../interfaces/fetch-data.interface';
+import { RoleService } from '../../../services/role.service';
+import { Role } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
-import jszip from 'jszip';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { format } from 'date-fns';
 
 @Component({
-  selector: 'app-expense-categories',
+  selector: 'app-roles',
   imports: [CommonModule, DataTablesModule],
-  templateUrl: './expense-categories.component.html',
-  styleUrl: './expense-categories.component.css'
+  templateUrl: './roles.component.html',
+  styleUrl: './roles.component.css'
 })
-export class ExpenseCategoriesComponent {
+export class RolesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  expenseCategories: ExpenseCategory[] = [];
+  roles: Role[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private expenseCategoryService: ExpenseCategoryService) {}
+  constructor(private roleService: RoleService) {}
 
   ngOnInit(): void {
-    (window as any).jsZip = jszip;
-    (window as any).pdfMake = pdfMake;
-    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
-
     this.initializeDataTable();
-    this.loadExpeneCategories();
+    this.loadRoles();
   }
 
   initializeDataTable(): void {
@@ -46,6 +40,15 @@ export class ExpenseCategoriesComponent {
         t
         <"d-flex justify-content-between align-items-center mt-3"ip>
       `,
+      buttons: [],
+      pagingType: 'simple_numbers',
+      language: {
+        lengthMenu: 'Show _MENU_ Entries',
+        paginate: {
+          previous: 'Previous',
+          next: 'Next',
+        },
+      },
       columns: [
         { 
           data: null,
@@ -60,10 +63,6 @@ export class ExpenseCategoriesComponent {
           title: 'Description',
           render: (data: string) => data || 'None'
         },
-        { data: 'master_report',
-          title: 'Report',
-          render: (data: string) => data || 'None'
-        },
         {
           data: 'status',
           title: 'Status',
@@ -74,15 +73,21 @@ export class ExpenseCategoriesComponent {
           }
         },
         {
-          data: 'user',
-          title: 'User',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
+          data: 'created_at',
+          title: 'Created',
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+        },
+        {
+          data: 'updated_at',
+          title: 'Updated',
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
         },
         {
           data: null,
           title: 'Actions',
           orderable: false,
           render: (data: any, type: any, row: any) => {
+            const isInactive = !row.status;
             return `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
                 <i class="fa fa-sm fa-list-alt"></i>
@@ -90,7 +95,7 @@ export class ExpenseCategoriesComponent {
               <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
                 <i class="fas fa-sm fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete">
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
               </button>
             `;
@@ -100,16 +105,16 @@ export class ExpenseCategoriesComponent {
     };
   }
 
-  loadExpeneCategories(): void {
+  loadRoles(): void {
     this.loading = true;
-    this.expenseCategoryService.getExpenseCategoryList().subscribe({
-      next: (expenseCategories) => {
-        this.expenseCategories = expenseCategories.sort((a, b) => b.id - a.id);
+    this.roleService.getRoleList().subscribe({
+      next: (roles) => {
+        this.roles = roles.sort((a, b) => b.id - a.id);
         
         if (this.dtElement && this.dtElement.dtInstance) {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
-            dtInstance.rows.add(this.expenseCategories);
+            dtInstance.rows.add(this.roles);
             dtInstance.draw();
           });
         }

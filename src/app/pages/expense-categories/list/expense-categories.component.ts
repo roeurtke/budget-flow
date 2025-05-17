@@ -1,31 +1,31 @@
 import { Component, ViewChild } from '@angular/core';
-import { IncomeCategoryService } from '../../services/income-category.service';
-import { IncomeCategory } from '../../interfaces/fetch-data.interface';
+import { ExpenseCategoryService } from '../../../services/expense-category.service';
+import { ExpenseCategory } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 @Component({
-  selector: 'app-income-categories',
+  selector: 'app-expense-categories',
   imports: [CommonModule, DataTablesModule],
-  templateUrl: './income-categories.component.html',
-  styleUrl: './income-categories.component.css'
+  templateUrl: './expense-categories.component.html',
+  styleUrl: './expense-categories.component.css'
 })
-export class IncomeCategoriesComponent {
+export class ExpenseCategoriesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  incomeCategories: IncomeCategory[] = [];
+  expenseCategories: ExpenseCategory[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private incomeCategoryService: IncomeCategoryService) {}
+  constructor(private expenseCategoryService: ExpenseCategoryService) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -33,7 +33,7 @@ export class IncomeCategoriesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.loadIncomeCategories();
+    this.loadExpeneCategories();
   }
 
   initializeDataTable(): void {
@@ -100,16 +100,16 @@ export class IncomeCategoriesComponent {
     };
   }
 
-  loadIncomeCategories(): void {
+  loadExpeneCategories(): void {
     this.loading = true;
-    this.incomeCategoryService.getIncomeCategoryList().subscribe({
-      next: (incomeCategories) => {
-        this.incomeCategories = incomeCategories.sort((a, b) => b.id - a.id);
+    this.expenseCategoryService.getExpenseCategoryList().subscribe({
+      next: (expenseCategories) => {
+        this.expenseCategories = expenseCategories.sort((a, b) => b.id - a.id);
         
         if (this.dtElement && this.dtElement.dtInstance) {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
-            dtInstance.rows.add(this.incomeCategories);
+            dtInstance.rows.add(this.expenseCategories);
             dtInstance.draw();
           });
         }

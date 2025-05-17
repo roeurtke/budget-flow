@@ -1,33 +1,39 @@
 import { Component, ViewChild } from '@angular/core';
-import { AbilityService } from '../../services/ability.service';
-import { RolePermission } from '../../interfaces/fetch-data.interface';
+import { IncomeCategoryService } from '../../../services/income-category.service';
+import { IncomeCategory } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { format } from 'date-fns';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
+import jszip from 'jszip';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 @Component({
-  selector: 'app-abilities',
+  selector: 'app-income-categories',
   imports: [CommonModule, DataTablesModule],
-  templateUrl: './abilities.component.html',
-  styleUrl: './abilities.component.css'
+  templateUrl: './income-categories.component.html',
+  styleUrl: './income-categories.component.css'
 })
-export class AbilitiesComponent {
+export class IncomeCategoriesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  rolePermissions: RolePermission[] = [];
+  incomeCategories: IncomeCategory[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private abilityService: AbilityService) {}
+  constructor(private incomeCategoryService: IncomeCategoryService) {}
 
   ngOnInit(): void {
+    (window as any).jsZip = jszip;
+    (window as any).pdfMake = pdfMake;
+    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
+
     this.initializeDataTable();
-    this.loadRolePermissions();
+    this.loadIncomeCategories();
   }
 
   initializeDataTable(): void {
@@ -40,30 +46,23 @@ export class AbilitiesComponent {
         t
         <"d-flex justify-content-between align-items-center mt-3"ip>
       `,
-      buttons: [],
-      pagingType: 'simple_numbers',
-      language: {
-        lengthMenu: 'Show _MENU_ Entries',
-        paginate: {
-          previous: 'Previous',
-          next: 'Next',
-        },
-      },
       columns: [
         { 
           data: null,
           title: 'ID',
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
-        {
-          data: 'role',
-          title: 'Role',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+        { data: 'name',
+          title: 'Name',
+          render: (data: string) => data || 'None'
         },
-        {
-          data: 'permission',
-          title: 'Permission',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+        { data: 'description',
+          title: 'Description',
+          render: (data: string) => data || 'None'
+        },
+        { data: 'master_report',
+          title: 'Report',
+          render: (data: string) => data || 'None'
         },
         {
           data: 'status',
@@ -75,14 +74,9 @@ export class AbilitiesComponent {
           }
         },
         {
-          data: 'created_at',
-          title: 'Created',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
-        },
-        {
-          data: 'updated_at',
-          title: 'Updated',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          data: 'user',
+          title: 'User',
+          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
         },
         {
           data: null,
@@ -106,16 +100,16 @@ export class AbilitiesComponent {
     };
   }
 
-  loadRolePermissions(): void {
+  loadIncomeCategories(): void {
     this.loading = true;
-    this.abilityService.getRolePermissionList().subscribe({
-      next: (rolePermissions) => {
-        this.rolePermissions = rolePermissions.sort((a, b) => b.id - a.id);
+    this.incomeCategoryService.getIncomeCategoryList().subscribe({
+      next: (incomeCategories) => {
+        this.incomeCategories = incomeCategories.sort((a, b) => b.id - a.id);
         
         if (this.dtElement && this.dtElement.dtInstance) {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
-            dtInstance.rows.add(this.rolePermissions);
+            dtInstance.rows.add(this.incomeCategories);
             dtInstance.draw();
           });
         }

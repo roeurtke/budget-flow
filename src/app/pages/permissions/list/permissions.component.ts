@@ -1,33 +1,33 @@
 import { Component, ViewChild } from '@angular/core';
-import { RoleService } from '../../services/role.service';
-import { Role } from '../../interfaces/fetch-data.interface';
+import { PermissionService } from '../../../services/permission.service';
+import { Permission } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
 
 @Component({
-  selector: 'app-roles',
+  selector: 'app-permissions',
   imports: [CommonModule, DataTablesModule],
-  templateUrl: './roles.component.html',
-  styleUrl: './roles.component.css'
+  templateUrl: './permissions.component.html',
+  styleUrl: './permissions.component.css'
 })
-export class RolesComponent {
+export class PermissionsComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  roles: Role[] = [];
+  permissions: Permission[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private roleService: RoleService) {}
+  constructor(private permissionService: PermissionService) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.loadRoles();
+    this.loadPermissions();
   }
 
   initializeDataTable(): void {
@@ -57,6 +57,10 @@ export class RolesComponent {
         },
         { data: 'name',
           title: 'Name',
+          render: (data: string) => data || 'None'
+        },
+        { data: 'codename',
+          title: 'Codename',
           render: (data: string) => data || 'None'
         },
         { data: 'description',
@@ -105,20 +109,20 @@ export class RolesComponent {
     };
   }
 
-  loadRoles(): void {
+  loadPermissions(): void {
     this.loading = true;
-    this.roleService.getRoleList().subscribe({
-      next: (roles) => {
-        this.roles = roles.sort((a, b) => b.id - a.id);
+    this.permissionService.getPermissionList().subscribe({
+      next: (permissions) => {
+        this.permissions = permissions.sort((a, b) => b.id - a.id);
         
         if (this.dtElement && this.dtElement.dtInstance) {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
-            dtInstance.rows.add(this.roles);
+            dtInstance.rows.add(this.permissions);
             dtInstance.draw();
           });
         }
-        
+
         this.loading = false;
       },
       error: (err) => {

@@ -1,11 +1,11 @@
 import { Component, ViewChild } from '@angular/core';
-import { IncomeService } from '../../services/income.service';
-import { Income } from '../../interfaces/fetch-data.interface';
+import { IncomeService } from '../../../services/income.service';
+import { Income } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';

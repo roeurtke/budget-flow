@@ -1,40 +1,33 @@
 import { Component, ViewChild } from '@angular/core';
-import { ExpenseService } from '../../services/expense.service';
-import { Expense } from '../../interfaces/fetch-data.interface';
+import { AbilityService } from '../../../services/ability.service';
+import { RolePermission } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
-import { dataTablesConfig } from '../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
-import jszip from 'jszip';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
 
 @Component({
-  selector: 'app-expenses',
+  selector: 'app-abilities',
   imports: [CommonModule, DataTablesModule],
-  templateUrl: './expenses.component.html',
-  styleUrl: './expenses.component.css'
+  templateUrl: './abilities.component.html',
+  styleUrl: './abilities.component.css'
 })
-export class ExpensesComponent {
+export class AbilitiesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  expenses: Expense[] = [];
+  rolePermissions: RolePermission[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private expenseService: ExpenseService) {}
+  constructor(private abilityService: AbilityService) {}
 
   ngOnInit(): void {
-    (window as any).jsZip = jszip;
-    (window as any).pdfMake = pdfMake;
-    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
-
     this.initializeDataTable();
-    this.loadExpenes();
+    this.loadRolePermissions();
   }
 
   initializeDataTable(): void {
@@ -47,6 +40,15 @@ export class ExpensesComponent {
         t
         <"d-flex justify-content-between align-items-center mt-3"ip>
       `,
+      buttons: [],
+      pagingType: 'simple_numbers',
+      language: {
+        lengthMenu: 'Show _MENU_ Entries',
+        paginate: {
+          previous: 'Previous',
+          next: 'Next',
+        },
+      },
       columns: [
         { 
           data: null,
@@ -54,30 +56,13 @@ export class ExpensesComponent {
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         {
-          data: 'date',
-          title: 'Date',
-          render: (data: string) => data ? format(new Date(data), 'dd-MM-yyyy') : ''
-        },
-        { data: 'name',
-          title: 'Name',
-          render: (data: string) => data || 'None'
-        },
-        { data: 'description',
-          title: 'Description',
-          render: (data: string) => data || 'None'
-        },
-        { data: 'spent_amount',
-          title: 'Spent Amount',
-          type: 'string',
-          render: (data: number) => data || 'None'
-        },
-        { data: 'currency',
-          title: 'Currency',
-          render: (data: string) => data || 'None'
+          data: 'role',
+          title: 'Role',
+          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
         },
         {
-          data: 'expense_category',
-          title: 'Expense category',
+          data: 'permission',
+          title: 'Permission',
           render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
         },
         {
@@ -90,9 +75,14 @@ export class ExpensesComponent {
           }
         },
         {
-          data: 'user',
-          title: 'User',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
+          data: 'created_at',
+          title: 'Created',
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+        },
+        {
+          data: 'updated_at',
+          title: 'Updated',
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
         },
         {
           data: null,
@@ -116,16 +106,16 @@ export class ExpensesComponent {
     };
   }
 
-  loadExpenes(): void {
+  loadRolePermissions(): void {
     this.loading = true;
-    this.expenseService.getExpenseList().subscribe({
-      next: (expenses) => {
-        this.expenses = expenses.sort((a, b) => b.id - a.id);
+    this.abilityService.getRolePermissionList().subscribe({
+      next: (rolePermissions) => {
+        this.rolePermissions = rolePermissions.sort((a, b) => b.id - a.id);
         
         if (this.dtElement && this.dtElement.dtInstance) {
           this.dtElement.dtInstance.then((dtInstance: any) => {
             dtInstance.clear();
-            dtInstance.rows.add(this.expenses);
+            dtInstance.rows.add(this.rolePermissions);
             dtInstance.draw();
           });
         }
