@@ -32,7 +32,41 @@ export const authInterceptor: HttpInterceptorFn = (
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    return next(authReq);
+    return next(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && !isAuthEndpoint) {
+          const refreshToken = authService.getRefreshToken();
+
+          if (!refreshToken || authService.isTokenExpired(refreshToken)) {
+            authService.logout();
+            return throwError(() => new Error('Session expired. Please log in again.'));
+          }
+
+          return authService.refreshToken().pipe(
+            switchMap((response: TokenResponse) => {
+              authService.setAccessToken(response.access);
+              if (response.refresh) {
+                authService.setRefreshToken(response.refresh);
+              }
+
+              const retryReq = req.clone({
+                setHeaders: {
+                  Authorization: `Bearer ${response.access}`,
+                },
+              });
+
+              return next(retryReq);
+            }),
+            catchError((refreshError: any) => {
+              authService.logout();
+              return throwError(() => new Error('Session expired. Please log in again.'));
+            })
+          );
+        }
+
+        return throwError(() => error);
+      })
+    );
   }
 
   // If token is expired or missing, try refreshing it
