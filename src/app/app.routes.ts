@@ -4,18 +4,18 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { MainComponent } from './layout/main/main.component';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
-import { IncomesComponent } from './pages/incomes/incomes.component';
-import { IncomeCategoriesComponent } from './pages/income-categories/income-categories.component';
-import { ExpensesComponent } from './pages/expenses/expenses.component';
+import { IncomesComponent } from './pages/incomes/list/incomes.component';
+import { IncomeCategoriesComponent } from './pages/income-categories/list/income-categories.component';
+import { ExpensesComponent } from './pages/expenses/list/expenses.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expense-categories.component';
 import { UsersComponent } from './pages/users/list/users.component';
 import { DetailComponent } from './pages/users/detail/detail.component';
 import { CreateComponent } from './pages/users/create/create.component';
 import { PasswordComponent } from './pages/users/password/password.component';
 import { UpdateComponent } from './pages/users/update/update.component';
-import { RolesComponent } from './pages/roles/roles.component';
-import { PermissionsComponent } from './pages/permissions/permissions.component';
-import { AbilitiesComponent } from './pages/abilities/abilities.component';
+import { RolesComponent } from './pages/roles/list/roles.component';
+import { PermissionsComponent } from './pages/permissions/list/permissions.component';
+import { AbilitiesComponent } from './pages/abilities/list/abilities.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
