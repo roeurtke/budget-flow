@@ -177,7 +177,7 @@ div:where(.swal2-container).swal2-center>.swal2-popup {
     grid-column: 2;
     grid-row: 2;
     place-self: center center;
-    background: #dddfeb;
+    background-color: #f8f9fc;
     color: #475f7b;
 }
 
