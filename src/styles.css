@@ -173,6 +173,14 @@ div.dt-buttons > .dt-button:hover:not(.disabled), div.dt-buttons > div.dt-button
     margin-top: 1rem;
   }
 
+div:where(.swal2-container).swal2-center>.swal2-popup {
+    grid-column: 2;
+    grid-row: 2;
+    place-self: center center;
+    background: #dddfeb;
+    color: #475f7b;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .dt-container .dt-buttons {
