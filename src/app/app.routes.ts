@@ -18,6 +18,8 @@ import { DetailComponent as RoleDetailComponent } from './pages/roles/detail/det
 import { CreateComponent as RoleCreateComponent } from './pages/roles/create/create.component';
 import { UpdateComponent as RoleUpdateComponent } from './pages/roles/update/update.component';
 import { PermissionsComponent } from './pages/permissions/list/permissions.component';
+import { CreateComponent as PermissionCreateComponent } from './pages/permissions/create/create.component';
+import { DetailComponent as PermissionDetailComponent } from './pages/permissions/detail/detail.component';
 import { AbilitiesComponent } from './pages/abilities/list/abilities.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
@@ -44,6 +46,8 @@ export const routes: Routes = [
           { path: 'pages/roles/detail/:id', canActivate: [authGuard], component: RoleDetailComponent },
           { path: 'pages/roles/update/:id', canActivate: [authGuard], component: RoleUpdateComponent },
           { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent },
+          { path: 'pages/permissions/create', canActivate: [authGuard], component: PermissionCreateComponent },
+          { path: 'pages/permissions/detail/:id', canActivate: [authGuard], component: PermissionDetailComponent },
           { path: 'pages/abilities', canActivate: [authGuard], component: AbilitiesComponent }
         ]
     },

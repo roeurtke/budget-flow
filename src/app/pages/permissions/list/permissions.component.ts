@@ -7,6 +7,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-permissions',
@@ -23,7 +24,7 @@ export class PermissionsComponent {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private permissionService: PermissionService) {}
+  constructor(private permissionService: PermissionService, private router: Router) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -125,5 +126,55 @@ export class PermissionsComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     console.log('Create user clicked');
+  }
+
+  onDetail(permissionId: number): void {
+    if (!permissionId) {
+      console.error('No user ID provided for show');
+      return;
+    }
+    this.router.navigate([`/pages/permissions/detail/${permissionId}`]);
+  }
+
+  onUpdate(permissionId: number): void {
+    if (!permissionId) {
+      console.error('No user ID provided for update');
+      return;
+    }
+    console.log('Update user clicked');
+  }
+
+  onDelete(permissionId: number): void {
+    if (!permissionId) {
+      console.error('No user ID provided for delete');
+      return;
+    }
+    console.log('Delete user clicked');
+  }
+
+  ngAfterViewInit(): void {
+      document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_delete = target.closest('.btn-danger');
+
+      if (btn_detail) {
+        const permissionId = btn_detail?.getAttribute('data-id');
+        if (permissionId) {
+          this.onDetail(Number(permissionId));
+        }
+      } else if (btn_update) {
+        const permissionId = btn_update?.getAttribute('data-id');
+        if (permissionId) {
+          this.onUpdate(Number(permissionId));
+        }
+      } else if (btn_delete) {
+        const permissionId = btn_delete?.getAttribute('data-id');
+        if (permissionId) {
+          this.onDelete(Number(permissionId));
+        }
+      }
+    });
   }
 }
