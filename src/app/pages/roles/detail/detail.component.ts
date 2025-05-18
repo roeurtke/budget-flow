@@ -13,6 +13,6 @@ export class DetailComponent {
 
   constructor(private router: Router) {}
   onCancel(): void {
-    this.router.navigate(['/pages/users']);
+    this.router.navigate(['/pages/roles']);
   }
 }
