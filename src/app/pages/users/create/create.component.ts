@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-create',
+  selector: 'app-user-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule], // Import ReactiveFormsModule
   templateUrl: './create.component.html',

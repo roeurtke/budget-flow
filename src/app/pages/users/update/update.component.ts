@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
 @Component({
-  selector: 'app-update',
+  selector: 'app-user-update',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './update.component.html',
   styleUrls: ['./update.component.css']
