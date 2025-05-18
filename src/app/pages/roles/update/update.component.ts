@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 export class UpdateComponent {
   updateForm: FormGroup;
   roleId: string | null = null;
+  statuses: { value: boolean; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -21,15 +22,24 @@ export class UpdateComponent {
     private router: Router) {
     this.updateForm = this.fb.group({
       name: ['',],
-      description: ['']
+      description: [''],
+      status: ['']
     });
   }
 
   ngOnInit(): void {
+    this.initStatuses();
     this.roleId = this.route.snapshot.paramMap.get('id');
     if (this.roleId) {
       this.loadRole(this.roleId);
     }
+  }
+
+  initStatuses(): void {
+    this.statuses = [
+      { value: true, label: 'Active' },
+      { value: false, label: 'Inactive' }
+    ];
   }
 
   loadRole(roleId: string): void {
@@ -37,7 +47,8 @@ export class UpdateComponent {
       next: (role) => {
         this.updateForm.patchValue({
           name: role.name,
-          description: role.description
+          description: role.description,
+          status: role.status
         });
       },
       error: (error) => {

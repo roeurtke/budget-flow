@@ -19,6 +19,14 @@
                             <td width="20%" class="text-right"><label for="description">Description</label></td>
                             <td><input type="text" id="description" formControlName="description" class="form-control"></td>
                         </tr>
+                        <tr>
+                            <td width="20%" class="text-right"><label for="role">Status</label></td>
+                            <td>
+                                <select id="status" formControlName="status" class="form-control">
+                                    <option *ngFor="let s of statuses" [ngValue]="s.value">{{ s.label }}</option>
+                                </select>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

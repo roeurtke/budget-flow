@@ -66,15 +66,6 @@ export class AbilitiesComponent {
           render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
         },
         {
-          data: 'status',
-          title: 'Status',
-          render: (data: boolean) => {
-            const statusText = data ? 'Active' : 'Inactive';
-            const badgeClass = data ? 'badge badge-primary' : 'badge badge-danger';
-            return `<span class="${badgeClass}">${statusText}</span>`;
-          }
-        },
-        {
           data: 'created_at',
           title: 'Created',
           render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
