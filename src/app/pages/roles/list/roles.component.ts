@@ -138,7 +138,7 @@ export class RolesComponent {
     this.router.navigate(['/pages/roles/create']);
   }
 
-  onDetail(roleId: String): void {
+  onDetail(roleId: Number): void {
     if (!roleId) {
       console.error('No user ID provided for show');
       return;
@@ -146,7 +146,7 @@ export class RolesComponent {
     this.router.navigate([`/pages/roles/detail/${roleId}`]);
   }
 
-  onUpdate(roleId: String): void {
+  onUpdate(roleId: Number): void {
     if (!roleId) {
       console.error('No user ID provided for update');
       return;
@@ -154,7 +154,7 @@ export class RolesComponent {
     this.router.navigate([`/pages/roles/update/${roleId}`]);
   }
 
-  onDelete(userId: string): void {
+  onDelete(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for delete');
       return;
@@ -223,17 +223,17 @@ export class RolesComponent {
       if (btn_detail) {
         const roleId = btn_detail?.getAttribute('data-id');
         if (roleId) {
-          this.onDetail(roleId);
+          this.onDetail(Number(roleId));
         }
       } else if (btn_update) {
         const roleId = btn_update?.getAttribute('data-id');
         if (roleId) {
-          this.onUpdate(roleId);
+          this.onUpdate(Number(roleId));
         }
       } else if (btn_delete) {
         const roleId = btn_delete?.getAttribute('data-id');
         if (roleId) {
-          this.onDelete(roleId);
+          this.onDelete(Number(roleId));
         }
       }
     });

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserService } from '../../../services/user.service';
 import { User } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
@@ -19,7 +19,7 @@ import Swal from 'sweetalert2';
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
-export class UsersComponent implements OnInit, OnDestroy {
+export class UsersComponent implements OnInit {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
   users: User[] = [];
@@ -152,41 +152,12 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngAfterViewInit(): void {
-    document.querySelector('table')?.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      const btn_detail = target.closest('.btn-primary');
-      const btn_update = target.closest('.btn-secondary');
-      const btn_change_password = target.closest('.btn-dark');
-      const btn_delete = target.closest('.btn-danger');
-      
-      if (btn_detail) {
-        const userId = btn_detail?.getAttribute('data-id');
-        if (userId) {
-          this.onDetail(userId); // Redirect to detail page
-        }
-      }
-      else if (btn_update) {
-        const userId = btn_update?.getAttribute('data-id');
-        if (userId) {
-          this.onUpdate(userId);
-        } 
-      } else if (btn_change_password){
-        const userId = btn_change_password?.getAttribute('data-id');
-        if (userId) {
-          this.onChangePassword(userId);
-        } 
-      }
-      else if (btn_delete) {
-        const userId = btn_delete?.getAttribute('data-id');
-        if (userId) {
-          this.onDelete(userId);
-        }
-      }
-    });
+  onCreate(event: Event): void {
+    event.preventDefault();
+    this.router.navigate(['/pages/users/create']);
   }
 
-  onDetail(userId: string): void {
+  onDetail(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for show');
       return;
@@ -194,12 +165,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.router.navigate([`/pages/users/detail/${userId}`]);
   }
 
-  onCreate(event: Event): void {
-    event.preventDefault();
-    this.router.navigate(['/pages/users/create']);
-  }
-
-  onUpdate(userId: string): void {
+  onUpdate(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for edit');
       return;
@@ -207,7 +173,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.router.navigate([`/pages/users/update/${userId}`]);
   }
 
-  onChangePassword(userId: string): void {
+  onChangePassword(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for change password');
       return;
@@ -215,7 +181,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.router.navigate([`/pages/users/password/${userId}`]);
   }
 
-  onDelete(userId: string): void {
+  onDelete(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for delete');
       return;
@@ -274,8 +240,37 @@ export class UsersComponent implements OnInit, OnDestroy {
     });
   }
   
-  ngOnDestroy(): void {
-    // Unsubscribe from the DataTables trigger
-    this.dtTrigger.unsubscribe();
+  ngAfterViewInit(): void {
+    document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_change_password = target.closest('.btn-dark');
+      const btn_delete = target.closest('.btn-danger');
+      
+      if (btn_detail) {
+        const userId = btn_detail?.getAttribute('data-id');
+        if (userId) {
+          this.onDetail(Number(userId)); // Redirect to detail page
+        }
+      }
+      else if (btn_update) {
+        const userId = btn_update?.getAttribute('data-id');
+        if (userId) {
+          this.onUpdate(Number(userId));
+        } 
+      } else if (btn_change_password){
+        const userId = btn_change_password?.getAttribute('data-id');
+        if (userId) {
+          this.onChangePassword(Number(userId));
+        } 
+      }
+      else if (btn_delete) {
+        const userId = btn_delete?.getAttribute('data-id');
+        if (userId) {
+          this.onDelete(Number(userId));
+        }
+      }
+    });
   }
 }

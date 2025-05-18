@@ -125,7 +125,7 @@ export class PermissionsComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
-    console.log('Create user clicked');
+    this.router.navigate(['/pages/permissions/create']);
   }
 
   onDetail(permissionId: number): void {
