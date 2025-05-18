@@ -70,8 +70,8 @@ export class UpdateComponent implements OnInit {
       return;
     }
 
-    const formValues = this.updateForm.value;
-    this.userService.updateUser(Number(this.userId), formValues).subscribe({
+    const userData = this.updateForm.value;
+    this.userService.updateUser(Number(this.userId), userData).subscribe({
       next: () => {
         this.router.navigate(['/pages/users']);
       },
