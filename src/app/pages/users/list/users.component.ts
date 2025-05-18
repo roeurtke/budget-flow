@@ -111,10 +111,10 @@ export class UsersComponent implements OnInit, OnDestroy {
             const isInactive = !row.status;
             return `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Detail">
-                <i class="fa fa-sm fa-list-alt"></i>
+                <i class="fas fa-sm fa-id-card"></i>
               </button>
               <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
-                <i class="fa fa-key"></i>
+                <i class="fas fa-key"></i>
               </button>
               <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
                 <i class="fas fa-sm fa-edit"></i>
