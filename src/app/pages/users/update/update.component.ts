@@ -16,6 +16,7 @@ export class UpdateComponent implements OnInit {
   updateForm: FormGroup;
   userId: string | null = null;
   roles: { value: number; label: string }[] = [];
+  statuses: { value: boolean; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -30,14 +31,23 @@ export class UpdateComponent implements OnInit {
       email: ['', [Validators.email]],
       username: [''],
       role: [''],
+      status: ['']
     });
   }
 
   ngOnInit(): void {
+    this.initStatuses();
     this.userId = this.route.snapshot.paramMap.get('id');
     if (this.userId) {
       this.loadUserAndRoles(this.userId);
     }
+  }
+
+  initStatuses(): void {
+    this.statuses = [
+      { value: true, label: 'Active' },
+      { value: false, label: 'Inactive' }
+    ];
   }
 
   loadUserAndRoles(userId: string): void {
@@ -57,7 +67,8 @@ export class UpdateComponent implements OnInit {
           spending_limit: user.spending_limit,
           email: user.email,
           username: user.username,
-          role: matchedRole ? matchedRole.value : null
+          role: matchedRole ? matchedRole.value : null,
+          status: user.status
         });
       },
       error: (err) => console.error('Failed to load user or roles:', err)
