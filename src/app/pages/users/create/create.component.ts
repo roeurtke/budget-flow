@@ -24,7 +24,7 @@ export class CreateComponent {
     this.createForm = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      limit_balance: ['', [Validators.required, Validators.min(0)]],
+      spending_limit: ['', [Validators.required, Validators.min(0)]],
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
       role: ['', Validators.required],
@@ -58,16 +58,7 @@ export class CreateComponent {
     }
 
     const userData = this.createForm.value;
-    const createData = {
-      first_name: userData.first_name,
-      last_name: userData.last_name,
-      spending_limit: userData.limit_balance,
-      username: userData.username,
-      email: userData.email,
-      role: userData.role,
-      password: userData.password
-    }
-    this.userService.createUser(createData).subscribe({
+    this.userService.createUser(userData).subscribe({
       next: () => {
         this.router.navigate(['/pages/users']);
       },
