@@ -23,7 +23,7 @@ small.required {
 }
 
 .table-bordered select.form-control {
-    height: 34px; /* Reduce input height */
+    height: 32px; /* Reduce input height */
     padding: 2px 8px; /* Adjust padding inside inputs */
     font-size: 0.85rem; /* Match font size with table */
     text-transform: uppercase;
