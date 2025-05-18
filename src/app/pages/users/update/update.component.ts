@@ -26,7 +26,7 @@ export class UpdateComponent implements OnInit {
     this.updateForm = this.fb.group({
       first_name: [''],
       last_name: [''],
-      limit_balance: ['', [Validators.min(0)]],
+      spending_limit: ['', [Validators.min(0)]],
       email: ['', [Validators.email]],
       username: [''],
       role: [''],
@@ -54,7 +54,7 @@ export class UpdateComponent implements OnInit {
         this.updateForm.patchValue({
           first_name: user.first_name,
           last_name: user.last_name,
-          limit_balance: user.spending_limit,
+          spending_limit: user.spending_limit,
           email: user.email,
           username: user.username,
           role: matchedRole ? matchedRole.value : null
@@ -71,17 +71,7 @@ export class UpdateComponent implements OnInit {
     }
 
     const formValues = this.updateForm.value;
-
-    const updatedData = {
-      first_name: formValues.first_name,
-      last_name: formValues.last_name,
-      spending_limit: formValues.limit_balance,
-      username: formValues.username,
-      email: formValues.email,
-      role: formValues.role
-    };
-
-    this.userService.updateUser(Number(this.userId), updatedData).subscribe({
+    this.userService.updateUser(Number(this.userId), formValues).subscribe({
       next: () => {
         this.router.navigate(['/pages/users']);
       },
