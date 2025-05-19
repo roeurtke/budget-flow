@@ -22,7 +22,6 @@ import Swal from 'sweetalert2';
 export class UsersComponent implements OnInit {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  users: User[] = [];
   loading = false;
   error: string | null = null;
 
@@ -35,24 +34,43 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     (window as any).jsZip = jszip;
     (window as any).pdfMake = pdfMake;
-
-    // Set pdfMake fonts
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.loadUsers();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
         <"d-flex justify-content-between align-items-center mt-3"ip>
       `,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.userService.getUsersForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       columns: [
         { 
           data: null,
@@ -129,28 +147,28 @@ export class UsersComponent implements OnInit {
     };
   }
 
-  loadUsers(): void {
-    this.loading = true;
-    this.userService.getUserList().subscribe({
-      next: (users) => {
-        this.users = users.sort((a, b) => b.id - a.id);
+  // loadUsers(): void {
+  //   this.loading = true;
+  //   this.userService.getUserList().subscribe({
+  //     next: (users) => {
+  //       this.users = users.sort((a, b) => b.id - a.id);
         
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.users);
-            dtInstance.draw(); // This will regenerate the sequential IDs
-          });
-        }
+  //       if (this.dtElement && this.dtElement.dtInstance) {
+  //         this.dtElement.dtInstance.then((dtInstance: any) => {
+  //           dtInstance.clear();
+  //           dtInstance.rows.add(this.users);
+  //           dtInstance.draw(); // This will regenerate the sequential IDs
+  //         });
+  //       }
         
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
-  }
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       this.error = err.message;
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 
   onCreate(event: Event): void {
     event.preventDefault();
@@ -182,16 +200,10 @@ export class UsersComponent implements OnInit {
   }
 
   onDelete(userId: Number): void {
-    if (!userId) {
-      console.error('No user ID provided for delete');
-      return;
-    }
+    if (!userId) return;
   
     const id = Number(userId);
-    if (isNaN(id)) {
-      console.error('Invalid user ID:', userId);
-      return;
-    }
+    if (isNaN(id)) return;
   
     Swal.fire({
       title: 'Are you sure?',
@@ -228,7 +240,10 @@ export class UsersComponent implements OnInit {
               timer: 2000,
               timerProgressBar: true
             });
-            this.loadUsers();
+            // Refresh the DataTable after deletion
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
           },
           error: (err) => {
             Swal.close();
