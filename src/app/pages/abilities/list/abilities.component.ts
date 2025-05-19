@@ -81,13 +81,13 @@ export class AbilitiesComponent {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show" disabled>
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit" disabled>
                 <i class="fas fa-sm fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete">
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" disabled>
                 <i class="fas fa-trash"></i>
               </button>
             `;
