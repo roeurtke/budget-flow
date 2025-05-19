@@ -18,7 +18,7 @@ export const dataTablesConfig: CustomDataTablesConfig = {
       className: 'btn btn-sm',
     },
   ],
-  data: [],
+  // data: [],
   pagingType: 'simple_numbers',
   language: {
     lengthMenu: 'Show _MENU_ Entries',
