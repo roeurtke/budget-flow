@@ -141,7 +141,7 @@ export class PermissionsComponent {
       console.error('No user ID provided for update');
       return;
     }
-    console.log('Update user clicked');
+    this.router.navigate([`/pages/permissions/update/${permissionId}`]);
   }
 
   onDelete(permissionId: number): void {

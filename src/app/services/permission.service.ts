@@ -49,4 +49,13 @@ export class PermissionService {
       })
     );
   }
+
+  updatePermission(permissionId: Number, permission: Permission): Observable<Permission | null> {
+    return this.http.put<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`, permission).pipe(
+      catchError(err => {
+        console.error('Error updating permission:', err);
+        return of(null);
+      })
+    );
+  }
 }
