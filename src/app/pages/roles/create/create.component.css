@@ -10,24 +10,24 @@ small.required {
 }
 
 .table-bordered td, .table-bordered th {
-    padding-top: 2px; /* Reduce padding */
-    padding-bottom: 2px; /* Reduce padding */
-    line-height: 2.4; /* Reduce line height for tighter rows */
-    font-size: 0.85rem; /* Slightly smaller font for compactness */
+    padding-top: 2px;
+    padding-bottom: 2px;
+    line-height: 2.4;
+    font-size: 0.85rem;
 }
 
 .table-bordered input.form-control {
-    height: 32px; /* Reduce input height */
-    padding: 2px 8px; /* Adjust padding inside inputs */
-    font-size: 0.85rem; /* Match font size with table */
+    height: 32px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
 }
 
 /* Optional: Adjust section headers for better spacing */
 .tw-bg-gray-100 {
-    padding: 8px; /* Reduce padding for section headers */
+    padding: 8px;
 }
 
 /* Ensure table rows are compact */
 .table-bordered tr {
-    height: 32px; /* Set a smaller fixed height for rows */
+    height: 32px;
 }

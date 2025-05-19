@@ -1,0 +1,33 @@
+label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+small.required {
+    color: red;
+}
+
+.table-bordered td, .table-bordered th {
+    padding-top: 2px;
+    padding-bottom: 2px;
+    line-height: 2.4;
+    font-size: 0.85rem;
+}
+
+.table-bordered input.form-control {
+    height: 32px;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+}
+
+/* Optional: Adjust section headers for better spacing */
+.tw-bg-gray-100 {
+    padding: 8px;
+}
+
+/* Ensure table rows are compact */
+.table-bordered tr {
+    height: 32px;
+}
