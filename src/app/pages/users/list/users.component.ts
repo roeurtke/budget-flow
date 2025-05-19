@@ -44,11 +44,6 @@ export class UsersComponent implements OnInit {
       ...dataTablesConfig,
       serverSide: true,
       processing: true,
-      dom: `
-        <"d-flex justify-content-between align-items-center mb-3"lBf>
-        t
-        <"d-flex justify-content-between align-items-center mt-3"ip>
-      `,
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
         this.userService.getUsersForDataTables(dataTablesParameters).subscribe({
@@ -71,6 +66,11 @@ export class UsersComponent implements OnInit {
           }
         });
       },
+      dom: `
+        <"d-flex justify-content-between align-items-center mb-3"lBf>
+        t
+        <"d-flex justify-content-between align-items-center mt-3"ip>
+      `,
       columns: [
         { 
           data: null,
