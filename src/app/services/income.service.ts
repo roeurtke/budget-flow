@@ -15,7 +15,7 @@ export class IncomeService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getIncomes(): Observable<Income[]> {
-    return this.http.get<{ results?: Income[] } | Income[]>(this.apiUrl).pipe(
+    return this.http.get<{ results?: Income[] } | Income[]>(`${this.apiUrl}/api/incomes/`).pipe(
       map((response: { results?: Income[] } | Income[]) => {
         if (Array.isArray(response)) return response;
         if (response.results) return response.results;
