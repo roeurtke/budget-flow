@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import {Router } from '@angular/router';
 
 @Component({
   selector: 'app-create',
@@ -7,5 +10,9 @@ import { Component } from '@angular/core';
   styleUrl: './create.component.css'
 })
 export class CreateComponent {
+  constructor(private router: Router) {}
 
+  onCancel(): void {
+    this.router.navigate(['/pages/abilities']);
+  }
 }
