@@ -38,7 +38,7 @@ export class CreateComponent {
   }
 
   loadRoles(): void {
-    this.roleService.getRole().subscribe({
+    this.roleService.getRoles().subscribe({
       next: (response) => {
         this.roles = response.map((role: any) => ({
           value: role.id,

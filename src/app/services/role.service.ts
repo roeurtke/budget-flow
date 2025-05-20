@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Role } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
@@ -14,7 +14,7 @@ export class RoleService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  getRole(): Observable<Role[]> {
+  getRoles(): Observable<Role[]> {
     return this.http.get<{ results?: Role[] } | Role[]>(`${this.apiUrl}/api/roles/`).pipe(
       map((response: { results?: Role[] } | Role[]) => {
       if (Array.isArray(response)) return response;
@@ -25,14 +25,14 @@ export class RoleService {
   }
 
   getRoleList(page: number = 1, pageSize: number = 10, searchTerm: string = '', ordering: string = ''): Observable<any> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('page_size', pageSize.toString());
-
-    if (searchTerm) params = params.set('search', searchTerm);
-    if (ordering) params = params.set('ordering', ordering);
-
-    return this.http.get<any>(`${this.apiUrl}/api/roles/`, { params });
+    return this.http.get<any>(`${this.apiUrl}/api/roles/`, {
+      params: {
+        page: page.toString(),
+        page_size: pageSize.toString(),
+        search: searchTerm,
+        ordering
+      }
+    });
   }
 
   getRolesForDataTables(dtParams: any): Observable<any> {
