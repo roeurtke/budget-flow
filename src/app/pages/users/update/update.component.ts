@@ -61,7 +61,7 @@ export class UpdateComponent implements OnInit {
           value: role.id,
           label: role.name
         }));
-        const matchedRole = this.roles.find(r => r.label.toLowerCase() === user.role.name.toLowerCase());
+        const matchedRole = this.roles.find(r => r.value === user.role.id);
         this.updateForm.patchValue({
           first_name: user.first_name,
           last_name: user.last_name,
