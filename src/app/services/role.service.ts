@@ -17,9 +17,11 @@ export class RoleService {
   getRoles(): Observable<Role[]> {
     return this.http.get<{ results?: Role[] } | Role[]>(`${this.apiUrl}/api/roles/`, { params: { page_size: '100' } }).pipe(
       map((response: { results?: Role[] } | Role[]) => {
+      let roles: Role[] = [];
       if (Array.isArray(response)) return response;
-      if (response.results) return response.results;
-      return [response as Role];
+      else if (response.results) roles = response.results;
+      else roles = [response as Role];
+      return roles.filter(role => role.status == true);
       })
     );
   }
