@@ -2,14 +2,13 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractControl } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
-import { Role } from '../../../interfaces/fetch-data.interface';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-user-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], // Import ReactiveFormsModule
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './create.component.html',
   styleUrl: './create.component.css'
 })
@@ -39,15 +38,15 @@ export class CreateComponent {
   }
 
   loadRoles(): void {
-    this.roleService.getRoleList().subscribe({
-        next: (roles) => {
-        this.roles = roles.map((role: Role) => ({
+    this.roleService.getRole().subscribe({
+      next: (response) => {
+        this.roles = response.map((role: any) => ({
           value: role.id,
           label: role.name
         }));
       },
       error: (err) => {
-        console.error('Failed to fetch roles:', err);
+        console.error('Failed to load roles:', err);
       }
     });
   }

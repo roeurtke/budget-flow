@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { Role } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,9 +14,16 @@ export class RoleService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  // getRoleList(): Observable<Role[]> {
-  //   return this.http.get<Role[]>(`${this.apiUrl}/api/roles/`);
-  // }
+  getRole(): Observable<Role[]> {
+    return this.http.get<{ results?: Role[] } | Role[]>(`${this.apiUrl}/api/roles/`).pipe(
+      map((response: { results?: Role[] } | Role[]) => {
+      if (Array.isArray(response)) return response;
+      if (response.results) return response.results;
+      return [response as Role];
+      })
+    );
+  }
+
   getRoleList(page: number = 1, pageSize: number = 10, searchTerm: string = '', ordering: string = ''): Observable<any> {
     let params = new HttpParams()
       .set('page', page.toString())
