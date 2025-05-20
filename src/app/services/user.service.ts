@@ -1,32 +1,39 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  // private apiUrl = `${environment.apiUrl}/api/users/`;
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private authService: AuthService) { } // Inject AuthService
 
-  // getUserList(): Observable<User[]> {
-  //   return this.http.get<User[]>(`${this.apiUrl}/api/users/`);
-  // }
+  // Fetch the current user's permissions
+  getUsers(): Observable<User[]> {
+    return this.http.get<{ results?: User[] } | User[]>(`${this.apiUrl}/api/users/`).pipe(
+      map((response: { results?: User[] } | User[]) => {
+        if (Array.isArray(response)) return response;
+        if (response.results) return response.results;
+        return [response as User];
+      })
+    );
+  }
 
   getUserList(page: number = 1, pageSize: number = 10, searchTerm: string = '', ordering: string = ''): Observable<any> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('page_size', pageSize.toString());
-
-    if (searchTerm) params = params.set('search', searchTerm);
-    if (ordering) params = params.set('ordering', ordering);
-
-    return this.http.get<any>(`${this.apiUrl}/api/users/`, { params });
+    return this.http.get<any>(`${this.apiUrl}/api/users/`, {
+      params: {
+        page: page.toString(),
+        page_size: pageSize.toString(),
+        search: searchTerm,
+        ordering
+      }
+    });
   }
 
   // DataTables specific version
