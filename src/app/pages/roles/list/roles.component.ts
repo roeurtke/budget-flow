@@ -54,7 +54,6 @@ export class RolesComponent {
           }
         });
       },
-      buttons: [],
       pagingType: 'simple_numbers',
       language: {
         lengthMenu: 'Show _MENU_ Entries',

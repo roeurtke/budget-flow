@@ -52,7 +52,6 @@ export class AbilitiesComponent {
           }
         });
       },
-      buttons: [],
       pagingType: 'simple_numbers',
       language: {
         lengthMenu: 'Show _MENU_ Entries',
