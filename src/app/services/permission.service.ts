@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { of, Observable } from 'rxjs';
+import { of, Observable, throwError } from 'rxjs';
 import { Permission } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -44,8 +44,8 @@ export class PermissionService {
   createPermission(permission: Permission): Observable<Permission | null> {
     return this.http.post<Permission>(`${this.apiUrl}/api/permissions/`, permission).pipe(
       catchError(err => {
-        console.error('Error creating permission:', err);
-        return of(null);
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
@@ -53,8 +53,8 @@ export class PermissionService {
   updatePermission(permissionId: Number, permission: Permission): Observable<Permission | null> {
     return this.http.put<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`, permission).pipe(
       catchError(err => {
-        console.error('Error updating permission:', err);
-        return of(null);
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
@@ -62,8 +62,8 @@ export class PermissionService {
   getPermissionById(permissionId: Number): Observable<Permission | null> {
     return this.http.get<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
       catchError(err => {
-        console.error('Error fetching permission:', err);
-        return of(null);
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
