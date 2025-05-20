@@ -53,7 +53,7 @@ export class UpdateComponent implements OnInit {
 
   loadUserAndRoles(userId: string): void {
     forkJoin({
-      roles: this.roleService.getRoleList(),
+      roles: this.roleService.getRole(),
       user: this.userService.getUserById(userId)
     }).subscribe({
       next: ({ roles, user }) => {
