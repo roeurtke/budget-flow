@@ -20,7 +20,6 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 export class IncomesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  incomes: Income[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -34,14 +33,35 @@ export class IncomesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.loadIncomes();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.incomeService.getIncomesForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -114,29 +134,6 @@ export class IncomesComponent {
         }
       ]
     };
-  }
-
-  loadIncomes(): void {
-    this.loading = true;
-    this.incomeService.getIncomeList().subscribe({
-      next: (incomes) => {
-        this.incomes = incomes.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.incomes);
-            dtInstance.draw();
-          });
-        }
-        
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
   }
 
   onCreate(event: Event): void {
