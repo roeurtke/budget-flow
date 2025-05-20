@@ -44,6 +44,14 @@ tr > td div.dt-column-footer span.dt-column-title {
     color: #ffffffd1;
 }
 
+table.dataTable thead >
+tr > th.dt-orderable-asc:hover, table.dataTable thead >
+tr > th.dt-orderable-desc:hover, table.dataTable thead >
+tr > td.dt-orderable-asc:hover, table.dataTable thead >
+tr > td.dt-orderable-desc:hover {
+    outline: none;
+}
+
 label {
     font-size: 14px;
     color: #475f7b;
