@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
+import { Role } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
 
@@ -56,7 +57,7 @@ export class UpdateComponent implements OnInit {
       user: this.userService.getUserById(userId)
     }).subscribe({
       next: ({ roles, user }) => {
-        this.roles = roles.map(role => ({
+        this.roles = roles.map((role: Role) => ({
           value: role.id,
           label: role.name
         }));

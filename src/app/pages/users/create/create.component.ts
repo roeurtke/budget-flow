@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractControl } from '@angular/forms';
 import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
+import { Role } from '../../../interfaces/fetch-data.interface';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -40,7 +41,7 @@ export class CreateComponent {
   loadRoles(): void {
     this.roleService.getRoleList().subscribe({
         next: (roles) => {
-        this.roles = roles.map(role => ({
+        this.roles = roles.map((role: Role) => ({
           value: role.id,
           label: role.name
         }));

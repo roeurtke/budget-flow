@@ -29,14 +29,36 @@ export class RolesComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.loadRoles();
+    // this.loadRoles();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.roleService.getRolesForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -110,29 +132,6 @@ export class RolesComponent {
     };
   }
 
-  loadRoles(): void {
-    this.loading = true;
-    this.roleService.getRoleList().subscribe({
-      next: (roles) => {
-        this.roles = roles.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.roles);
-            dtInstance.draw();
-          });
-        }
-        
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
-  }
-
   onCreate(event: Event): void {
     event.preventDefault();
     this.router.navigate(['/pages/roles/create']);
@@ -155,16 +154,10 @@ export class RolesComponent {
   }
 
   onDelete(userId: Number): void {
-    if (!userId) {
-      console.error('No user ID provided for delete');
-      return;
-    }
+    if (!userId) return;
   
     const id = Number(userId);
-    if (isNaN(id)) {
-      console.error('Invalid user ID:', userId);
-      return;
-    }
+    if (isNaN(id)) return;
   
     Swal.fire({
       title: 'Are you sure?',
@@ -201,7 +194,10 @@ export class RolesComponent {
               timer: 2000,
               timerProgressBar: true
             });
-            this.loadRoles();
+            // Refresh the DataTable after deletion
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
           },
           error: (err) => {
             Swal.close();
