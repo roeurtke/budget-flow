@@ -19,7 +19,6 @@ import Swal from 'sweetalert2';
 export class RolesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  roles: Role[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -29,7 +28,6 @@ export class RolesComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    // this.loadRoles();
   }
 
   initializeDataTable(): void {
