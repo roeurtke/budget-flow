@@ -34,17 +34,16 @@ export class UpdateComponent {
   }
 
   loadPermission(permissionId: Number): void {
-    this.permissionService.getPermissionList().subscribe({
-      next: (permissions) => {
-        const permission = permissions.find((p: any) => p.id === permissionId);
+    this.permissionService.getPermissionById(permissionId).subscribe({
+      next: (permission) => {
         if (permission) {
           this.updateForm.patchValue({
             name: permission.name,
             codename: permission.codename,
-            description: permission.description,
+            description: permission.description
           });
         } else {
-          console.error('Permission not found with id:', permissionId);
+          console.error('Permission data is null');
         }
       },
       error: (error) => {

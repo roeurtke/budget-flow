@@ -15,11 +15,55 @@ export class PermissionService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
-  getPermissionList(): Observable<Permission[]> {
-    return this.http.get<Permission[]>(`${this.apiUrl}/api/permissions/`).pipe(
+  getPermissionList(page: number = 1, pageSize: number = 10, searchTerm: string = '', ordering: string = ''): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/api/permissions/`, {
+      params: {
+        page: page.toString(),
+        page_size: pageSize.toString(),
+        search: searchTerm,
+        ordering
+      }
+    });
+  }
+
+  getPermissionForDataTables(dtParams: any): Observable<any> {
+    const page = (dtParams.start / dtParams.length) + 1;
+    const pageSize = dtParams.length;
+    const searchTerm = dtParams.search.value;
+
+    let ordering = '';
+    if (dtParams.order && dtParams.order.length > 0) {
+      const order = dtParams.order[0];
+      const columnName = dtParams.columns[order.column].data;
+      ordering = order.dir === 'desc' ? `-${columnName}` : columnName;
+    }
+
+    return this.getPermissionList(page, pageSize, searchTerm, ordering);
+  }
+
+  createPermission(permission: Permission): Observable<Permission | null> {
+    return this.http.post<Permission>(`${this.apiUrl}/api/permissions/`, permission).pipe(
       catchError(err => {
-        console.error('Error fetching permissions:', err);
-        return of([]);
+        console.error('Error creating permission:', err);
+        return of(null);
+      })
+    );
+  }
+
+  updatePermission(permissionId: Number, permission: Permission): Observable<Permission | null> {
+    return this.http.put<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`, permission).pipe(
+      catchError(err => {
+        console.error('Error updating permission:', err);
+        return of(null);
+      })
+    );
+  }
+
+  getPermissionById(permissionId: Number): Observable<Permission | null> {
+    return this.http.get<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
+      catchError(err => {
+        console.error('Error fetching permission:', err);
+        return of(null);
       })
     );
   }
@@ -38,24 +82,6 @@ export class PermissionService {
   hasPermission(permission: string): Observable<boolean> {
     return this.getPermissions().pipe(
       map(perms => perms.includes(permission))
-    );
-  }
-
-  createPermission(permission: Permission): Observable<Permission | null> {
-    return this.http.post<Permission>(`${this.apiUrl}/api/permissions/`, permission).pipe(
-      catchError(err => {
-        console.error('Error creating permission:', err);
-        return of(null);
-      })
-    );
-  }
-
-  updatePermission(permissionId: Number, permission: Permission): Observable<Permission | null> {
-    return this.http.put<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`, permission).pipe(
-      catchError(err => {
-        console.error('Error updating permission:', err);
-        return of(null);
-      })
     );
   }
 }

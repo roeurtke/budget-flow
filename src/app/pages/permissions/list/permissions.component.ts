@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { PermissionService } from '../../../services/permission.service';
-import { Permission } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
@@ -18,7 +17,6 @@ import { Router } from '@angular/router';
 export class PermissionsComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  permissions: Permission[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -28,14 +26,35 @@ export class PermissionsComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.loadPermissions();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.permissionService.getPermissionForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -98,29 +117,6 @@ export class PermissionsComponent {
         }
       ]
     };
-  }
-
-  loadPermissions(): void {
-    this.loading = true;
-    this.permissionService.getPermissionList().subscribe({
-      next: (permissions) => {
-        this.permissions = permissions.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.permissions);
-            dtInstance.draw();
-          });
-        }
-
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
   }
 
   onCreate(event: Event): void {
