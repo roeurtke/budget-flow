@@ -2,7 +2,6 @@ import { Component, ViewChild } from '@angular/core';
 import { AbilityService } from '../../../services/ability.service';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
-import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
@@ -29,7 +28,6 @@ export class AbilitiesComponent {
 
   initializeDataTable(): void {
     this.dtOptions = {
-      ...dataTablesConfig,
       serverSide: true,
       processing: true,
       ajax: (dataTablesParameters: any, callback: any) => {
@@ -54,11 +52,6 @@ export class AbilitiesComponent {
           }
         });
       },
-      dom: `
-        <"d-flex justify-content-between align-items-center mb-3"lBf>
-        t
-        <"d-flex justify-content-between align-items-center mt-3"ip>
-      `,
       buttons: [],
       pagingType: 'simple_numbers',
       language: {
