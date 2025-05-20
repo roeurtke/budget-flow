@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { RoleService } from '../../../services/role.service';
-import { Role } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';

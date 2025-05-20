@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { AbilityService } from '../../../services/ability.service';
-import { RolePermission } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
@@ -17,7 +16,6 @@ import { format } from 'date-fns';
 export class AbilitiesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  rolePermissions: RolePermission[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -27,14 +25,35 @@ export class AbilitiesComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.loadRolePermissions();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.abilityService.getRolePermissionsForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -95,29 +114,6 @@ export class AbilitiesComponent {
         }
       ]
     };
-  }
-
-  loadRolePermissions(): void {
-    this.loading = true;
-    this.abilityService.getRolePermissionList().subscribe({
-      next: (rolePermissions) => {
-        this.rolePermissions = rolePermissions.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.rolePermissions);
-            dtInstance.draw();
-          });
-        }
-        
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
   }
 
   onCreate(event: Event): void {
