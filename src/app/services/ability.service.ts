@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { RolePermission } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +29,9 @@ export class AbilityService {
       map((response: RolePermission) => {
         return response;
       }),
-      map((response: RolePermission) => {
-        return response;
+      catchError((error) => {
+        if (error.status === 404) return of(null);
+        return throwError(() => error)
       })
     );
   }
@@ -63,33 +64,27 @@ export class AbilityService {
 
   createRolePermission(rolePermission: RolePermission): Observable<RolePermission | null> {
     return this.http.post<RolePermission>(`${this.apiUrl}/api/role-permissions/`, rolePermission).pipe(
-      map((response: RolePermission) => {
-        return response;
-      }),
-      map((response: RolePermission) => {
-        return response;
+      catchError((err) => {
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
 
   updateRolePermission(rolePermissionId: number, rolePermission: RolePermission): Observable<RolePermission | null> {
     return this.http.put<RolePermission>(`${this.apiUrl}/api/role-permissions/${rolePermissionId}/`, rolePermission).pipe(
-      map((response: RolePermission) => {
-        return response;
-      }),
-      map((response: RolePermission) => {
-        return response;
+      catchError((err) => {
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
 
   deleteRolePermission(rolePermissionId: number): Observable<RolePermission | null> {
     return this.http.delete<RolePermission>(`${this.apiUrl}/api/role-permissions/${rolePermissionId}/`).pipe(
-      map((response: RolePermission) => {
-        return response;
-      }),
-      map((response: RolePermission) => {
-        return response;
+      catchError((err) => {
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
       })
     );
   }
