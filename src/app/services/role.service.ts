@@ -15,7 +15,7 @@ export class RoleService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getRoles(): Observable<Role[]> {
-    return this.http.get<{ results?: Role[] } | Role[]>(`${this.apiUrl}/api/roles/`).pipe(
+    return this.http.get<{ results?: Role[] } | Role[]>(`${this.apiUrl}/api/roles/`, { params: { page_size: '100' } }).pipe(
       map((response: { results?: Role[] } | Role[]) => {
       if (Array.isArray(response)) return response;
       if (response.results) return response.results;
