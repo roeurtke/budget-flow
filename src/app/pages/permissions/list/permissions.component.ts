@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-permissions',
@@ -142,12 +143,59 @@ export class PermissionsComponent {
     this.router.navigate([`/pages/permissions/update/${permissionId}`]);
   }
 
-  onDelete(permissionId: number): void {
-    if (!permissionId) {
-      console.error('No user ID provided for delete');
-      return;
-    }
-    console.log('Delete user clicked');
+  onDelete(userId: Number): void {
+    if (!userId) return;
+  
+    const id = Number(userId);
+    if (isNaN(id)) return;
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn',
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the user',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.permissionService.deletePermission(id).subscribe({
+          next: () => {
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'User has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
+          },
+          error: (err) => {
+            Swal.close();
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete user.', 'error');
+          }
+        });
+      }
+    });
   }
 
   ngAfterViewInit(): void {

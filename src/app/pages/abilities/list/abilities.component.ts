@@ -5,6 +5,8 @@ import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { format } from 'date-fns';
+import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-abilities',
@@ -20,7 +22,7 @@ export class AbilitiesComponent {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private abilityService: AbilityService) {}
+  constructor(private abilityService: AbilityService, private router: Router) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -120,6 +122,97 @@ export class AbilitiesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
-    console.log('Create user clicked');
+    this.router.navigate(['/pages/abilities/create']);
+  }
+
+  onDetail(rolePermissionId: number): void {
+    if (!rolePermissionId) {return;}
+    this.router.navigate(['/pages/abilities/detail', rolePermissionId]);
+  }
+
+  onUpdate(rolePermissionId: number): void {
+    if (!rolePermissionId) {return;}
+    this.router.navigate(['/pages/abilities/update', rolePermissionId]);
+  }
+
+  onDelete(userId: Number): void {
+    if (!userId) return;
+  
+    const id = Number(userId);
+    if (isNaN(id)) return;
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn',
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the user',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.abilityService.deleteRolePermission(id).subscribe({
+          next: () => {
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'User has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
+          },
+          error: (err) => {
+            Swal.close();
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete user.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+      document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_delete = target.closest('.btn-danger');
+
+      if (btn_detail) {
+        const rolePermissionId = btn_detail?.getAttribute('data-id');
+        if (rolePermissionId) {
+          this.onDetail(Number(rolePermissionId));
+        }
+      } else if (btn_update) {
+        const rolePermissionId = btn_update?.getAttribute('data-id');
+        if (rolePermissionId) {
+          this.onUpdate(Number(rolePermissionId));
+        }
+      } else if (btn_delete) {
+        const rolePermissionId = btn_delete?.getAttribute('data-id');
+        if (rolePermissionId) {
+          this.onDelete(Number(rolePermissionId));
+        }
+      }
+    });
   }
 }

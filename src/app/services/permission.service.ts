@@ -59,6 +59,15 @@ export class PermissionService {
     );
   }
 
+  deletePermission(permissionId: Number): Observable<Permission | null> {
+    return this.http.delete<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
+      catchError(err => {
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
+      })
+    );
+  }
+
   getPermissionById(permissionId: Number): Observable<Permission | null> {
     return this.http.get<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
       catchError(err => {
