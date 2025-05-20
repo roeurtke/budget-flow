@@ -80,6 +80,15 @@ export class PermissionsComponent {
           render: (data: string) => data || 'None'
         },
         {
+          data: 'status',
+          title: 'Status',
+          render: (data: boolean) => {
+            const statusText = data ? 'Active' : 'Inactive';
+            const badgeClass = data ? 'badge badge-primary' : 'badge badge-danger';
+            return `<span class="${badgeClass}">${statusText}</span>`;
+          }
+        },
+        {
           data: 'created_at',
           title: 'Created',
           render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
@@ -94,6 +103,7 @@ export class PermissionsComponent {
           title: 'Actions',
           orderable: false,
           render: (data: any, type: any, row: any) => {
+            const isActive = !row.status;
             return `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
                 <i class="fas fa-sm fa-list-alt"></i>
@@ -101,7 +111,7 @@ export class PermissionsComponent {
               <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
                 <i class="fas fa-sm fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" disabled>
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isActive ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
               </button>
             `;
