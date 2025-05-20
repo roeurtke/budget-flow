@@ -7,9 +7,6 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { format } from 'date-fns';
-import jszip from 'jszip';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -31,10 +28,6 @@ export class UsersComponent implements OnInit {
   constructor(private userService: UserService, private router: Router) {}
 
   ngOnInit(): void {
-    (window as any).jsZip = jszip;
-    (window as any).pdfMake = pdfMake;
-    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
-
     this.initializeDataTable();
   }
 
@@ -65,11 +58,6 @@ export class UsersComponent implements OnInit {
           }
         });
       },
-      dom: `
-        <"d-flex justify-content-between align-items-center mb-3"lBf>
-        t
-        <"d-flex justify-content-between align-items-center mt-3"ip>
-      `,
       columns: [
         { 
           data: null,

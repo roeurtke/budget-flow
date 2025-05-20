@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { IncomeService } from '../../../services/income.service';
-import { Income } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';

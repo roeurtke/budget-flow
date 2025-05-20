@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { IncomeCategoryService } from '../../../services/income-category.service';
-import { IncomeCategory } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -19,7 +18,6 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 export class IncomeCategoriesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  incomeCategories: IncomeCategory[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -33,14 +31,35 @@ export class IncomeCategoriesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.loadIncomeCategories();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.incomeCategoryService.getIncomeCategoriesForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -98,29 +117,6 @@ export class IncomeCategoriesComponent {
         }
       ]
     };
-  }
-
-  loadIncomeCategories(): void {
-    this.loading = true;
-    this.incomeCategoryService.getIncomeCategoryList().subscribe({
-      next: (incomeCategories) => {
-        this.incomeCategories = incomeCategories.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.incomeCategories);
-            dtInstance.draw();
-          });
-        }
-        
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
   }
 
   onCreate(event: Event): void {

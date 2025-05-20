@@ -1,6 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
 import { ExpenseService } from '../../../services/expense.service';
-import { Expense } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -20,7 +19,6 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 export class ExpensesComponent {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
-  expenses: Expense[] = [];
   loading = false;
   error: string | null = null;
   dtOptions: any = {};
@@ -34,14 +32,35 @@ export class ExpensesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.loadExpenes();
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: false,
+      serverSide: true,
       processing: true,
+      ajax: (dataTablesParameters: any, callback: any) => {
+        this.loading = true;
+        this.expenseService.getExpensesForDataTables(dataTablesParameters).subscribe({
+          next: (response) => {
+            callback({
+              recordsTotal: response.count,
+              recordsFiltered: response.count,
+              data: response.results
+            });
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = err.message;
+            callback({
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
+            });
+            this.loading = false;
+          }
+        });
+      },
       dom: `
         <"d-flex justify-content-between align-items-center mb-3"lBf>
         t
@@ -114,29 +133,6 @@ export class ExpensesComponent {
         }
       ]
     };
-  }
-
-  loadExpenes(): void {
-    this.loading = true;
-    this.expenseService.getExpenseList().subscribe({
-      next: (expenses) => {
-        this.expenses = expenses.sort((a, b) => b.id - a.id);
-        
-        if (this.dtElement && this.dtElement.dtInstance) {
-          this.dtElement.dtInstance.then((dtInstance: any) => {
-            dtInstance.clear();
-            dtInstance.rows.add(this.expenses);
-            dtInstance.draw();
-          });
-        }
-        
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
   }
 
   onCreate(event: Event): void {
