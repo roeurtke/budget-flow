@@ -15,6 +15,18 @@ export class PermissionService {
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
+  getPermissions(): Observable<Permission[]> {
+    return this.http.get<{ results?: Permission[] } | Permission[]>(`${this.apiUrl}/api/permissions/`, { params: { page_size: '100' } }).pipe(
+      map((response: { results?: Permission[] } | Permission[]) => {
+        let permissions: Permission[] = [];
+        if (Array.isArray(response)) return response;
+        else if (response.results) permissions = response.results;
+        else permissions = [response as Permission];
+        return permissions.filter(permission => permission.status == true);
+      })
+    );
+  }
+
   getPermissionList(page: number = 1, pageSize: number = 10, searchTerm: string = '', ordering: string = ''): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/api/permissions/`, {
       params: {
@@ -24,6 +36,15 @@ export class PermissionService {
         ordering
       }
     });
+  }
+
+  getPermissionById(permissionId: Number): Observable<Permission | null> {
+    return this.http.get<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
+      catchError(err => {
+        if (err.status === 404) return of(null);
+        return throwError(() => err);
+      })
+    );
   }
 
   getPermissionForDataTables(dtParams: any): Observable<any> {
@@ -68,29 +89,20 @@ export class PermissionService {
     );
   }
 
-  getPermissionById(permissionId: Number): Observable<Permission | null> {
-    return this.http.get<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
-      catchError(err => {
-        if (err.status === 404) return of(null);
-        return throwError(() => err);
-      })
-    );
-  }
-
   // Optional: cache permissions
-  getPermissions(): Observable<string[]> {
-    if (!this.cachedPermissions$) {
-      this.cachedPermissions$ = this.http.get<string[]>(`${this.apiUrl}/api/permissions/`).pipe(
-        shareReplay(1),
-        catchError(() => of([]))
-      );
-    }
-    return this.cachedPermissions$;
-  }
+  // getPermissions(): Observable<string[]> {
+  //   if (!this.cachedPermissions$) {
+  //     this.cachedPermissions$ = this.http.get<string[]>(`${this.apiUrl}/api/permissions/`).pipe(
+  //       shareReplay(1),
+  //       catchError(() => of([]))
+  //     );
+  //   }
+  //   return this.cachedPermissions$;
+  // }
 
-  hasPermission(permission: string): Observable<boolean> {
-    return this.getPermissions().pipe(
-      map(perms => perms.includes(permission))
-    );
-  }
+  // hasPermission(permission: string): Observable<boolean> {
+  //   return this.getPermissions().pipe(
+  //     map(perms => perms.includes(permission))
+  //   );
+  // }
 }

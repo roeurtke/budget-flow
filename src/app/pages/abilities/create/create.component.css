@@ -5,6 +5,10 @@ label {
     margin-bottom: 0;
 }
 
+small.required {
+    color: red;
+}
+
 .table-bordered td, .table-bordered th {
     padding-top: 2px;
     padding-bottom: 2px;
