@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
+import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
@@ -30,6 +31,7 @@ export class PermissionsComponent {
 
   initializeDataTable(): void {
     this.dtOptions = {
+      ...dataTablesConfig,
       serverSide: true,
       processing: true,
       ajax: (dataTablesParameters: any, callback: any) => {
@@ -53,14 +55,6 @@ export class PermissionsComponent {
             this.loading = false;
           }
         });
-      },
-      pagingType: 'simple_numbers',
-      language: {
-        lengthMenu: 'Show _MENU_ Entries',
-        paginate: {
-          previous: 'Previous',
-          next: 'Next',
-        },
       },
       columns: [
         { 
