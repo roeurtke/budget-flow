@@ -64,17 +64,19 @@ export class UpdateComponent {
   }
 
   updatePermission(): void {
-    if (this.permissionId) {
-      this.permissionService.updatePermission(Number(this.permissionId), this.updateForm.value).subscribe({
-        next: (response) => {
-          console.log('Permission updated successfully:', response);
-          this.router.navigate(['/pages/permissions']);
-        },
-        error: (error) => {
-          console.error('Error updating permission:', error);
-        }
-      });
+    if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
+      return;
     }
+    const permissionData = this.updateForm.value;
+    this.permissionService.updatePermission(Number(this.permissionId), permissionData).subscribe({
+      next: () => {
+        this.router.navigate(['/pages/permissions']);
+      },
+      error: (error) => {
+        console.error('Error updating permission:', error);
+      }
+    });
   }
 
   onCancel(): void {
