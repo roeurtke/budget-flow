@@ -82,7 +82,7 @@ export class UsersComponent implements OnInit {
         },
         { data: 'spending_limit',
           title: 'Limit (USD)',
-          type: 'string',
+          type: 'number',
           render: (data: number) => data || 'None'
         },
         {

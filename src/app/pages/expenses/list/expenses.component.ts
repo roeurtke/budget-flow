@@ -87,7 +87,7 @@ export class ExpensesComponent {
         },
         { data: 'spent_amount',
           title: 'Spent Amount',
-          type: 'string',
+          type: 'number',
           render: (data: number) => data || 'None'
         },
         { data: 'currency',
