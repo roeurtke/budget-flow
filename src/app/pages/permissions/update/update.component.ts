@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 export class UpdateComponent {
   updateForm: FormGroup;
   permissionId: string | null = null;
+  statuses: { value: boolean; label: string }[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -22,15 +23,24 @@ export class UpdateComponent {
     this.updateForm = this.fb.group({
       name: [''],
       codename: [''],
-      description: ['']
+      description: [''],
+      status: ['']
     });
   }
 
   ngOnInit(): void {
+    this.initStatuses();
     this.permissionId = this.route.snapshot.paramMap.get('id');
     if (this.permissionId) {
       this.loadPermission(Number(this.permissionId));
     }
+  }
+
+  initStatuses(): void {
+    this.statuses = [
+      { value: true, label: 'Active' },
+      { value: false, label: 'Inactive' }
+    ];
   }
 
   loadPermission(permissionId: Number): void {
@@ -40,7 +50,8 @@ export class UpdateComponent {
           this.updateForm.patchValue({
             name: permission.name,
             codename: permission.codename,
-            description: permission.description
+            description: permission.description,
+            status: permission.status
           });
         } else {
           console.error('Permission data is null');

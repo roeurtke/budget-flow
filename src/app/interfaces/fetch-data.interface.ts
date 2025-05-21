@@ -28,6 +28,7 @@ export interface Permission {
     name: string;
     codename: string;
     description: string;
+    status: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -45,6 +46,7 @@ export interface RolePermission {
         codename: string;
         description: string;
     };
+    status: boolean;
     created_at: string;
     updated_at: string;
 }
