@@ -79,6 +79,11 @@ export class CreateComponent {
     });
   }
 
+  onPermissionChange(event: any): void {
+    const selectedPermission = event.value;
+    this.createForm.patchValue({ permission: selectedPermission });
+  }
+
   onCancel(): void {
     this.router.navigate(['/pages/abilities']);
   }
