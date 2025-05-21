@@ -22,7 +22,7 @@
                             <td width="10%" class="text-right"><label for="permission">Permissions <small class="required">*</small></label></td>
                             <td width="20%">
                                 <div *ngFor="let permission of permissions">
-                                    <label><input type="checkbox" formControlName="permission" 
+                                    <label><input type="checkbox" id="permission"
                                         [value]="permission.value"
                                         (change)="onPermissionChange($event)"
                                         />

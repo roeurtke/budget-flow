@@ -5,6 +5,7 @@ import { RoleService } from '../../../services/role.service';
 import { PermissionService } from '../../../services/permission.service';
 import { CommonModule } from '@angular/common';
 import {Router } from '@angular/router';
+import { FormArray } from '@angular/forms';
 
 @Component({
   selector: 'app-create',
@@ -25,7 +26,7 @@ export class CreateComponent {
     private router: Router) {
     this.createForm = this.fb.group({
       role: ['', Validators.required],
-      permission: ['', Validators.required],
+      permission: this.fb.array([], Validators.required)
     });
   }
 
@@ -79,10 +80,21 @@ export class CreateComponent {
     });
   }
 
-  onPermissionChange(event: any): void {
-    const selectedPermission = event.value;
-    this.createForm.patchValue({ permission: selectedPermission });
+  get permissionArray(): FormArray {
+    return this.createForm.get('permission') as FormArray;
   }
+
+  onPermissionChange(event: any): void {
+  const value = +event.target.value; // Convert to number if needed
+  if (event.target.checked) {
+    this.permissionArray.push(this.fb.control(value));
+  } else {
+    const index = this.permissionArray.controls.findIndex(x => x.value === value);
+    if (index !== -1) {
+      this.permissionArray.removeAt(index);
+    }
+  }
+}
 
   onCancel(): void {
     this.router.navigate(['/pages/abilities']);
