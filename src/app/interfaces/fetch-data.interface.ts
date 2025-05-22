@@ -51,6 +51,16 @@ export interface RolePermission {
     updated_at: string;
 }
 
+export interface RoleWithPermissionCount extends Role {
+    id: number;
+    name: string;
+    description: string;
+    status: boolean;
+    permission_count: number;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Income {
     id: number;
     date: string;

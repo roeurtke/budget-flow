@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { RolePermission } from '../interfaces/fetch-data.interface';
+import { Observable, of, throwError, forkJoin } from 'rxjs';
+import {RolePermission, RoleWithPermissionCount } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { catchError, map } from 'rxjs/operators';
+import { RoleService } from './role.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,14 +13,16 @@ import { catchError, map } from 'rxjs/operators';
 export class AbilityService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient, private authService: AuthService) { }
+  constructor(private http: HttpClient, private authService: AuthService, private roleService: RoleService) { }
 
   getRolePermissions(): Observable<RolePermission[]> {
-    return this.http.get<{ results?: RolePermission[] } | RolePermission[]>(`${this.apiUrl}/api/role-permissions/`).pipe(
+    return this.http.get<{ results?: RolePermission[] } | RolePermission[]>(`${this.apiUrl}/api/role-permissions/`, { params: { page_size: '100' } }).pipe(
       map((response: { results?: RolePermission[] } | RolePermission[]) => {
+        let rolePermissions: RolePermission[] = [];
         if (Array.isArray(response)) return response;
-        if (response.results) return response.results;
-        return [response as RolePermission];
+        else if (response.results) rolePermissions = response.results;
+        else rolePermissions = [response as RolePermission];
+        return rolePermissions.filter(rolePermission => rolePermission.status == true);
       })
     );
   }
@@ -60,6 +63,34 @@ export class AbilityService {
     }
 
     return this.getRolePermissionList(page, pageSize, searchTerm, ordering);
+  }
+
+  getRolesWithPermissionCountForDataTables(): Observable<{ count: number, results: RoleWithPermissionCount[] }> {
+    return forkJoin([
+      this.roleService.getRoles(),
+      this.getRolePermissions()
+    ]).pipe(
+      map(([roles, rolePermissions]) => {
+        // Step 1: Count permissions per role
+        const permissionCountMap = new Map<number, number>();
+
+        rolePermissions.forEach((rp) => {
+          const roleId = rp.role.id;
+          permissionCountMap.set(roleId, (permissionCountMap.get(roleId) || 0) + 1);
+        });
+
+        // Step 2: Merge roles with their permission count
+        const results: RoleWithPermissionCount[] = roles.map((role) => ({
+          ...role,
+          permission_count: permissionCountMap.get(role.id) || 0
+        }));
+
+        return {
+          count: results.length,
+          results
+        };
+      })
+    );
   }
 
   createRolePermission(rolePermission: RolePermission): Observable<RolePermission | null> {

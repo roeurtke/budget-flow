@@ -36,7 +36,7 @@ export class AbilitiesComponent {
       processing: true,
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
-        this.abilityService.getRolePermissionsForDataTables(dataTablesParameters).subscribe({
+        this.abilityService.getRolesWithPermissionCountForDataTables().subscribe({
           next: (response) => {
             callback({
               recordsTotal: response.count,
@@ -63,14 +63,15 @@ export class AbilitiesComponent {
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         {
-          data: 'role',
+          data: 'name',
           title: 'Role',
           render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
         },
         {
-          data: 'permission',
+          data: 'permission_count',
           title: 'Permission',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+          type: 'number',
+          render: (data: number) => data?.toString() || '0'
         },
         {
           data: 'status',
@@ -116,7 +117,8 @@ export class AbilitiesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
-    this.router.navigate(['/pages/abilities/create']);
+    // this.router.navigate(['/pages/abilities/create']);
+    console.log('Create button clicked');
   }
 
   onDetail(rolePermissionId: number): void {
