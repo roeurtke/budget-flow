@@ -15,7 +15,7 @@ export class AbilityService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getRolePermissions(): Observable<RolePermission[]> {
-    return this.http.get<{ results?: RolePermission[] } | RolePermission[]>(this.apiUrl).pipe(
+    return this.http.get<{ results?: RolePermission[] } | RolePermission[]>(`${this.apiUrl}/api/role-permissions/`).pipe(
       map((response: { results?: RolePermission[] } | RolePermission[]) => {
         if (Array.isArray(response)) return response;
         if (response.results) return response.results;
