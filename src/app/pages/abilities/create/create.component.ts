@@ -85,16 +85,16 @@ export class CreateComponent {
   }
 
   onPermissionChange(event: any): void {
-  const value = +event.target.value; // Convert to number if needed
-  if (event.target.checked) {
-    this.permissionArray.push(this.fb.control(value));
-  } else {
-    const index = this.permissionArray.controls.findIndex(x => x.value === value);
-    if (index !== -1) {
-      this.permissionArray.removeAt(index);
+    const value = +event.target.value;
+    if (event.target.checked) {
+      this.permissionArray.push(this.fb.control(value));
+    } else {
+      const index = this.permissionArray.controls.findIndex(x => x.value === value);
+      if (index !== -1) {
+        this.permissionArray.removeAt(index);
+      }
     }
   }
-}
 
   onCancel(): void {
     this.router.navigate(['/pages/abilities']);
