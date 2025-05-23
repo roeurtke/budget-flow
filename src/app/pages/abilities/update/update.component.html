@@ -1,14 +1,39 @@
 <div class="card shadow mb-4">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">UPDATE ROLE PERMISSION</h6>
-        <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Back</button>
+        <h6 class="m-0 font-weight-bold text-primary">SET ROLE PERMISSION</h6>
+        <div class="text-right">
+            <button type="button" class="btn btn-secondary btn-sm text-right" (click)="onCancel()">Back</button>
+            <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="updateAbility()">
+                <i class="fas fa-save"></i> Save
+            </button>
+        </div>
     </div>
     <div class="card-body">
-        <form>
+        <form [formGroup]="updateForm">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover" width="100%" cellspacing="0">
                     <tbody>
-                        <tr><td colspan="4" class="text-left tw-bg-gray-100"><label>TODO</label></td></tr>
+                        <tr><td colspan="4" class="text-left tw-bg-gray-100"><label>Role and permission Information</label></td></tr>
+                        <tr>
+                            <td width="10%" class="text-right"><label for="role">Role</label></td>
+                            <td width="10%">
+                                <select id="role" formControlName="role" class="form-control">
+                                    <option value="" disabled>Select a role</option>
+                                    <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+                                </select>
+                            </td>
+                            <td width="10%" class="text-right"><label for="permission">Permissions</label></td>
+                            <td width="20%">
+                                <div *ngFor="let permission of permissions">
+                                    <label><input type="checkbox" id="permission"
+                                        [value]="permission.value"
+                                        (change)="onPermissionChange($event)"
+                                        />
+                                        {{ permission.label }}
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -16,5 +41,8 @@
     </div>
     <div class="card-footer text-right">
         <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Back</button>
+        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="updateAbility()">
+            <i class="fas fa-save"></i> Save
+        </button>
     </div>
 </div>
