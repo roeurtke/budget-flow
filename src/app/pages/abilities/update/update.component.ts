@@ -43,9 +43,13 @@ export class UpdateComponent {
     forkJoin({
       permissions: this.permissionService.getPermissions(),
       role: this.roleService.getRoleById(roleId),
-      roles: this.roleService.getRoles()  // Add this to get all roles
+      roles: this.roleService.getRoles(),
+      rolePermissions: this.abilityService.getRolePermissions()
     }).subscribe({
-      next: ({ permissions, role, roles }) => {
+      next: ({ permissions, role, roles, rolePermissions }) => {
+        // console.log('Complete role data from API:', role);
+        // console.log('All role permissions:', rolePermissions);
+        
         // Set permissions
         this.permissions = permissions.map((permission: any) => ({
           value: permission.id,
@@ -68,11 +72,15 @@ export class UpdateComponent {
           role: (role as any).id
         });
         
+        // Filter permissions for this role
+        const rolePermissionsForRole = rolePermissions.filter(rp => rp.role.id === (role as any).id);
+        // console.log('Permissions for this role:', rolePermissionsForRole);
+        
         // Add role's permissions to the FormArray
-        const rolePermissions = (role as any).permissions || [];
-        rolePermissions.forEach((permissionId: number) => {
-          this.permissionArray.push(this.fb.control(permissionId));
+        rolePermissionsForRole.forEach(rp => {
+          this.permissionArray.push(this.fb.control(rp.permission.id));
         });
+        // console.log('FormArray after loading:', this.permissionArray.value);
       },
       error: (err) => {
         console.error('Failed to load role and permissions:', err);
@@ -82,7 +90,9 @@ export class UpdateComponent {
 
   // Add this method to check if a permission is selected
   isPermissionSelected(permissionValue: number): boolean {
-    return this.permissionArray.controls.some(control => control.value === permissionValue);
+    const isSelected = this.permissionArray.controls.some(control => control.value === permissionValue);
+    // console.log(`Checking permission ${permissionValue}: ${isSelected}`);
+    return isSelected;
   }
 
   updateAbility(): void{
