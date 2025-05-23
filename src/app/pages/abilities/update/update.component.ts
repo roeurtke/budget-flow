@@ -30,8 +30,8 @@ export class UpdateComponent {
     private route: ActivatedRoute,
     private router: Router) {
     this.updateForm = this.fb.group({
-      role: ['', Validators.required],
-      permission: this.fb.array([], Validators.required)
+      role: [''],
+      permission: this.fb.array([])
     });
   }
 
