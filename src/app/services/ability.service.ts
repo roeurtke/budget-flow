@@ -93,13 +93,8 @@ export class AbilityService {
     );
   }
 
-  createRolePermission(rolePermission: RolePermission): Observable<RolePermission | null> {
-    return this.http.post<RolePermission>(`${this.apiUrl}/api/role-permissions/`, rolePermission).pipe(
-      catchError((err) => {
-        if (err.status === 404) return of(null);
-        return throwError(() => err);
-      })
-    );
+  createRolePermission(rolePermission: { role: number; permission: number; status: boolean }): Observable<RolePermission | null> {
+    return this.http.post<RolePermission>(`${this.apiUrl}/api/role-permissions/`, rolePermission);
   }
 
   updateRolePermission(rolePermissionId: number, rolePermission: RolePermission): Observable<RolePermission | null> {

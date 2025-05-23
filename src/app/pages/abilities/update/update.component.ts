@@ -7,6 +7,9 @@ import { CommonModule } from '@angular/common';
 import {ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { FormArray } from '@angular/forms';
+import { RolePermission } from '../../../interfaces/fetch-data.interface';
+import { Observable } from 'rxjs';
+
 @Component({
   selector: 'app-update',
   imports: [CommonModule, ReactiveFormsModule],
@@ -95,19 +98,72 @@ export class UpdateComponent {
     return isSelected;
   }
 
-  updateAbility(): void{
-    if (this.updateForm.invalid){
+  updateAbility(): void {
+    if (this.updateForm.invalid) {
       this.updateForm.markAllAsTouched();
       return;
     }
 
-    const rolePermissionData = this.updateForm.value;
-    this.abilityService.updateRolePermission(Number(this.roleId), rolePermissionData).subscribe({
-      next: () => {
-        this.router.navigate(['/pages/abilities']);
+    const formData = this.updateForm.value;
+    const roleId = Number(this.roleId);
+    
+    // First, get current role permissions to know what to delete
+    this.abilityService.getRolePermissions().subscribe({
+      next: (currentRolePermissions) => {
+        // Filter permissions for this role
+        const currentPermissions = currentRolePermissions
+          .filter(rp => rp.role.id === roleId)
+          .map(rp => rp.permission.id);
+        
+        // Get new permissions from form
+        const newPermissions = formData.permission as number[];
+        
+        // Find permissions to add (in newPermissions but not in currentPermissions)
+        const permissionsToAdd = newPermissions.filter(p => !currentPermissions.includes(p));
+        
+        // Find permissions to remove (in currentPermissions but not in newPermissions)
+        const permissionsToRemove = currentPermissions.filter(p => !newPermissions.includes(p));
+        
+        // Create an array of observables for all operations
+        const operations: Observable<RolePermission | null>[] = [];
+        
+        // Add new permissions
+        permissionsToAdd.forEach(permissionId => {
+          const newRolePermission = {
+            role: roleId,
+            permission: permissionId,
+            status: true
+          };
+          operations.push(this.abilityService.createRolePermission(newRolePermission));
+        });
+        
+        // Remove old permissions
+        permissionsToRemove.forEach(permissionId => {
+          const rolePermissionToDelete = currentRolePermissions.find(
+            rp => rp.role.id === roleId && rp.permission.id === permissionId
+          );
+          if (rolePermissionToDelete) {
+            operations.push(this.abilityService.deleteRolePermission(rolePermissionToDelete.id));
+          }
+        });
+        
+        // Execute all operations
+        if (operations.length > 0) {
+          forkJoin(operations).subscribe({
+            next: () => {
+              this.router.navigate(['/pages/abilities']);
+            },
+            error: (err) => {
+              console.error('Failed to update role permissions:', err);
+            }
+          });
+        } else {
+          // No changes needed
+          this.router.navigate(['/pages/abilities']);
+        }
       },
       error: (err) => {
-        console.error('Failed to update permission for the role:', err);
+        console.error('Failed to get current role permissions:', err);
       }
     });
   }
