@@ -98,7 +98,7 @@ export class UpdateComponent {
     return isSelected;
   }
 
-  updateAbility(): void {
+  setPermissionsForRole(): void {
     if (this.updateForm.invalid) {
       this.updateForm.markAllAsTouched();
       return;

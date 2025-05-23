@@ -3,7 +3,7 @@
         <h6 class="m-0 font-weight-bold text-primary">SET ROLE PERMISSION</h6>
         <div class="text-right">
             <button type="button" class="btn btn-secondary btn-sm text-right" (click)="onCancel()">Back</button>
-            <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="updateAbility()">
+            <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="setPermissionsForRole()">
                 <i class="fas fa-save"></i> Save
             </button>
         </div>
@@ -44,7 +44,7 @@
     </div>
     <div class="card-footer text-right">
         <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Back</button>
-        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="updateAbility()">
+        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="updateForm.invalid" (click)="setPermissionsForRole()">
             <i class="fas fa-save"></i> Save
         </button>
     </div>
