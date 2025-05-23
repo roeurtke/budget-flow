@@ -103,7 +103,7 @@ export class AbilitiesComponent {
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>
               <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
-                <i class="fas fa-sm fa-edit"></i>
+                <i class="fas fa-sm fa-shield-alt"></i>
               </button>
               <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isActive ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>

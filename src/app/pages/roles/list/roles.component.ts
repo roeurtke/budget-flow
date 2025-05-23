@@ -96,9 +96,6 @@ export class RolesComponent {
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
             return `
-              <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Spicific Ability">
-                <i class="fas fa-shield-alt"></i>
-              </button>
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>
