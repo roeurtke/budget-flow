@@ -42,20 +42,48 @@ export class UpdateComponent {
   loadRoleAndPermissions(roleId: string): void {
     forkJoin({
       permissions: this.permissionService.getPermissions(),
-      role: this.roleService.getRoleById(roleId)
+      role: this.roleService.getRoleById(roleId),
+      roles: this.roleService.getRoles()  // Add this to get all roles
     }).subscribe({
-      next: ({ permissions, role }) => {
+      next: ({ permissions, role, roles }) => {
+        // Set permissions
         this.permissions = permissions.map((permission: any) => ({
           value: permission.id,
           label: permission.name
         }));
-        this.updateForm.patchValue({ permission: (role as any).permissions || [] });
+        
+        // Set roles
+        this.roles = roles.map((role: any) => ({
+          value: role.id,
+          label: role.name
+        }));
+        
+        // Clear existing permissions
+        while (this.permissionArray.length) {
+          this.permissionArray.removeAt(0);
+        }
+        
+        // Set the selected role
+        this.updateForm.patchValue({
+          role: (role as any).id
+        });
+        
+        // Add role's permissions to the FormArray
+        const rolePermissions = (role as any).permissions || [];
+        rolePermissions.forEach((permissionId: number) => {
+          this.permissionArray.push(this.fb.control(permissionId));
+        });
       },
       error: (err) => {
         console.error('Failed to load role and permissions:', err);
       }
     });
-  };
+  }
+
+  // Add this method to check if a permission is selected
+  isPermissionSelected(permissionValue: number): boolean {
+    return this.permissionArray.controls.some(control => control.value === permissionValue);
+  }
 
   updateAbility(): void{
     if (this.updateForm.invalid){
