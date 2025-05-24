@@ -44,10 +44,10 @@ h2 {
 input {
     width: 100%;
     padding: 8px;
-    border: 1px solid #000000;
+    border: 1px solid #475f7b;
     border-radius: 25px;
     background: #ffffff;
-    color: #000000;
+    color: #475f7b;
     font-size: 14px;
     outline: none;
     transition: background 0.3s ease;
@@ -58,14 +58,14 @@ input:focus {
 }
 
 input::placeholder {
-    color: #666666;
+    color: #475f7b;
 }
 
 label {
     position: absolute;
     top: -20px;
     left: 10px;
-    color: #475f7b;;
+    color: #475f7b;
     font-size: 14px;
     text-shadow: none;
 }
