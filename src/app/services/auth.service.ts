@@ -75,6 +75,7 @@ export class AuthService {
 
   refreshToken(): Observable<RefreshResponse> {
     if (this.isRefreshing()) {
+      console.debug('Token refresh already in progress');
       return throwError(() => new AuthenticationError(
         'REFRESH_IN_PROGRESS',
         'Token refresh already in progress'
@@ -83,23 +84,30 @@ export class AuthService {
 
     const refreshToken = this.tokenService.getRefreshToken();
     if (!refreshToken) {
+      console.warn('No refresh token available');
+      this.logout();
       return throwError(() => new AuthenticationError(
         'NO_REFRESH_TOKEN',
         'No refresh token available'
       ));
     }
 
-    if (this.tokenService.isTokenExpired(refreshToken)) {
+    const isExpired = this.tokenService.isTokenExpired(refreshToken);
+    if (isExpired) {
+      console.warn('Refresh token is expired');
       this.logout();
       return throwError(() => new TokenExpiredError('Refresh token is expired'));
     }
 
     this.isRefreshing.set(true);
+    console.debug('Attempting to refresh token');
 
     return this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
       tap({
         next: (response) => {
+          console.debug('Token refresh successful');
           if (!response.access) {
+            console.error('Invalid refresh response: no access token received');
             throw new InvalidTokenError('Invalid refresh response: no access token received');
           }
           this.tokenService.setAccessToken(response.access);
@@ -110,13 +118,34 @@ export class AuthService {
         },
         error: (error) => {
           console.error('Refresh token error:', error);
-          if (error instanceof HttpErrorResponse && error.status === 401) {
-            this.logout();
+          if (error instanceof HttpErrorResponse) {
+            if (error.status === 401) {
+              console.warn('Refresh token rejected by server - logging out');
+              this.logout();
+            } else {
+              console.error(`Refresh token request failed with status ${error.status}:`, error.error);
+            }
           }
         },
-        finalize: () => this.isRefreshing.set(false)
+        finalize: () => {
+          this.isRefreshing.set(false);
+          console.debug('Token refresh attempt completed');
+        }
       }),
-      catchError(this.handleAuthError)
+      catchError((error) => {
+        if (error instanceof HttpErrorResponse) {
+          if (error.status === 401) {
+            return throwError(() => new TokenExpiredError('Refresh token was rejected by the server'));
+          }
+          if (error.status === 400) {
+            return throwError(() => new AuthenticationError(
+              'INVALID_REFRESH_TOKEN',
+              'Invalid refresh token format or content'
+            ));
+          }
+        }
+        return this.handleAuthError(error);
+      })
     );
   }
 

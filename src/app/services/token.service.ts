@@ -51,16 +51,33 @@ export class TokenService {
 
   isTokenExpired(token: string): boolean {
     try {
+      if (!token || typeof token !== 'string') {
+        console.warn('Invalid token: not a string or empty');
+        return true;
+      }
+
       const payload = this.decodeToken(token);
-      if (!payload?.exp) {
+      if (!payload) {
+        console.warn('Token payload could not be decoded');
+        return true;
+      }
+
+      if (!payload.exp) {
         console.warn('Token has no expiration claim');
         return true;
       }
 
-      const isExpired = Date.now() >= payload.exp * 1000;
+      // Add a small buffer (30 seconds) to prevent edge cases
+      const bufferTime = 30 * 1000;
+      const isExpired = Date.now() + bufferTime >= payload.exp * 1000;
+      
       if (isExpired) {
         console.debug('Token expired at:', new Date(payload.exp * 1000).toISOString());
+      } else {
+        const expiresIn = Math.floor((payload.exp * 1000 - Date.now()) / 1000);
+        console.debug(`Token valid for ${expiresIn} more seconds`);
       }
+      
       return isExpired;
     } catch (e) {
       console.error('Error checking token expiration:', e);
@@ -70,14 +87,45 @@ export class TokenService {
 
   decodeToken(token: string): TokenPayload | null {
     try {
-      const [, payloadBase64] = token.split('.');
+      if (!token || typeof token !== 'string') {
+        console.warn('Invalid token: not a string or empty');
+        return null;
+      }
+
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        console.warn('Invalid token format: expected 3 parts');
+        return null;
+      }
+
+      const [, payloadBase64] = parts;
       if (!payloadBase64) {
         console.warn('Invalid token format: no payload found');
         return null;
       }
-      return JSON.parse(atob(payloadBase64));
+
+      // Add padding if needed
+      const paddedPayload = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+      const padding = '='.repeat((4 - paddedPayload.length % 4) % 4);
+      const base64 = paddedPayload + padding;
+
+      try {
+        const decoded = atob(base64);
+        const payload = JSON.parse(decoded);
+        
+        // Validate required claims
+        if (!payload.exp || !payload.user_id) {
+          console.warn('Token missing required claims (exp or user_id)');
+          return null;
+        }
+
+        return payload;
+      } catch (e) {
+        console.error('Failed to decode token payload:', e);
+        return null;
+      }
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      console.error('Failed to process token:', error);
       return null;
     }
   }
