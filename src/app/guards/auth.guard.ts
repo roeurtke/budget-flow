@@ -1,6 +1,7 @@
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { TokenService } from '../services/token.service';
 import { map, Observable } from 'rxjs';
 
 export const authGuard: CanActivateFn = (
@@ -8,6 +9,7 @@ export const authGuard: CanActivateFn = (
   state
 ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
   const authService = inject(AuthService);
+  const tokenService = inject(TokenService);
   const router = inject(Router);
 
   // Check authentication synchronously first for quick response
@@ -16,7 +18,7 @@ export const authGuard: CanActivateFn = (
   }
 
   // Optional: Add automatic token refresh attempt before final rejection
-  const token = authService.getAccessToken();
+  const token = tokenService.getAccessToken();
   if (token) {
     // If token exists but user isn't authenticated, try refreshing
     return authService.refreshToken().pipe(

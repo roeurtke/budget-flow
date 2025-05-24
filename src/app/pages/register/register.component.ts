@@ -28,9 +28,8 @@ export class RegisterComponent {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      const { first_name, last_name, username, email, password, password2 } = this.registerForm.value;
-
-      this.authService.register(first_name, last_name, username, email, password, password2).subscribe({
+      const formData = this.registerForm.value;
+      this.authService.register(formData).subscribe({
         next: (response) => {
           this.successMessage = response.message;
           this.errorMessage = null;

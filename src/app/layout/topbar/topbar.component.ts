@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ToggleSidebarDirective } from '../../shared/directives/toggle-sidebar.directive';
+import { UserDetails } from '../../interfaces/auth.interface';
 
 @Component({
   selector: 'app-topbar',
@@ -21,9 +22,8 @@ export class TopbarComponent {
   isDropdownOpen = false;
 
   ngOnInit(): void {
-    this.authService.getCurrentUserName().subscribe(({ firstName, lastName }) => {
-      this.userName = `${firstName} ${lastName}`.trim() || 'User Name';
-      // console.log('Current User Name:', this.userName);
+    this.authService.getCurrentUser().subscribe((user: UserDetails) => {
+      this.userName = `${user.first_name} ${user.last_name}`.trim() || 'User Name';
     });
   }
 
