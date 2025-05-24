@@ -200,11 +200,12 @@ export class AuthService {
     if (error.status === 401) {
       return throwError(() => new TokenExpiredError());
     }
-    if (error.status === 400) {
-      return throwError(() => new AuthenticationError(
-        'INVALID_CREDENTIALS',
-        'Invalid credentials provided'
-      ));
+    if (error.status === 400 || error.status === 403) {
+      // return throwError(() => new AuthenticationError(
+      //   'INVALID_CREDENTIALS',
+      //   'Invalid credentials provided'
+      // ));
+      return throwError(() => error);
     }
     return throwError(() => new AuthenticationError(
       'AUTH_ERROR',
