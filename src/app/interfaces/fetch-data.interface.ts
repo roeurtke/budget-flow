@@ -124,5 +124,5 @@ export interface ExpenseCategory {
 export interface CreateRolePermission {
   role_id: number;
   permission_id: number;
-  status: boolean;
+//   status: boolean;
 }

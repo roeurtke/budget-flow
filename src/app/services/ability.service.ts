@@ -27,6 +27,19 @@ export class AbilityService {
     );
   }
 
+  getRolePermissonForUpdate(): Observable<RolePermission[]> {
+    return this.http.get<{ results?: RolePermission[] } | RolePermission[]>(`${this.apiUrl}/api/role-permissions/`, { params: { page_size: '100' } }).pipe(
+      map((response: { results?: RolePermission[] } | RolePermission[]) => {
+        let rolePermissions: RolePermission[] = [];
+        if (Array.isArray(response)) return response;
+        else if (response.results) rolePermissions = response.results;
+        else rolePermissions = [response as RolePermission];
+        return rolePermissions;
+      })
+    );
+  }
+  
+
   getRolePermissionById(rolePermissionId: number): Observable<RolePermission | null> {
     return this.http.get<RolePermission>(`${this.apiUrl}/api/role-permissions/${rolePermissionId}/`).pipe(
       map((response: RolePermission) => {
@@ -93,11 +106,11 @@ export class AbilityService {
     );
   }
 
-  createRolePermission(rolePermission: { role: number; permission: number; status: boolean }): Observable<RolePermission | null> {
+  createRolePermission(rolePermission: { role: number; permission: number }): Observable<RolePermission | null> {
     return this.http.post<RolePermission>(`${this.apiUrl}/api/role-permissions/`, rolePermission);
   }
 
-  updateRolePermission(rolePermissionId: number, rolePermission: RolePermission): Observable<RolePermission | null> {
+  updateRolePermission(rolePermissionId: number, rolePermission: { role: number; permission: number; status: boolean }): Observable<RolePermission | null> {
     return this.http.put<RolePermission>(`${this.apiUrl}/api/role-permissions/${rolePermissionId}/`, rolePermission).pipe(
       catchError((err) => {
         if (err.status === 404) return of(null);
