@@ -5,9 +5,14 @@ import { RoleService } from '../../../services/role.service';
 import { PermissionService } from '../../../services/permission.service';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, concat, of, Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { forkJoin, Observable } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { RolePermission, Permission, Role } from '../../../interfaces/fetch-data.interface';
+
+interface PermissionOption {
+  value: number;
+  label: string;
+}
 
 @Component({
   selector: 'app-update',
@@ -19,10 +24,10 @@ import { RolePermission, Permission, Role } from '../../../interfaces/fetch-data
 export class UpdateComponent implements OnInit {
   updateForm: FormGroup;
   roleId: number | null = null;
-  roles: { value: number; label: string }[] = [];
-  permissions: { value: number; label: string }[] = [];
+  roles: PermissionOption[] = [];
+  permissions: PermissionOption[] = [];
   errorMessage: string | null = null;
-  isLoading: boolean = false;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -53,39 +58,45 @@ export class UpdateComponent implements OnInit {
       role: this.roleService.getRoleById(roleId.toString()),
       roles: this.roleService.getRoles(),
       rolePermissions: this.abilityService.getRolePermissonForUpdate()
-    }).subscribe({
+    }).pipe(
+      catchError(err => {
+        this.handleError('Failed to load role and permissions', err);
+        return [];
+      })
+    ).subscribe({
       next: ({ permissions, role, roles, rolePermissions }) => {
-        this.permissions = permissions.map((p: Permission) => ({
-          value: p.id,
-          label: p.name
-        }));
-
-        this.roles = roles.map((r: Role) => ({
-          value: r.id,
-          label: r.name
-        }));
-
-        this.permissionArray.clear();
-        this.updateForm.patchValue({ role: role.id });
-
-        const rolePermissionsForRole = rolePermissions.filter(rp => rp.role.id === role.id);
-        rolePermissionsForRole.forEach(rp => {
-          if (rp.status) {
-            this.permissionArray.push(this.fb.control(rp.permission.id));
-          }
-        });
+        this.initializeFormData(permissions, roles, role, rolePermissions);
         this.isLoading = false;
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.showError('Failed to load role and permissions. Please try again.');
-        console.error('Failed to load role and permissions:', err);
       }
     });
   }
 
-  isPermissionSelected(permissionValue: number): boolean {
-    return this.permissionArray.controls.some(control => control.value === permissionValue);
+  private initializeFormData(
+    permissions: Permission[],
+    roles: Role[],
+    role: Role,
+    rolePermissions: RolePermission[]
+  ): void {
+    this.permissions = this.mapToOptions(permissions);
+    this.roles = this.mapToOptions(roles);
+    
+    this.permissionArray.clear();
+    this.updateForm.patchValue({ role: role.id });
+
+    const activePermissions = rolePermissions
+      .filter(rp => rp.role.id === role.id && rp.status)
+      .map(rp => rp.permission.id);
+
+    activePermissions.forEach(permissionId => {
+      this.permissionArray.push(this.fb.control(permissionId));
+    });
+  }
+
+  private mapToOptions(items: (Permission | Role)[]): PermissionOption[] {
+    return items.map(item => ({
+      value: item.id,
+      label: item.name
+    }));
   }
 
   setPermissionsForRole(): void {
@@ -95,155 +106,115 @@ export class UpdateComponent implements OnInit {
       return;
     }
 
-    const roleId = this.roleId;
-    if (!roleId) {
+    if (!this.roleId) {
       this.showError('Role ID is not defined.');
-      console.error('Role ID is not defined');
       return;
     }
 
     this.isLoading = true;
     this.errorMessage = null;
 
-    const newPermissions = this.permissionArray.value as number[];
-
     this.abilityService.getRolePermissonForUpdate().pipe(
-      tap(currentRolePermissions => {
-        const currentPermissions = currentRolePermissions
-          .filter(rp => rp.role.id === roleId && rp.status)
-          .map(rp => rp.permission.id);
-
-        const permissionsToAdd = newPermissions.filter(p => !currentPermissions.includes(p));
-        const permissionsToRemove = currentPermissions.filter(p => !newPermissions.includes(p));
-
-        const operations: Observable<RolePermission | null>[] = [];
-
-        // Handle permissions to remove (set status to false)
-        permissionsToRemove.forEach(permissionId => {
-          const rolePermission = currentRolePermissions.find(
-            rp => rp.role.id === roleId && rp.permission.id === permissionId
-          );
-          // Only update if the permission exists and is currently active
-          if (rolePermission?.status) {
-            console.log('Updating permission to inactive:', {
-              id: rolePermission.id,
-              permission: permissionId,
-              currentStatus: rolePermission.status
-            });
-            operations.push(
-              this.abilityService.updateRolePermission(rolePermission.id, {
-                role: rolePermission.role.id,
-                permission: rolePermission.permission.id,
-                status: false
-              }).pipe(
-                tap(() => console.log(`Updated permission ${permissionId} to inactive`)),
-                catchError(err => {
-                  console.error(`Failed to update permission ${permissionId}:`, err);
-                  return of(null);
-                })
-              )
-            );
-          } else {
-            console.log('Skipping permission update - already inactive or not found:', {
-              permission: permissionId,
-              exists: !!rolePermission,
-              currentStatus: rolePermission?.status
-            });
-          }
-        });
-
-        // Handle permissions to add or reactivate
-        permissionsToAdd.forEach(permissionId => {
-          const existingRolePermission = currentRolePermissions.find(
-            rp => rp.role.id === roleId && rp.permission.id === permissionId
-          );
-
-          if (existingRolePermission) {
-            // Only update if the permission exists but is inactive
-            if (!existingRolePermission.status) {
-              console.log('Reactivating permission:', {
-                id: existingRolePermission.id,
-                permission: permissionId,
-                currentStatus: existingRolePermission.status
-              });
-              operations.push(
-                this.abilityService.updateRolePermission(existingRolePermission.id, {
-                  role: existingRolePermission.role.id,
-                  permission: existingRolePermission.permission.id,
-                  status: true
-                }).pipe(
-                  tap(() => console.log(`Reactivated permission ${permissionId}`)),
-                  catchError(err => {
-                    console.error(`Failed to reactivate permission ${permissionId}:`, err);
-                    return of(null);
-                  })
-                )
-              );
-            } else {
-              console.log('Skipping permission - already active:', {
-                id: existingRolePermission.id,
-                permission: permissionId,
-                currentStatus: existingRolePermission.status
-              });
-            }
-          } else {
-            // Create new permission only if it doesn't exist
-            console.log('Creating new permission:', {
-              role: roleId,
-              permission: permissionId
-            });
-            operations.push(
-              this.abilityService.createRolePermission({
-                role: roleId,
-                permission: permissionId
-              }).pipe(
-                tap(() => console.log(`Created new permission ${permissionId}`)),
-                catchError(err => {
-                  console.error(`Failed to create permission ${permissionId}:`, err);
-                  return of(null);
-                })
-              )
-            );
-          }
-        });
-
-        // Execute operations sequentially
-        if (operations.length === 0) {
-          this.showSuccess('No changes needed.');
-          this.isLoading = false;
-          this.router.navigate(['/pages/abilities']);
-          return;
-        }
-
-        concat(...operations).subscribe({
-          next: () => {}, // Logging handled in tap
-          error: () => {
-            this.isLoading = false;
-            console.error('One or more operations failed.');
-          },
-          complete: () => {
-            this.isLoading = false;
-            this.showSuccess('Permissions updated successfully.');
-            this.router.navigate(['/pages/abilities']);
-          }
-        });
-      }),
+      switchMap(currentRolePermissions => this.updatePermissions(currentRolePermissions)),
       catchError(err => {
-        this.isLoading = false;
-        this.showError('Failed to fetch current permissions. Please try again.');
-        console.error('Failed to get current role permissions:', err);
-        return of(null);
+        this.handleError('Failed to update permissions', err);
+        return [];
       })
-    ).subscribe();
+    ).subscribe({
+      complete: () => {
+        this.isLoading = false;
+        // this.showSuccess('Permissions updated successfully.');
+        this.router.navigate(['/pages/abilities']);
+      }
+    });
+  }
+
+  private updatePermissions(currentRolePermissions: RolePermission[]): Observable<void> {
+    const newPermissions = this.permissionArray.value as number[];
+    const currentPermissions = currentRolePermissions
+      .filter(rp => rp.role.id === this.roleId && rp.status)
+      .map(rp => rp.permission.id);
+
+    const permissionsToAdd = newPermissions.filter(p => !currentPermissions.includes(p));
+    const permissionsToRemove = currentPermissions.filter(p => !newPermissions.includes(p));
+
+    const updateOperations = [
+      ...this.createRemoveOperations(currentRolePermissions, permissionsToRemove),
+      ...this.createAddOperations(currentRolePermissions, permissionsToAdd)
+    ];
+
+    if (updateOperations.length === 0) {
+      // this.showSuccess('No changes needed.');
+      this.router.navigate(['/pages/abilities']);
+      return new Observable(subscriber => subscriber.complete());
+    }
+
+    return forkJoin(updateOperations).pipe(
+      map(results => {
+        const hasNullResults = results.some(result => result === null);
+        if (hasNullResults) {
+          throw new Error('Some operations failed');
+        }
+        return void 0;
+      })
+    );
+  }
+
+  private createRemoveOperations(
+    currentRolePermissions: RolePermission[],
+    permissionsToRemove: number[]
+  ): Observable<RolePermission | null>[] {
+    return permissionsToRemove.map(permissionId => {
+      const rolePermission = currentRolePermissions.find(
+        rp => rp.role.id === this.roleId && rp.permission.id === permissionId && rp.status
+      );
+      
+      if (!rolePermission) return new Observable(subscriber => subscriber.next(null));
+      
+      return this.abilityService.updateRolePermission(rolePermission.id, {
+        role: rolePermission.role.id,
+        permission: rolePermission.permission.id,
+        status: false
+      });
+    });
+  }
+
+  private createAddOperations(
+    currentRolePermissions: RolePermission[],
+    permissionsToAdd: number[]
+  ): Observable<RolePermission | null>[] {
+    return permissionsToAdd.map(permissionId => {
+      const existingRolePermission = currentRolePermissions.find(
+        rp => rp.role.id === this.roleId && rp.permission.id === permissionId
+      );
+
+      if (existingRolePermission) {
+        return this.abilityService.updateRolePermission(existingRolePermission.id, {
+          role: existingRolePermission.role.id,
+          permission: existingRolePermission.permission.id,
+          status: true
+        });
+      }
+
+      return this.abilityService.createRolePermission({
+        role: this.roleId!,
+        permission: permissionId
+      });
+    });
   }
 
   get permissionArray(): FormArray {
     return this.updateForm.get('permission') as FormArray;
   }
 
+  isPermissionSelected(permissionValue: number): boolean {
+    return this.permissionArray.controls.some(control => control.value === permissionValue);
+  }
+
   onPermissionChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = +input.value;
+    
     if (input.checked) {
       this.permissionArray.push(this.fb.control(value));
     } else {
@@ -258,16 +229,18 @@ export class UpdateComponent implements OnInit {
     this.router.navigate(['/pages/abilities']);
   }
 
+  private handleError(message: string, error: any): void {
+    this.isLoading = false;
+    this.showError(message);
+    console.error(message, error);
+  }
+
   private showError(message: string): void {
     this.errorMessage = message;
-    console.log(this.errorMessage);
   }
 
   private showSuccess(message: string): void {
-    console.log('OK nice!')
-  }
-
-  private getErrorMessage(err: any): string {
-    return err.error?.detail || err.error?.non_field_errors?.[0] || 'An error occurred. Please try again.';
+    // TODO: Implement proper success message handling
+    console.log(message);
   }
 }
