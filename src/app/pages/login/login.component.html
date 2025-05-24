@@ -10,7 +10,7 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" formControlName="password">
             </div>
-            <button class="btn btn-primary" type="submit">Login</button>
+            <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid">Login</button>
         </form>
         <hr>
         @if (errorMessage) {
