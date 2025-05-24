@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, throwError, catchError } from 'rxjs';
+import { Observable, tap, throwError, catchError, BehaviorSubject, switchMap, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   LoginResponse,
@@ -24,6 +24,8 @@ export class AuthService {
   private readonly isRefreshing = signal<boolean>(false);
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
+  private refreshTokenSubject = new BehaviorSubject<RefreshResponse | null>(null);
+  private refreshInProgress = false;
 
   constructor() {
     this.initializeAuthState();
@@ -74,12 +76,18 @@ export class AuthService {
   }
 
   refreshToken(): Observable<RefreshResponse> {
-    if (this.isRefreshing()) {
-      console.debug('Token refresh already in progress');
-      return throwError(() => new AuthenticationError(
-        'REFRESH_IN_PROGRESS',
-        'Token refresh already in progress'
-      ));
+    if (this.refreshInProgress) {
+      return this.refreshTokenSubject.pipe(
+        switchMap(response => {
+          if (response) {
+            return of(response);
+          }
+          return throwError(() => new AuthenticationError(
+            'REFRESH_FAILED',
+            'Token refresh failed'
+          ));
+        })
+      );
     }
 
     const refreshToken = this.tokenService.getRefreshToken();
@@ -99,8 +107,9 @@ export class AuthService {
       return throwError(() => new TokenExpiredError('Refresh token is expired'));
     }
 
-    this.isRefreshing.set(true);
-    console.debug('Attempting to refresh token');
+    this.refreshInProgress = true;
+    this.refreshTokenSubject.next(null);
+    console.debug('Starting token refresh process');
 
     return this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
       tap({
@@ -115,6 +124,7 @@ export class AuthService {
             this.tokenService.setRefreshToken(response.refresh);
           }
           this.isAuthenticated.set(true);
+          this.refreshTokenSubject.next(response);
         },
         error: (error) => {
           console.error('Refresh token error:', error);
@@ -126,10 +136,11 @@ export class AuthService {
               console.error(`Refresh token request failed with status ${error.status}:`, error.error);
             }
           }
+          this.refreshTokenSubject.next(null);
         },
         finalize: () => {
-          this.isRefreshing.set(false);
-          console.debug('Token refresh attempt completed');
+          this.refreshInProgress = false;
+          console.debug('Token refresh process completed');
         }
       }),
       catchError((error) => {
