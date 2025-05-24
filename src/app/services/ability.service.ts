@@ -39,7 +39,6 @@ export class AbilityService {
     );
   }
   
-
   getRolePermissionById(rolePermissionId: number): Observable<RolePermission | null> {
     return this.http.get<RolePermission>(`${this.apiUrl}/api/role-permissions/${rolePermissionId}/`).pipe(
       map((response: RolePermission) => {
