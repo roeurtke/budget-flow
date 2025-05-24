@@ -13,10 +13,11 @@
             <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid">Login</button>
         </form>
         <hr>
-        @if (errorMessage) {
+        <!-- @if (errorMessage) {
         <div class="text-center text-danger mt-2">
             {{ errorMessage }}
         </div>
-        }
+        } -->
+        <div *ngIf="errorMessage" class="text-center text-danger mt-2">{{ errorMessage }}</div>
     </div>
 </body>

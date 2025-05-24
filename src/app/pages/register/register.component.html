@@ -29,7 +29,7 @@
             <button class="btn btn-primary" type="submit" [disabled]="registerForm.invalid">Sign Up</button>
         </form>
 
-        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="text-center text-success mt-2">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="text-center text-danger mt-2">{{ errorMessage }}</div>
     </div>
 </body>
