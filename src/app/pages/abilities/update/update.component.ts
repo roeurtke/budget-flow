@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, concat, of, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { RolePermission, CreateRolePermission, Permission, Role } from '../../../interfaces/fetch-data.interface';
+import { RolePermission, Permission, Role } from '../../../interfaces/fetch-data.interface';
 
 @Component({
   selector: 'app-update',
