@@ -12,6 +12,7 @@ import { UserDetails } from '../../interfaces/auth.interface';
 })
 export class TopbarComponent {
   @Input() userName: string = 'User Name';
+  displayName: string = '';
 
   constructor(
     private authService: AuthService,
@@ -22,8 +23,14 @@ export class TopbarComponent {
   isDropdownOpen = false;
 
   ngOnInit(): void {
-    this.authService.getCurrentUser().subscribe((user: UserDetails) => {
-      this.userName = `${user.first_name} ${user.last_name}`.trim() || 'User Name';
+    this.authService.getCurrentUser().subscribe({
+      next: (user: UserDetails) => {
+        // console.log('User data from backend:', user);
+        this.displayName = `${user.first_name} ${user.last_name}`.trim() || user.username;
+      },
+      error: (error) => {
+        console.error('Error fetching user details:', error);
+      }
     });
   }
 

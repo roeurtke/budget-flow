@@ -20,6 +20,7 @@ export class AuthService {
   private readonly loginUrl = `${environment.apiUrl}/api/login/`;
   private readonly registerUrl = `${environment.apiUrl}/api/register/`;
   private readonly refreshApiUrl = `${environment.apiUrl}/api/token/refresh/`;
+  private readonly currentUserUrl = `${environment.apiUrl}/api/users/me/`;
   private readonly isAuthenticated = signal<boolean>(false);
   private readonly isRefreshing = signal<boolean>(false);
   private readonly http = inject(HttpClient);
@@ -178,15 +179,23 @@ export class AuthService {
       ));
     }
 
-    const userId = this.tokenService.extractUserIdFromToken(accessToken);
-    if (!userId) {
-      return throwError(() => new AuthenticationError(
-        'INVALID_TOKEN',
-        'User ID is missing in the token'
-      ));
-    }
-
-    return this.fetchUserDetails(userId);
+    // Try to get user details from the /me/ endpoint first
+    return this.http.get<UserDetails>(this.currentUserUrl).pipe(
+      catchError((error) => {
+        // If /me/ endpoint fails, fall back to the user ID endpoint
+        if (error.status === 403 || error.status === 404) {
+          const userId = this.tokenService.extractUserIdFromToken(accessToken);
+          if (!userId) {
+            return throwError(() => new AuthenticationError(
+              'INVALID_TOKEN',
+              'User ID is missing in the token'
+            ));
+          }
+          return this.fetchUserDetails(userId);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   private fetchUserDetails(userId: number): Observable<UserDetails> {
