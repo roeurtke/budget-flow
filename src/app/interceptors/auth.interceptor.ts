@@ -10,7 +10,7 @@ import { Observable, throwError, switchMap, catchError, BehaviorSubject } from '
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
 import { Router } from '@angular/router';
-import { AuthenticationError, TokenExpiredError } from '../interfaces/auth.interface';
+import { TokenExpiredError } from '../interfaces/auth.interface';
 
 // Keep track of refresh attempts
 const refreshSubject = new BehaviorSubject<boolean>(false);
