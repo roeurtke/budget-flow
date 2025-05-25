@@ -2,7 +2,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { TokenService } from '../services/token.service';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable, of, catchError } from 'rxjs';
+import { map, Observable, of, catchError, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export const authGuard: CanActivateFn = (
@@ -15,6 +15,15 @@ export const authGuard: CanActivateFn = (
 
   const accessToken = tokenService.getAccessToken();
   const refreshToken = tokenService.getRefreshToken();
+
+  // Debug logging
+  console.log('Auth guard token state:', {
+    hasAccessToken: !!accessToken,
+    hasRefreshToken: !!refreshToken,
+    isAccessTokenExpired: accessToken ? tokenService.isTokenExpired(accessToken) : true,
+    isRefreshTokenExpired: refreshToken ? tokenService.isTokenExpired(refreshToken) : true,
+    refreshTokenPayload: refreshToken ? tokenService.decodeToken(refreshToken) : null
+  });
 
   // If no tokens exist, redirect to login
   if (!accessToken || !refreshToken) {
@@ -31,7 +40,29 @@ export const authGuard: CanActivateFn = (
   // If access token is expired but refresh token exists, try to refresh
   if (!tokenService.isTokenExpired(refreshToken)) {
     console.log('Access token expired, attempting refresh in auth guard');
-    return http.post<{access: string}>(`${environment.apiUrl}/api/token/refresh/`, { refresh: refreshToken }).pipe(
+    const refreshUrl = `${environment.apiUrl}/api/token/refresh/`;
+    console.log('Refresh request details:', {
+      url: refreshUrl,
+      refreshToken: refreshToken.substring(0, 10) + '...' // Only log first 10 chars for security
+    });
+
+    return http.post<{access: string}>(refreshUrl, { refresh: refreshToken }).pipe(
+      tap({
+        next: (response) => {
+          console.log('Refresh response received:', {
+            hasAccessToken: !!response.access,
+            accessTokenLength: response.access?.length
+          });
+        },
+        error: (error) => {
+          console.error('Refresh request failed:', {
+            status: error.status,
+            statusText: error.statusText,
+            error: error.error,
+            headers: error.headers?.keys()
+          });
+        }
+      }),
       map(response => {
         if (!response.access) {
           throw new Error('Invalid refresh response: no access token received');
