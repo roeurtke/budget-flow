@@ -24,7 +24,7 @@ export class PermissionGuard implements CanActivate {
       return of(true);
     }
 
-    console.log('Checking permission:', requiredPermission, 'for route:', state.url);
+    // console.log('Checking permission:', requiredPermission, 'for route:', state.url);
     
     // Wait for permissions to be loaded (non-empty array) before checking
     return this.permissionService.getUserPermissions().pipe(
@@ -34,17 +34,17 @@ export class PermissionGuard implements CanActivate {
       first(),
       // Now check the permission
       switchMap(() => {
-        console.log('Permissions loaded, checking permission:', requiredPermission);
+        // console.log('Permissions loaded, checking permission:', requiredPermission);
         return this.permissionService.hasPermission(requiredPermission);
       }),
       take(1),
-      tap(hasPermission => {
-        console.log('Permission check result:', {
-          permission: requiredPermission,
-          hasPermission,
-          route: state.url
-        });
-      }),
+      // tap(hasPermission => {
+      //   console.log('Permission check result:', {
+      //     permission: requiredPermission,
+      //     hasPermission,
+      //     route: state.url
+      //   });
+      // }),
       map(hasPermission => {
         if (hasPermission) {
           return true;
