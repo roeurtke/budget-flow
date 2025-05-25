@@ -55,62 +55,96 @@ export class PermissionService {
     );
   }
 
-    // Helper methods for common permission checks
-    canViewDashboard(): Observable<boolean> {
-      return this.hasPermission('can_view_dashboard');
-    }
-  
-  // Cash Flow permissions
+  // Dashboard permissions
+  canViewDashboard(): Observable<boolean> {
+    return of(true); // Dashboard is accessible to all authenticated users
+  }
+
+  // Income Management permissions
   canViewIncome(): Observable<boolean> {
     return this.hasPermission('can_view_income');
   }
 
-  canManageIncome(): Observable<boolean> {
-    return this.hasAnyPermission([
-      'can_create_income',
-      'can_update_income',
-      'can_delete_income'
-    ]);
+  canViewIncomeList(): Observable<boolean> {
+    return this.hasPermission('can_view_list_income');
   }
 
+  canCreateIncome(): Observable<boolean> {
+    return this.hasPermission('can_create_income');
+  }
+
+  canUpdateIncome(): Observable<boolean> {
+    return this.hasPermission('can_update_income');
+  }
+
+  canDeleteIncome(): Observable<boolean> {
+    return this.hasPermission('can_delete_income');
+  }
+
+  // Expense Management permissions
   canViewExpense(): Observable<boolean> {
     return this.hasPermission('can_view_expense');
   }
 
-  canManageExpense(): Observable<boolean> {
-    return this.hasAnyPermission([
-      'can_create_expense',
-      'can_update_expense',
-      'can_delete_expense'
-    ]);
+  canViewExpenseList(): Observable<boolean> {
+    return this.hasPermission('can_view_list_expense');
   }
 
-  // Category permissions
+  canCreateExpense(): Observable<boolean> {
+    return this.hasPermission('can_create_expense');
+  }
+
+  canUpdateExpense(): Observable<boolean> {
+    return this.hasPermission('can_update_expense');
+  }
+
+  canDeleteExpense(): Observable<boolean> {
+    return this.hasPermission('can_delete_expense');
+  }
+
+  // Income Category Management permissions
   canViewIncomeCategory(): Observable<boolean> {
     return this.hasPermission('can_view_income_category');
   }
 
-  canManageIncomeCategory(): Observable<boolean> {
-    return this.hasAnyPermission([
-      'can_create_income_category',
-      'can_update_income_category',
-      'can_delete_income_category'
-    ]);
+  canViewIncomeCategoryList(): Observable<boolean> {
+    return this.hasPermission('can_view_list_income_category');
   }
 
+  canCreateIncomeCategory(): Observable<boolean> {
+    return this.hasPermission('can_create_income_category');
+  }
+
+  canUpdateIncomeCategory(): Observable<boolean> {
+    return this.hasPermission('can_update_income_category');
+  }
+
+  canDeleteIncomeCategory(): Observable<boolean> {
+    return this.hasPermission('can_delete_income_category');
+  }
+
+  // Expense Category Management permissions
   canViewExpenseCategory(): Observable<boolean> {
     return this.hasPermission('can_view_expense_category');
   }
 
-  canManageExpenseCategory(): Observable<boolean> {
-    return this.hasAnyPermission([
-      'can_create_expense_category',
-      'can_update_expense_category',
-      'can_delete_expense_category'
-    ]);
+  canViewExpenseCategoryList(): Observable<boolean> {
+    return this.hasPermission('can_view_list_expense_category');
   }
 
-  // User management permissions
+  canCreateExpenseCategory(): Observable<boolean> {
+    return this.hasPermission('can_create_expense_category');
+  }
+
+  canUpdateExpenseCategory(): Observable<boolean> {
+    return this.hasPermission('can_update_expense_category');
+  }
+
+  canDeleteExpenseCategory(): Observable<boolean> {
+    return this.hasPermission('can_delete_expense_category');
+  }
+
+  // User Management permissions
   canViewUser(): Observable<boolean> {
     return this.hasPermission('can_view_user');
   }
@@ -131,7 +165,7 @@ export class PermissionService {
     return this.hasPermission('can_delete_user');
   }
 
-  // Role management permissions
+  // Role Management permissions
   canViewRole(): Observable<boolean> {
     return this.hasPermission('can_view_role');
   }
@@ -152,7 +186,7 @@ export class PermissionService {
     return this.hasPermission('can_delete_role');
   }
 
-  // Permission management permissions
+  // Permission Management permissions
   canViewPermission(): Observable<boolean> {
     return this.hasPermission('can_view_permission');
   }
@@ -173,7 +207,7 @@ export class PermissionService {
     return this.hasPermission('can_delete_permission');
   }
 
-  // Ability management permissions
+  // Ability Management permissions
   canViewAbility(): Observable<boolean> {
     return this.hasPermission('can_view_ability');
   }
