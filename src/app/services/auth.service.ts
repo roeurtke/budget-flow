@@ -51,7 +51,7 @@ export class AuthService {
       
       if (accessToken && refreshToken) {
         const isExpired = this.tokenService.isTokenExpired(accessToken);
-        console.log('Token status:', { isExpired });
+        // console.log('Token status:', { isExpired });
         this.isAuthenticated.set(!isExpired);
         
         // If access token is expired but we have a refresh token, try to refresh

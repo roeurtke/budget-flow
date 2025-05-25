@@ -23,7 +23,7 @@ export const authGuard: CanActivateFn = (
 
   // If access token is valid, allow access
   if (!tokenService.isTokenExpired(accessToken)) {
-    console.log('Valid access token found');
+    // console.log('Valid access token found');
     return true;
   }
 
