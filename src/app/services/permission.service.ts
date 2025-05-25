@@ -5,7 +5,6 @@ import { Permission } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { map, catchError, tap, switchMap } from 'rxjs/operators';
-import { LoginResponse } from '../interfaces/auth.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -43,19 +42,46 @@ export class PermissionService {
   }
 
   private fetchUserRolePermissions(roleId: number): Observable<string[]> {
-    return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/permissions/`).pipe(
+    // Try different possible endpoints for role permissions
+    return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/`).pipe(
       map(response => {
-        if (Array.isArray(response)) {
-          return response.map(p => p.codename);
-        }
+        console.log('Role response:', response);
+        // Check if permissions are in different possible locations in the response
         if (response.permissions) {
-          return response.permissions.map((p: any) => p.codename);
+          return Array.isArray(response.permissions) 
+            ? response.permissions.map((p: any) => p.codename || p)
+            : [];
         }
+        if (response.role_permissions) {
+          return Array.isArray(response.role_permissions)
+            ? response.role_permissions.map((p: any) => p.codename || p)
+            : [];
+        }
+        // If no permissions found, return empty array
+        console.warn('No permissions found in role response');
         return [];
       }),
       catchError(error => {
-        console.error('Error fetching role permissions:', error);
-        return of([]);
+        console.error('Error fetching role:', error);
+        // If the first endpoint fails, try the alternative endpoint
+        return this.http.get<any>(`${this.apiUrl}/api/permissions/role/${roleId}/`).pipe(
+          map(response => {
+            console.log('Alternative role permissions response:', response);
+            if (Array.isArray(response)) {
+              return response.map(p => p.codename || p);
+            }
+            if (response.permissions) {
+              return Array.isArray(response.permissions)
+                ? response.permissions.map((p: any) => p.codename || p)
+                : [];
+            }
+            return [];
+          }),
+          catchError(secondError => {
+            console.error('Error fetching role permissions from alternative endpoint:', secondError);
+            return of([]);
+          })
+        );
       })
     );
   }
@@ -331,21 +357,4 @@ export class PermissionService {
       })
     );
   }
-
-  // Optional: cache permissions
-  // getPermissions(): Observable<string[]> {
-  //   if (!this.cachedPermissions$) {
-  //     this.cachedPermissions$ = this.http.get<string[]>(`${this.apiUrl}/api/permissions/`).pipe(
-  //       shareReplay(1),
-  //       catchError(() => of([]))
-  //     );
-  //   }
-  //   return this.cachedPermissions$;
-  // }
-
-  // hasPermission(permission: string): Observable<boolean> {
-  //   return this.getPermissions().pipe(
-  //     map(perms => perms.includes(permission))
-  //   );
-  // }
 }
