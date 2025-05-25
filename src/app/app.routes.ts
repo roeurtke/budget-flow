@@ -90,11 +90,11 @@ export const routes: Routes = [
           { path: 'pages/permissions/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_permission' }, component: PermissionsComponent },
 
           // Ability Management Routes
-          { path: 'pages/abilities', canActivate: [PermissionGuard], data: { permission: 'can_view_list_ability' }, component: AbilitiesComponent },
-          { path: 'pages/abilities/create', canActivate: [PermissionGuard], data: { permission: 'can_create_ability' }, component: AbilitiesCreateComponent },
-          { path: 'pages/abilities/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_ability' }, component: AbilitiesDetailComponent },
-          { path: 'pages/abilities/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_ability' }, component: AbilitiesUpdateComponent },
-          { path: 'pages/abilities/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_ability' }, component: AbilitiesComponent },
+          { path: 'pages/abilities', canActivate: [PermissionGuard], data: { permission: 'can_view_list_role_permission' }, component: AbilitiesComponent },
+          { path: 'pages/abilities/create', canActivate: [PermissionGuard], data: { permission: 'can_create_role_permission' }, component: AbilitiesCreateComponent },
+          { path: 'pages/abilities/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_role_permission' }, component: AbilitiesDetailComponent },
+          { path: 'pages/abilities/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_role_permission' }, component: AbilitiesUpdateComponent },
+          { path: 'pages/abilities/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_role_permission' }, component: AbilitiesComponent },
         ]
     },
     { path: 'unauthorized', component: UnauthorizedComponent },

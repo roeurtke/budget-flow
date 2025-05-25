@@ -310,23 +310,23 @@ export class PermissionService {
 
   // Ability Management permissions
   canViewAbility(): Observable<boolean> {
-    return this.hasPermission('can_view_ability');
+    return this.hasPermission('can_view_role_permission');
   }
 
   canViewAbilityList(): Observable<boolean> {
-    return this.hasPermission('can_view_list_ability');
+    return this.hasPermission('can_view_list_role_permission');
   }
 
   canCreateAbility(): Observable<boolean> {
-    return this.hasPermission('can_create_ability');
+    return this.hasPermission('can_create_role_permission');
   }
 
   canUpdateAbility(): Observable<boolean> {
-    return this.hasPermission('can_update_ability');
+    return this.hasPermission('can_update_role_permission');
   }
 
   canDeleteAbility(): Observable<boolean> {
-    return this.hasPermission('can_delete_ability');
+    return this.hasPermission('can_delete_role_permission');
   }
 
   getPermissions(): Observable<Permission[]> {
