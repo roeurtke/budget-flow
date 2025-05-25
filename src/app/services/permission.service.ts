@@ -42,46 +42,91 @@ export class PermissionService {
   }
 
   private fetchUserRolePermissions(roleId: number): Observable<string[]> {
-    // Try different possible endpoints for role permissions
+    // First get the role details
     return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/`).pipe(
-      map(response => {
-        console.log('Role response:', response);
-        // Check if permissions are in different possible locations in the response
-        if (response.permissions) {
-          return Array.isArray(response.permissions) 
-            ? response.permissions.map((p: any) => p.codename || p)
-            : [];
-        }
-        if (response.role_permissions) {
-          return Array.isArray(response.role_permissions)
-            ? response.role_permissions.map((p: any) => p.codename || p)
-            : [];
-        }
-        // If no permissions found, return empty array
-        console.warn('No permissions found in role response');
-        return [];
-      }),
-      catchError(error => {
-        console.error('Error fetching role:', error);
-        // If the first endpoint fails, try the alternative endpoint
-        return this.http.get<any>(`${this.apiUrl}/api/permissions/role/${roleId}/`).pipe(
+      tap(role => console.log('Role details:', role)),
+      // Then fetch the role's permissions
+      switchMap(role => 
+        this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/permissions/`).pipe(
           map(response => {
-            console.log('Alternative role permissions response:', response);
+            console.log('Role permissions response:', response);
+            // Handle different possible response formats
             if (Array.isArray(response)) {
               return response.map(p => p.codename || p);
             }
-            if (response.permissions) {
-              return Array.isArray(response.permissions)
-                ? response.permissions.map((p: any) => p.codename || p)
-                : [];
+            if (response.permissions && Array.isArray(response.permissions)) {
+              return response.permissions.map((p: any) => p.codename || p);
             }
+            if (response.results && Array.isArray(response.results)) {
+              return response.results.map((p: any) => p.codename || p);
+            }
+            // If no permissions found in the expected format, try to get them from the role details
+            if (role.permissions && Array.isArray(role.permissions)) {
+              return role.permissions.map((p: any) => p.codename || p);
+            }
+            console.warn('No permissions found in role or permissions response');
             return [];
           }),
-          catchError(secondError => {
-            console.error('Error fetching role permissions from alternative endpoint:', secondError);
-            return of([]);
+          catchError(error => {
+            console.error('Error fetching role permissions:', error);
+            // If permissions endpoint fails, try to get permissions from role details
+            if (role.permissions && Array.isArray(role.permissions)) {
+              return of(role.permissions.map((p: any) => p.codename || p));
+            }
+            // If still no permissions, try the alternative endpoint with pagination
+            return this.fetchAllPaginatedPermissions(roleId);
           })
-        );
+        )
+      )
+    );
+  }
+
+  private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
+    return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
+      switchMap(response => {
+        console.log('Initial permissions response:', response);
+        const allPermissions: string[] = [];
+        
+        // Add permissions from first page
+        if (response.results && Array.isArray(response.results)) {
+          allPermissions.push(...response.results.map((p: any) => p.codename || p));
+        }
+
+        // If there are more pages, fetch them
+        if (response.next) {
+          return this.fetchRemainingPages(response.next, allPermissions);
+        }
+
+        return of(allPermissions);
+      }),
+      catchError(error => {
+        console.error('Error fetching paginated permissions:', error);
+        return of([]);
+      })
+    );
+  }
+
+  private fetchRemainingPages(nextUrl: string, currentPermissions: string[]): Observable<string[]> {
+    if (!nextUrl) {
+      return of(currentPermissions);
+    }
+
+    return this.http.get<any>(nextUrl).pipe(
+      switchMap(response => {
+        console.log('Fetching next page of permissions:', response);
+        if (response.results && Array.isArray(response.results)) {
+          currentPermissions.push(...response.results.map((p: any) => p.codename || p));
+        }
+
+        if (response.next) {
+          return this.fetchRemainingPages(response.next, currentPermissions);
+        }
+
+        return of(currentPermissions);
+      }),
+      catchError(error => {
+        console.error('Error fetching next page of permissions:', error);
+        return of(currentPermissions);
       })
     );
   }
