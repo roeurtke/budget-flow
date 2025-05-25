@@ -2,7 +2,7 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { TokenService } from '../services/token.service';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of, catchError } from 'rxjs';
 
 export const authGuard: CanActivateFn = (
   route,
@@ -12,25 +12,38 @@ export const authGuard: CanActivateFn = (
   const tokenService = inject(TokenService);
   const router = inject(Router);
 
-  // Check authentication synchronously first for quick response
-  if (authService.isLoggedIn()) {
+  const accessToken = tokenService.getAccessToken();
+  const refreshToken = tokenService.getRefreshToken();
+
+  // If no tokens exist, redirect to login
+  if (!accessToken || !refreshToken) {
+    console.log('No tokens found in auth guard');
+    return redirectToLogin(router, state.url);
+  }
+
+  // If access token is valid, allow access
+  if (!tokenService.isTokenExpired(accessToken)) {
+    console.log('Valid access token found');
     return true;
   }
 
-  // Optional: Add automatic token refresh attempt before final rejection
-  const token = tokenService.getAccessToken();
-  if (token) {
-    // If token exists but user isn't authenticated, try refreshing
+  // If access token is expired but refresh token exists, try to refresh
+  if (!tokenService.isTokenExpired(refreshToken)) {
+    console.log('Access token expired, attempting refresh in auth guard');
     return authService.refreshToken().pipe(
-      map(success => {
-        if (success) {
-          return true;
-        }
-        return redirectToLogin(router, state.url);
+      map(response => {
+        console.log('Token refresh successful in auth guard');
+        return true;
+      }),
+      catchError(error => {
+        console.error('Token refresh failed in auth guard:', error);
+        return of(redirectToLogin(router, state.url));
       })
     );
   }
 
+  // If refresh token is also expired, redirect to login
+  console.log('Refresh token expired in auth guard');
   return redirectToLogin(router, state.url);
 };
 
@@ -43,5 +56,11 @@ export const authGuard: CanActivateFn = (
 function redirectToLogin(router: Router, returnUrl: string): UrlTree {
   return router.createUrlTree(
     ['/login'],
+    {
+      queryParams: {
+        returnUrl: returnUrl,
+        reason: 'auth_required'
+      }
+    }
   );
 }

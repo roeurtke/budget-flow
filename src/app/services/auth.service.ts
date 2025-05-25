@@ -43,9 +43,33 @@ export class AuthService {
       const accessToken = this.tokenService.getAccessToken();
       const refreshToken = this.tokenService.getRefreshToken();
       
+      console.log('Initializing auth state:', {
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        isAccessTokenExpired: accessToken ? this.tokenService.isTokenExpired(accessToken) : true
+      });
+      
       if (accessToken && refreshToken) {
-        this.isAuthenticated.set(!this.tokenService.isTokenExpired(accessToken));
+        const isExpired = this.tokenService.isTokenExpired(accessToken);
+        console.log('Token status:', { isExpired });
+        this.isAuthenticated.set(!isExpired);
+        
+        // If access token is expired but we have a refresh token, try to refresh
+        if (isExpired) {
+          console.log('Access token expired, attempting refresh...');
+          this.refreshToken().subscribe({
+            next: (response) => {
+              console.log('Token refresh successful');
+              this.isAuthenticated.set(true);
+            },
+            error: (error) => {
+              console.error('Token refresh failed:', error);
+              this.logout();
+            }
+          });
+        }
       } else {
+        console.log('No tokens found, logging out');
         this.logout();
       }
     } catch (error) {

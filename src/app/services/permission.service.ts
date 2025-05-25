@@ -19,9 +19,10 @@ export class PermissionService {
   ) {
     // Subscribe to auth state changes to update permissions
     this.authService.getCurrentUser().pipe(
+      tap(user => console.log('Current user:', user)),
       switchMap(user => this.fetchUserRolePermissions(user.role.id)),
       tap(permissions => {
-        // console.log('Fetched role permissions:', permissions);
+        console.log('Loaded user permissions:', permissions);
         this.userPermissions.next(permissions);
       }),
       catchError(error => {
@@ -33,9 +34,10 @@ export class PermissionService {
 
     // Also handle permissions from login response
     this.authService.onLogin().pipe(
+      tap(response => console.log('Login response user:', response.user)),
       switchMap(response => this.fetchUserRolePermissions(response.user.role.id)),
       tap(permissions => {
-        console.log('Login role permissions:', permissions);
+        console.log('Login loaded permissions:', permissions);
         this.userPermissions.next(permissions);
       })
     ).subscribe();
@@ -131,9 +133,17 @@ export class PermissionService {
     );
   }
 
+  // Get current user permissions as an Observable
+  getUserPermissions(): Observable<string[]> {
+    return this.userPermissions.asObservable();
+  }
+
   // Check if user has specific permission
   hasPermission(permission: string): Observable<boolean> {
     return this.userPermissions.pipe(
+      tap(permissions => {
+        console.log('Checking permission:', permission, 'against available permissions:', permissions);
+      }),
       map(permissions => permissions.includes(permission))
     );
   }
