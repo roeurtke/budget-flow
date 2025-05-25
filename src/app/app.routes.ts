@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { PermissionGuard } from './guards/permission.guard';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { MainComponent } from './layout/main/main.component';
@@ -26,6 +27,7 @@ import { CreateComponent as AbilitiesCreateComponent } from './pages/abilities/c
 import { DetailComponent as AbilitiesDetailComponent } from './pages/abilities/detail/detail.component';
 import { UpdateComponent as AbilitiesUpdateComponent } from './pages/abilities/update/update.component';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
+import { UnauthorizedComponent } from './pages/unauthorized/unauthorized.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -34,30 +36,32 @@ export const routes: Routes = [
     {
         path: '',
         component: MainComponent,
+        canActivate: [authGuard],
         children: [
-          { path: 'dashboard', canActivate: [authGuard], component: DashboardComponent },
-          { path: 'pages/incomes', canActivate: [authGuard], component: IncomesComponent },
-          { path: 'pages/expenses', canActivate: [authGuard], component: ExpensesComponent },
-          { path: 'pages/income_categories', canActivate: [authGuard], component: IncomeCategoriesComponent },
-          { path: 'pages/expense_categories', canActivate: [authGuard], component: ExpenseCategoriesComponent },
-          { path: 'pages/users', canActivate: [authGuard], component: UsersComponent },
-          { path: 'pages/users/create', canActivate: [authGuard], component: UserCreateComponent },
-          { path: 'pages/users/detail/:id', canActivate: [authGuard], component: UserDetailComponent },
-          { path: 'pages/users/password/:id', canActivate: [authGuard], component: UserPasswordComponent },
-          { path: 'pages/users/update/:id', canActivate: [authGuard], component: UserUpdateComponent },
-          { path: 'pages/roles', canActivate: [authGuard], component: RolesComponent },
-          { path: 'pages/roles/create', canActivate: [authGuard], component: RoleCreateComponent },
-          { path: 'pages/roles/detail/:id', canActivate: [authGuard], component: RoleDetailComponent },
-          { path: 'pages/roles/update/:id', canActivate: [authGuard], component: RoleUpdateComponent },
-          { path: 'pages/permissions', canActivate: [authGuard], component: PermissionsComponent },
-          { path: 'pages/permissions/create', canActivate: [authGuard], component: PermissionCreateComponent },
-          { path: 'pages/permissions/detail/:id', canActivate: [authGuard], component: PermissionDetailComponent },
-          { path: 'pages/permissions/update/:id', canActivate: [authGuard], component: PermissionUpdateComponent },
-          { path: 'pages/abilities', canActivate: [authGuard], component: AbilitiesComponent },
-          { path: 'pages/abilities/create', canActivate: [authGuard], component: AbilitiesCreateComponent },
-          { path: 'pages/abilities/detail/:id', canActivate: [authGuard], component: AbilitiesDetailComponent },
-          { path: 'pages/abilities/update/:id', canActivate: [authGuard], component: AbilitiesUpdateComponent },
+          { path: 'dashboard', component: DashboardComponent },
+          { path: 'pages/incomes', canActivate: [PermissionGuard], data: { permission: 'can_view_income' }, component: IncomesComponent },
+          { path: 'pages/expenses', canActivate: [PermissionGuard], data: { permission: 'can_view_expense' }, component: ExpensesComponent },
+          { path: 'pages/income_categories', canActivate: [PermissionGuard], data: { permission: 'can_view_income_category' }, component: IncomeCategoriesComponent },
+          { path: 'pages/expense_categories', canActivate: [PermissionGuard], data: { permission: 'can_view_expense_category' }, component: ExpenseCategoriesComponent },
+          { path: 'pages/users', canActivate: [PermissionGuard], data: { permission: 'can_view_list_user' }, component: UsersComponent },
+          { path: 'pages/users/create', canActivate: [PermissionGuard], data: { permission: 'can_create_user' }, component: UserCreateComponent },
+          { path: 'pages/users/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_user' }, component: UserDetailComponent },
+          { path: 'pages/users/password/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_user' }, component: UserPasswordComponent },
+          { path: 'pages/users/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_user' }, component: UserUpdateComponent },
+          { path: 'pages/roles', canActivate: [PermissionGuard], data: { permission: 'can_view_list_role' }, component: RolesComponent },
+          { path: 'pages/roles/create', canActivate: [PermissionGuard], data: { permission: 'can_create_role' }, component: RoleCreateComponent },
+          { path: 'pages/roles/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_role' }, component: RoleDetailComponent },
+          { path: 'pages/roles/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_role' }, component: RoleUpdateComponent },
+          { path: 'pages/permissions', canActivate: [PermissionGuard], data: { permission: 'can_view_list_permission' }, component: PermissionsComponent },
+          { path: 'pages/permissions/create', canActivate: [PermissionGuard], data: { permission: 'can_create_permission' }, component: PermissionCreateComponent },
+          { path: 'pages/permissions/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_permission' }, component: PermissionDetailComponent },
+          { path: 'pages/permissions/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_permission' }, component: PermissionUpdateComponent },
+          { path: 'pages/abilities', canActivate: [PermissionGuard], data: { permission: 'can_view_list_ability' }, component: AbilitiesComponent },
+          { path: 'pages/abilities/create', canActivate: [PermissionGuard], data: { permission: 'can_create_ability' }, component: AbilitiesCreateComponent },
+          { path: 'pages/abilities/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_ability' }, component: AbilitiesDetailComponent },
+          { path: 'pages/abilities/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_ability' }, component: AbilitiesUpdateComponent },
         ]
     },
+    { path: 'unauthorized', component: UnauthorizedComponent },
     { path: '**', component: PageNotFoundComponent }
 ];
