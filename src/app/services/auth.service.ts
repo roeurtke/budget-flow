@@ -43,11 +43,11 @@ export class AuthService {
       const accessToken = this.tokenService.getAccessToken();
       const refreshToken = this.tokenService.getRefreshToken();
       
-      console.log('Initializing auth state:', {
-        hasAccessToken: !!accessToken,
-        hasRefreshToken: !!refreshToken,
-        isAccessTokenExpired: accessToken ? this.tokenService.isTokenExpired(accessToken) : true
-      });
+      // console.log('Initializing auth state:', {
+      //   hasAccessToken: !!accessToken,
+      //   hasRefreshToken: !!refreshToken,
+      //   isAccessTokenExpired: accessToken ? this.tokenService.isTokenExpired(accessToken) : true
+      // });
       
       if (accessToken && refreshToken) {
         const isExpired = this.tokenService.isTokenExpired(accessToken);
@@ -69,7 +69,7 @@ export class AuthService {
           });
         }
       } else {
-        console.log('No tokens found, logging out');
+        // console.log('No tokens found, logging out');
         this.logout();
       }
     } catch (error) {
