@@ -45,27 +45,27 @@ export class PermissionService {
     // First get the role details
     return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/`).pipe(
       // tap(role => console.log('Role details:', role)),
-      // Then fetch the role's permissions
+      // Then fetch all role permissions and filter for this role
       switchMap(role => 
-        this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/permissions/`).pipe(
+        this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { params: { role: roleId.toString(), page_size: '100' } }).pipe(
           map(response => {
-            console.log('Role permissions response:', response);
+            // console.log('Role permissions response:', response);
+            let permissions: any[] = [];
+            
             // Handle different possible response formats
             if (Array.isArray(response)) {
-              return response.map(p => p.codename || p);
+              permissions = response;
+            } else if (response.results && Array.isArray(response.results)) {
+              permissions = response.results;
+            } else if (response.permission) {
+              permissions = [response];
             }
-            if (response.permissions && Array.isArray(response.permissions)) {
-              return response.permissions.map((p: any) => p.codename || p);
-            }
-            if (response.results && Array.isArray(response.results)) {
-              return response.results.map((p: any) => p.codename || p);
-            }
-            // If no permissions found in the expected format, try to get them from the role details
-            if (role.permissions && Array.isArray(role.permissions)) {
-              return role.permissions.map((p: any) => p.codename || p);
-            }
-            console.warn('No permissions found in role or permissions response');
-            return [];
+
+            // Extract permission codenames and filter by status
+            return permissions
+              .filter(p => p.status !== false)
+              .map(p => p.permission?.codename || p.codename)
+              .filter(Boolean);
           }),
           catchError(error => {
             console.error('Error fetching role permissions:', error);
