@@ -21,7 +21,7 @@ export class PermissionService {
     this.authService.getCurrentUser().pipe(
       switchMap(user => this.fetchUserRolePermissions(user.role.id)),
       tap(permissions => {
-        console.log('Fetched role permissions:', permissions);
+        // console.log('Fetched role permissions:', permissions);
         this.userPermissions.next(permissions);
       }),
       catchError(error => {
@@ -44,7 +44,7 @@ export class PermissionService {
   private fetchUserRolePermissions(roleId: number): Observable<string[]> {
     // First get the role details
     return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/`).pipe(
-      tap(role => console.log('Role details:', role)),
+      // tap(role => console.log('Role details:', role)),
       // Then fetch the role's permissions
       switchMap(role => 
         this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/permissions/`).pipe(
@@ -84,7 +84,7 @@ export class PermissionService {
   private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
     return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
       switchMap(response => {
-        console.log('Initial permissions response:', response);
+        // console.log('Initial permissions response:', response);
         const allPermissions: string[] = [];
         
         // Add permissions from first page
