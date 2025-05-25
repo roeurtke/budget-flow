@@ -8,6 +8,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { format } from 'date-fns';
 import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-users',
@@ -20,15 +21,25 @@ export class UsersComponent implements OnInit {
 
   loading = false;
   error: string | null = null;
+  canCreateUser = false;
+  canUpdateUser = false;
+  canDeleteUser = false;
 
   // DataTables properties
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private userService: UserService, private router: Router) {}
+  constructor(
+    private userService: UserService, 
+    private router: Router,
+    private permissionService: PermissionService
+  ) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_user').subscribe(has => this.canCreateUser = has);
+    this.permissionService.hasPermission('can_update_user').subscribe(has => this.canUpdateUser = has);
+    this.permissionService.hasPermission('can_delete_user').subscribe(has => this.canDeleteUser = has);
   }
 
   initializeDataTable(): void {
@@ -115,51 +126,51 @@ export class UsersComponent implements OnInit {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
-            return `
+            let buttons = '';
+            
+            // Detail button - always visible if user can view users
+            buttons += `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Detail">
                 <i class="fas fa-sm fa-id-card"></i>
-              </button>
-              <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
-                <i class="fas fa-key"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
-                <i class="fas fa-sm fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+
+            // Change Password button - only visible if user can update users
+            if (this.canUpdateUser) {
+              buttons += `
+                <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
+                  <i class="fas fa-key"></i>
+                </button>`;
+            }
+
+            // Edit button - only visible if user can update users
+            if (this.canUpdateUser) {
+              buttons += `
+                <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+                  <i class="fas fa-sm fa-edit"></i>
+                </button>`;
+            }
+
+            // Delete button - only visible if user can delete users
+            if (this.canDeleteUser) {
+              buttons += `
+                <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
+                  <i class="fas fa-trash"></i>
+                </button>`;
+            }
+
+            return buttons;
           }
         }
       ]
     };
   }
 
-  // loadUsers(): void {
-  //   this.loading = true;
-  //   this.userService.getUserList().subscribe({
-  //     next: (users) => {
-  //       this.users = users.sort((a, b) => b.id - a.id);
-        
-  //       if (this.dtElement && this.dtElement.dtInstance) {
-  //         this.dtElement.dtInstance.then((dtInstance: any) => {
-  //           dtInstance.clear();
-  //           dtInstance.rows.add(this.users);
-  //           dtInstance.draw(); // This will regenerate the sequential IDs
-  //         });
-  //       }
-        
-  //       this.loading = false;
-  //     },
-  //     error: (err) => {
-  //       this.error = err.message;
-  //       this.loading = false;
-  //     }
-  //   });
-  // }
-
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateUser) {
+      Swal.fire('Access Denied', 'You do not have permission to create users.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/users/create']);
   }
 
@@ -176,6 +187,10 @@ export class UsersComponent implements OnInit {
       console.error('No user ID provided for edit');
       return;
     }
+    if (!this.canUpdateUser) {
+      Swal.fire('Access Denied', 'You do not have permission to update users.', 'error');
+      return;
+    }
     this.router.navigate([`/pages/users/update/${userId}`]);
   }
 
@@ -184,11 +199,19 @@ export class UsersComponent implements OnInit {
       console.error('No user ID provided for change password');
       return;
     }
+    if (!this.canUpdateUser) {
+      Swal.fire('Access Denied', 'You do not have permission to change user passwords.', 'error');
+      return;
+    }
     this.router.navigate([`/pages/users/password/${userId}`]);
   }
 
   onDelete(userId: Number): void {
     if (!userId) return;
+    if (!this.canDeleteUser) {
+      Swal.fire('Access Denied', 'You do not have permission to delete users.', 'error');
+      return;
+    }
   
     const id = Number(userId);
     if (isNaN(id)) return;

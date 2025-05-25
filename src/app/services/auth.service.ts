@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, throwError, catchError, BehaviorSubject, switchMap, of } from 'rxjs';
+import { Observable, tap, throwError, catchError, BehaviorSubject, switchMap, of, Subject, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   LoginResponse,
@@ -27,9 +27,15 @@ export class AuthService {
   private readonly tokenService = inject(TokenService);
   private refreshTokenSubject = new BehaviorSubject<RefreshResponse | null>(null);
   private refreshInProgress = false;
+  private loginSubject = new Subject<LoginResponse>();
 
   constructor() {
     this.initializeAuthState();
+  }
+
+  // Observable for login events
+  onLogin(): Observable<LoginResponse> {
+    return this.loginSubject.asObservable();
   }
 
   private initializeAuthState(): void {
@@ -49,11 +55,23 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(this.loginUrl, { username, password }).pipe(
-      tap((response) => {
+    return this.http.post<{access: string, refresh: string, username: string, message: string}>(this.loginUrl, { username, password }).pipe(
+      switchMap(response => {
         this.tokenService.setAccessToken(response.access);
         this.tokenService.setRefreshToken(response.refresh);
         this.isAuthenticated.set(true);
+        
+        // Fetch user details after successful login
+        return this.getCurrentUser().pipe(
+          map(userDetails => ({
+            access: response.access,
+            refresh: response.refresh,
+            user: userDetails
+          }))
+        );
+      }),
+      tap(response => {
+        this.loginSubject.next(response);
       }),
       catchError(this.handleAuthError)
     );

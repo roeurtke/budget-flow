@@ -29,10 +29,13 @@ export class LoginComponent {
       const { username, password } = this.loginForm.value;
       this.authService.login(username!, password!).subscribe({
         next: (response) => {
+          console.log('Login response:', response);
+          console.log('User details:', response.user);
           // The PermissionService will automatically update when getCurrentUser is called
           this.router.navigate(['/dashboard']);
         },
         error: (err) => {
+          console.error('Login error:', err);
           this.errorMessage = err.error?.error || 'Login failed';
         }
       });

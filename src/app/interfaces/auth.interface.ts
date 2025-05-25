@@ -38,7 +38,11 @@ export interface UserDetails {
     email: string;
     first_name: string;
     last_name: string;
-    permissions: string[];
+    role: {
+        id: number;
+        name: string;
+    };
+    permissions?: string[];
 }
 
 export interface AuthError {

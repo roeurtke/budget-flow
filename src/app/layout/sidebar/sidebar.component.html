@@ -12,53 +12,57 @@
   
     <!-- Nav Items -->
     @for (item of navItems; track item.label) {
-      @if (item.link) {
-        <!-- Single Nav Item (e.g., Dashboard) -->
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]="item.link" (click)="toggleCollapse(item)">
-            <i [class]="item.icon"></i>
-            <span>{{ item.label }}</span>
-          </a>
-        </li>
-      } @else {
-        <!-- Collapsible Nav Item (e.g., Cash Flow, Settings) -->
-        <li class="nav-item" routerLinkActive="active">
-          <a
-            class="nav-link"
-            href="#"
-            [class.collapsed]="item.collapsed"
-            (click)="toggleCollapse(item); $event.preventDefault()"
-            [attr.data-toggle]="'collapse'"
-            [attr.data-target]="'#collapse' + item.label.replace(' ', '')"
-            [attr.aria-expanded]="!item.collapsed"
-            [attr.aria-controls]="'collapse' + item.label.replace(' ', '')"
-          >
-            <i [class]="item.icon"></i>
-            <span>{{ item.label }}</span>
-          </a>
-          <div
-            [id]="'collapse' + item.label.replace(' ', '')"
-            class="collapse"
-            [class.show]="!item.collapsed"
-            [attr.aria-labelledby]="'heading' + item.label.replace(' ', '')"
-            data-parent="#accordionSidebar"
-          >
-            <div class="bg-white py-2 collapse-inner rounded">
-              @for (subItem of item.subItems; track subItem.link) {
-                <a
-                  class="collapse-item"
-                  [routerLink]="subItem.link"
-                  routerLinkActive="active"
-                >
-                  {{ subItem.label }}
-                </a>
-              }
+      @if (item.permission | async) {
+        @if (item.link) {
+          <!-- Single Nav Item (e.g., Dashboard) -->
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" [routerLink]="item.link" (click)="toggleCollapse(item)">
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </a>
+          </li>
+        } @else if (item.subItems) {
+          <!-- Collapsible Nav Item (e.g., Cash Flow, Settings) -->
+          <li class="nav-item" routerLinkActive="active">
+            <a
+              class="nav-link"
+              href="#"
+              [class.collapsed]="item.collapsed"
+              (click)="toggleCollapse(item); $event.preventDefault()"
+              [attr.data-toggle]="'collapse'"
+              [attr.data-target]="'#collapse' + item.label.replace(' ', '')"
+              [attr.aria-expanded]="!item.collapsed"
+              [attr.aria-controls]="'collapse' + item.label.replace(' ', '')"
+            >
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </a>
+            <div
+              [id]="'collapse' + item.label.replace(' ', '')"
+              class="collapse"
+              [class.show]="!item.collapsed"
+              [attr.aria-labelledby]="'heading' + item.label.replace(' ', '')"
+              data-parent="#accordionSidebar"
+            >
+              <div class="bg-white py-2 collapse-inner rounded">
+                @for (subItem of item.subItems; track subItem.link) {
+                  @if (subItem.permission | async) {
+                    <a
+                      class="collapse-item"
+                      [routerLink]="subItem.link"
+                      routerLinkActive="active"
+                    >
+                      {{ subItem.label }}
+                    </a>
+                  }
+                }
+              </div>
             </div>
-          </div>
-        </li>
+          </li>
+        }
+        <!-- Divider after each item -->
+        <hr class="sidebar-divider my-0">
       }
-      <!-- Divider after each item -->
-      <hr class="sidebar-divider my-0">
     }
   
     <!-- Sidebar Toggler -->

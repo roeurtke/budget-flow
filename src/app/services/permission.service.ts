@@ -4,7 +4,8 @@ import { of, Observable, throwError, BehaviorSubject } from 'rxjs';
 import { Permission } from '../interfaces/fetch-data.interface';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { map, catchError, shareReplay } from 'rxjs/operators';
+import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import { LoginResponse } from '../interfaces/auth.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +19,45 @@ export class PermissionService {
     private authService: AuthService
   ) {
     // Subscribe to auth state changes to update permissions
-    this.authService.getCurrentUser().subscribe({
-      next: (user) => {
-        if (user.permissions) {
-          this.userPermissions.next(user.permissions);
-        }
-      },
-      error: () => {
+    this.authService.getCurrentUser().pipe(
+      switchMap(user => this.fetchUserRolePermissions(user.role.id)),
+      tap(permissions => {
+        console.log('Fetched role permissions:', permissions);
+        this.userPermissions.next(permissions);
+      }),
+      catchError(error => {
+        console.error('Error getting role permissions:', error);
         this.userPermissions.next([]);
-      }
-    });
+        return throwError(() => error);
+      })
+    ).subscribe();
+
+    // Also handle permissions from login response
+    this.authService.onLogin().pipe(
+      switchMap(response => this.fetchUserRolePermissions(response.user.role.id)),
+      tap(permissions => {
+        console.log('Login role permissions:', permissions);
+        this.userPermissions.next(permissions);
+      })
+    ).subscribe();
+  }
+
+  private fetchUserRolePermissions(roleId: number): Observable<string[]> {
+    return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/permissions/`).pipe(
+      map(response => {
+        if (Array.isArray(response)) {
+          return response.map(p => p.codename);
+        }
+        if (response.permissions) {
+          return response.permissions.map((p: any) => p.codename);
+        }
+        return [];
+      }),
+      catchError(error => {
+        console.error('Error fetching role permissions:', error);
+        return of([]);
+      })
+    );
   }
 
   // Check if user has specific permission
