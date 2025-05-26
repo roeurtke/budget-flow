@@ -19,74 +19,196 @@ export class PermissionService {
   ) {
     // Subscribe to auth state changes to update permissions
     this.authService.getCurrentUser().pipe(
-      // tap(user => console.log('Current user:', user)),
-      switchMap(user => this.fetchUserRolePermissions(user.role.id)),
-      tap(permissions => {
-        // console.log('Loaded user permissions:', permissions);
+      tap(user => {
+        console.log('Current user object:', user); // Log the full user object
+        // Get permissions directly from user object
+        const permissions = this.extractPermissionsFromUser(user);
+        console.log('Loaded user permissions from user object:', permissions);
         this.userPermissions.next(permissions);
       }),
-      catchError(error => {
-        console.error('Error getting role permissions:', error);
-        this.userPermissions.next([]);
-        return throwError(() => error);
+      // Only try to fetch additional permissions if user has permission to do so
+      switchMap(user => {
+        const permissions = this.extractPermissionsFromUser(user);
+        if (permissions.includes('can_view_permission')) {
+          return this.fetchAdditionalPermissions(user.role.id).pipe(
+            tap(additionalPermissions => {
+              if (additionalPermissions.length > 0) {
+                console.log('Loaded additional permissions:', additionalPermissions);
+                // Merge with existing permissions, avoiding duplicates
+                const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
+                this.userPermissions.next(allPermissions);
+              }
+            }),
+            catchError(error => {
+              console.warn('Error fetching additional permissions:', error);
+              return of([]);
+            })
+          );
+        }
+        return of([]);
       })
     ).subscribe();
 
     // Also handle permissions from login response
     this.authService.onLogin().pipe(
-      tap(response => console.log('Login response user:', response.user)),
-      switchMap(response => this.fetchUserRolePermissions(response.user.role.id)),
-      tap(permissions => {
-        console.log('Login loaded permissions:', permissions);
+      tap(response => {
+        console.log('Login response user object:', response.user); // Log the full user object
+        const permissions = this.extractPermissionsFromUser(response.user);
+        console.log('Login loaded permissions from user:', permissions);
         this.userPermissions.next(permissions);
+      }),
+      // Only try to fetch additional permissions if user has permission to do so
+      switchMap(response => {
+        const permissions = this.extractPermissionsFromUser(response.user);
+        if (permissions.includes('can_view_permission')) {
+          return this.fetchAdditionalPermissions(response.user.role.id).pipe(
+            tap(additionalPermissions => {
+              if (additionalPermissions.length > 0) {
+                console.log('Loaded additional permissions from login:', additionalPermissions);
+                // Merge with existing permissions, avoiding duplicates
+                const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
+                this.userPermissions.next(allPermissions);
+              }
+            }),
+            catchError(error => {
+              console.warn('Error fetching additional permissions from login:', error);
+              return of([]);
+            })
+          );
+        }
+        return of([]);
       })
     ).subscribe();
   }
 
-  private fetchUserRolePermissions(roleId: number): Observable<string[]> {
-    // First get the role details
-    return this.http.get<any>(`${this.apiUrl}/api/roles/${roleId}/`).pipe(
-      // tap(role => console.log('Role details:', role)),
-      // Then fetch all role permissions and filter for this role
-      switchMap(role => 
-        this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { params: { role: roleId.toString(), page_size: '100' } }).pipe(
-          map(response => {
-            // console.log('Role permissions response:', response);
-            let permissions: any[] = [];
-            
-            // Handle different possible response formats
-            if (Array.isArray(response)) {
-              permissions = response;
-            } else if (response.results && Array.isArray(response.results)) {
-              permissions = response.results;
-            } else if (response.permission) {
-              permissions = [response];
-            }
+  private extractPermissionsFromUser(user: any): string[] {
+    if (!user) {
+      console.warn('No user object provided to extractPermissionsFromUser');
+      return [];
+    }
+    
+    console.log('Extracting permissions from user object structure:', {
+      hasRole: !!user.role,
+      roleId: user.role?.id,
+      roleName: user.role?.name,
+      hasPermissions: !!user.permissions,
+      hasRolePermissions: !!user.role?.permissions,
+      hasRoleRolePermissions: !!user.role?.role_permissions
+    });
 
-            // Extract permission codenames and filter by status
-            return permissions
-              .filter(p => p.status !== false)
-              .map(p => p.permission?.codename || p.codename)
-              .filter(Boolean);
-          }),
-          catchError(error => {
-            console.error('Error fetching role permissions:', error);
-            // If permissions endpoint fails, try to get permissions from role details
-            if (role.permissions && Array.isArray(role.permissions)) {
-              return of(role.permissions.map((p: any) => p.codename || p));
-            }
-            // If still no permissions, try the alternative endpoint with pagination
-            return this.fetchAllPaginatedPermissions(roleId);
-          })
-        )
-      )
+    // Try to get permissions from different possible locations in the user object
+    const permissions = new Set<string>();
+    
+    // Check user.permissions (direct permissions array)
+    if (user.permissions && Array.isArray(user.permissions)) {
+      console.log('Found permissions in user.permissions:', user.permissions);
+      user.permissions.forEach((p: any) => {
+        if (typeof p === 'string') {
+          permissions.add(p);
+        } else if (p.codename) {
+          permissions.add(p.codename);
+        }
+      });
+    }
+    
+    // Check role.permissions
+    if (user.role?.permissions && Array.isArray(user.role.permissions)) {
+      console.log('Found permissions in user.role.permissions:', user.role.permissions);
+      user.role.permissions.forEach((p: any) => {
+        if (typeof p === 'string') {
+          permissions.add(p);
+        } else if (p.codename) {
+          permissions.add(p.codename);
+        }
+      });
+    }
+    
+    // Check role.role_permissions
+    if (user.role?.role_permissions && Array.isArray(user.role.role_permissions)) {
+      console.log('Found permissions in user.role.role_permissions:', user.role.role_permissions);
+      user.role.role_permissions.forEach((rp: any) => {
+        if (rp.permission?.codename) {
+          permissions.add(rp.permission.codename);
+        }
+        if (rp.status !== false && rp.codename) {
+          permissions.add(rp.codename);
+        }
+      });
+    }
+
+    const extractedPermissions = Array.from(permissions);
+    console.log('Extracted permissions:', extractedPermissions);
+    return extractedPermissions;
+  }
+
+  private fetchAdditionalPermissions(roleId: number): Observable<string[]> {
+    // Only try to fetch if we have permission to do so
+    return this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { 
+      params: { 
+        role: roleId.toString(), 
+        page_size: '100' 
+      } 
+    }).pipe(
+      map(response => {
+        let permissions: any[] = [];
+        
+        if (Array.isArray(response)) {
+          permissions = response;
+        } else if (response.results && Array.isArray(response.results)) {
+          permissions = response.results;
+        } else if (response.permission) {
+          permissions = [response];
+        }
+
+        return permissions
+          .filter(p => p.status !== false)
+          .map(p => p.permission?.codename || p.codename)
+          .filter(Boolean);
+      }),
+      catchError(error => {
+        console.warn('Error fetching role permissions, trying alternative endpoint:', error);
+        return this.fetchAllPaginatedPermissions(roleId);
+      })
+    );
+  }
+
+  private fetchUserPermissions(roleId: number): Observable<string[]> {
+    // Try to get permissions directly from the role-permissions endpoint first
+    return this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { 
+      params: { 
+        role: roleId.toString(), 
+        page_size: '100' 
+      } 
+    }).pipe(
+      map(response => {
+        let permissions: any[] = [];
+        
+        // Handle different possible response formats
+        if (Array.isArray(response)) {
+          permissions = response;
+        } else if (response.results && Array.isArray(response.results)) {
+          permissions = response.results;
+        } else if (response.permission) {
+          permissions = [response];
+        }
+
+        // Extract permission codenames and filter by status
+        return permissions
+          .filter(p => p.status !== false)
+          .map(p => p.permission?.codename || p.codename)
+          .filter(Boolean);
+      }),
+      catchError(error => {
+        console.warn('Error fetching role permissions, trying alternative endpoint:', error);
+        // If role-permissions endpoint fails, try the permissions endpoint
+        return this.fetchAllPaginatedPermissions(roleId);
+      })
     );
   }
 
   private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
     return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
       switchMap(response => {
-        // console.log('Initial permissions response:', response);
         const allPermissions: string[] = [];
         
         // Add permissions from first page
@@ -102,7 +224,8 @@ export class PermissionService {
         return of(allPermissions);
       }),
       catchError(error => {
-        console.error('Error fetching paginated permissions:', error);
+        console.warn('Error fetching paginated permissions:', error);
+        // Return empty array instead of throwing error
         return of([]);
       })
     );
@@ -141,9 +264,6 @@ export class PermissionService {
   // Check if user has specific permission
   hasPermission(permission: string): Observable<boolean> {
     return this.userPermissions.pipe(
-      // tap(permissions => {
-      //   console.log('Checking permission:', permission, 'against available permissions:', permissions);
-      // }),
       map(permissions => permissions.includes(permission))
     );
   }
