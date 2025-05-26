@@ -16,13 +16,13 @@ export const authGuard: CanActivateFn = (
   const refreshToken = tokenService.getRefreshToken();
 
   // Debug logging
-  console.log('Auth guard token state:', {
-    hasAccessToken: !!accessToken,
-    hasRefreshToken: !!refreshToken,
-    isAccessTokenExpired: accessToken ? tokenService.isTokenExpired(accessToken) : true,
-    isRefreshTokenExpired: refreshToken ? tokenService.isTokenExpired(refreshToken) : true,
-    refreshTokenPayload: refreshToken ? tokenService.decodeToken(refreshToken) : null
-  });
+  // console.log('Auth guard token state:', {
+  //   hasAccessToken: !!accessToken,
+  //   hasRefreshToken: !!refreshToken,
+  //   isAccessTokenExpired: accessToken ? tokenService.isTokenExpired(accessToken) : true,
+  //   isRefreshTokenExpired: refreshToken ? tokenService.isTokenExpired(refreshToken) : true,
+  //   refreshTokenPayload: refreshToken ? tokenService.decodeToken(refreshToken) : null
+  // });
 
   // If no tokens exist, redirect to login
   if (!accessToken || !refreshToken) {
@@ -37,10 +37,10 @@ export const authGuard: CanActivateFn = (
 
   // If access token is expired but refresh token exists, try to refresh
   if (!tokenService.isTokenExpired(refreshToken)) {
-    console.log('Access token expired, attempting refresh in auth guard');
+    // console.log('Access token expired, attempting refresh in auth guard');
     return authService.refreshToken().pipe(
       map(() => {
-        console.log('Token refresh successful in auth guard');
+        // console.log('Token refresh successful in auth guard');
         return true;
       }),
       catchError(error => {

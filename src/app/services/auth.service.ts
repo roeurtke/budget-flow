@@ -49,11 +49,11 @@ export class AuthService {
         
         // If access token is expired but we have a refresh token, try to refresh
         if (isExpired) {
-          console.log('Access token expired during initialization, attempting refresh...');
+          // console.log('Access token expired during initialization, attempting refresh...');
           // Use the shared refresh observable
           this.refreshToken().subscribe({
             next: (response) => {
-              console.log('Initial token refresh successful');
+              // console.log('Initial token refresh successful');
               this.isAuthenticated.set(true);
             },
             error: (error) => {
