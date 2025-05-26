@@ -1,9 +1,8 @@
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { TokenService } from '../services/token.service';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable, of, catchError, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { AuthService } from '../services/auth.service';
+import { map, Observable, of, catchError } from 'rxjs';
 
 export const authGuard: CanActivateFn = (
   route,
@@ -11,7 +10,7 @@ export const authGuard: CanActivateFn = (
 ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
   const tokenService = inject(TokenService);
   const router = inject(Router);
-  const http = inject(HttpClient);
+  const authService = inject(AuthService);
 
   const accessToken = tokenService.getAccessToken();
   const refreshToken = tokenService.getRefreshToken();
@@ -33,47 +32,19 @@ export const authGuard: CanActivateFn = (
 
   // If access token is valid, allow access
   if (!tokenService.isTokenExpired(accessToken)) {
-    // console.log('Valid access token found');
     return true;
   }
 
   // If access token is expired but refresh token exists, try to refresh
   if (!tokenService.isTokenExpired(refreshToken)) {
     console.log('Access token expired, attempting refresh in auth guard');
-    const refreshUrl = `${environment.apiUrl}/api/token/refresh/`;
-    console.log('Refresh request details:', {
-      url: refreshUrl,
-      refreshToken: refreshToken.substring(0, 10) + '...' // Only log first 10 chars for security
-    });
-
-    return http.post<{access: string}>(refreshUrl, { refresh: refreshToken }).pipe(
-      tap({
-        next: (response) => {
-          console.log('Refresh response received:', {
-            hasAccessToken: !!response.access,
-            accessTokenLength: response.access?.length
-          });
-        },
-        error: (error) => {
-          console.error('Refresh request failed:', {
-            status: error.status,
-            statusText: error.statusText,
-            error: error.error,
-            headers: error.headers?.keys()
-          });
-        }
-      }),
-      map(response => {
-        if (!response.access) {
-          throw new Error('Invalid refresh response: no access token received');
-        }
-        tokenService.setAccessToken(response.access);
+    return authService.refreshToken().pipe(
+      map(() => {
         console.log('Token refresh successful in auth guard');
         return true;
       }),
       catchError(error => {
         console.error('Token refresh failed in auth guard:', error);
-        tokenService.clearTokens();
         return of(redirectToLogin(router, state.url));
       })
     );

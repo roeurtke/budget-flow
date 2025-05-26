@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, tap, throwError, catchError, BehaviorSubject, switchMap, of, Subject, map } from 'rxjs';
+import { Observable, tap, throwError, catchError, BehaviorSubject, switchMap, of, Subject, map, shareReplay } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   LoginResponse,
@@ -22,12 +22,12 @@ export class AuthService {
   private readonly refreshApiUrl = `${environment.apiUrl}/api/token/refresh/`;
   private readonly currentUserUrl = `${environment.apiUrl}/api/users/me/`;
   private readonly isAuthenticated = signal<boolean>(false);
-  private readonly isRefreshing = signal<boolean>(false);
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
   private refreshTokenSubject = new BehaviorSubject<RefreshResponse | null>(null);
   private refreshInProgress = false;
   private loginSubject = new Subject<LoginResponse>();
+  private refreshObservable: Observable<RefreshResponse> | null = null;
 
   constructor() {
     this.initializeAuthState();
@@ -43,33 +43,26 @@ export class AuthService {
       const accessToken = this.tokenService.getAccessToken();
       const refreshToken = this.tokenService.getRefreshToken();
       
-      // console.log('Initializing auth state:', {
-      //   hasAccessToken: !!accessToken,
-      //   hasRefreshToken: !!refreshToken,
-      //   isAccessTokenExpired: accessToken ? this.tokenService.isTokenExpired(accessToken) : true
-      // });
-      
       if (accessToken && refreshToken) {
         const isExpired = this.tokenService.isTokenExpired(accessToken);
-        // console.log('Token status:', { isExpired });
         this.isAuthenticated.set(!isExpired);
         
         // If access token is expired but we have a refresh token, try to refresh
         if (isExpired) {
-          console.log('Access token expired, attempting refresh...');
+          console.log('Access token expired during initialization, attempting refresh...');
+          // Use the shared refresh observable
           this.refreshToken().subscribe({
             next: (response) => {
-              console.log('Token refresh successful');
+              console.log('Initial token refresh successful');
               this.isAuthenticated.set(true);
             },
             error: (error) => {
-              console.error('Token refresh failed:', error);
+              console.error('Initial token refresh failed:', error);
               this.logout();
             }
           });
         }
       } else {
-        // console.log('No tokens found, logging out');
         this.logout();
       }
     } catch (error) {
@@ -119,18 +112,10 @@ export class AuthService {
   }
 
   refreshToken(): Observable<RefreshResponse> {
-    if (this.refreshInProgress) {
-      return this.refreshTokenSubject.pipe(
-        switchMap(response => {
-          if (response) {
-            return of(response);
-          }
-          return throwError(() => new AuthenticationError(
-            'REFRESH_FAILED',
-            'Token refresh failed'
-          ));
-        })
-      );
+    // If we already have a refresh in progress, return the shared observable
+    if (this.refreshInProgress && this.refreshObservable) {
+      console.debug('Reusing existing refresh attempt');
+      return this.refreshObservable;
     }
 
     const refreshToken = this.tokenService.getRefreshToken();
@@ -152,9 +137,10 @@ export class AuthService {
 
     this.refreshInProgress = true;
     this.refreshTokenSubject.next(null);
-    console.debug('Starting token refresh process');
+    console.debug('Starting new token refresh process');
 
-    return this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
+    // Create a shared observable for the refresh attempt
+    this.refreshObservable = this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
       tap({
         next: (response) => {
           console.debug('Token refresh successful');
@@ -183,6 +169,7 @@ export class AuthService {
         },
         finalize: () => {
           this.refreshInProgress = false;
+          this.refreshObservable = null;
           console.debug('Token refresh process completed');
         }
       }),
@@ -198,9 +185,17 @@ export class AuthService {
             ));
           }
         }
-        return this.handleAuthError(error);
-      })
+        return throwError(() => new AuthenticationError(
+          'REFRESH_FAILED',
+          'Token refresh failed',
+          error
+        ));
+      }),
+      // Share the result with all subscribers
+      shareReplay(1)
     );
+
+    return this.refreshObservable;
   }
 
   logout(): void {
