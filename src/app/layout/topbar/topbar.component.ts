@@ -1,12 +1,11 @@
 import { Component, ElementRef, HostListener, Input } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { ToggleSidebarDirective } from '../../shared/directives/toggle-sidebar.directive';
 import { UserDetails } from '../../interfaces/auth.interface';
 
 @Component({
   selector: 'app-topbar',
-  imports: [ToggleSidebarDirective],
+  imports: [],
   templateUrl: './topbar.component.html',
   styleUrl: './topbar.component.css'
 })
@@ -25,7 +24,6 @@ export class TopbarComponent {
   ngOnInit(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user: UserDetails) => {
-        // console.log('User data from backend:', user);
         this.displayName = `${user.first_name} ${user.last_name}`.trim() || user.username;
       },
       error: (error) => {
