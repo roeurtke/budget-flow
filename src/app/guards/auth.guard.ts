@@ -15,15 +15,6 @@ export const authGuard: CanActivateFn = (
   const accessToken = tokenService.getAccessToken();
   const refreshToken = tokenService.getRefreshToken();
 
-  // Debug logging
-  // console.log('Auth guard token state:', {
-  //   hasAccessToken: !!accessToken,
-  //   hasRefreshToken: !!refreshToken,
-  //   isAccessTokenExpired: accessToken ? tokenService.isTokenExpired(accessToken) : true,
-  //   isRefreshTokenExpired: refreshToken ? tokenService.isTokenExpired(refreshToken) : true,
-  //   refreshTokenPayload: refreshToken ? tokenService.decodeToken(refreshToken) : null
-  // });
-
   // If no tokens exist, redirect to login
   if (!accessToken || !refreshToken) {
     console.log('No tokens found in auth guard');
