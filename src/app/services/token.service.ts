@@ -69,14 +69,29 @@ export class TokenService {
 
       // Add a small buffer (30 seconds) to prevent edge cases
       const bufferTime = 30 * 1000;
-      const isExpired = Date.now() + bufferTime >= payload.exp * 1000;
+      const expirationTime = payload.exp * 1000;
+      const currentTime = Date.now();
+      const isExpired = currentTime + bufferTime >= expirationTime;
       
-      if (isExpired) {
-        console.debug('Token expired at:', new Date(payload.exp * 1000).toISOString());
-      } else {
-        const expiresIn = Math.floor((payload.exp * 1000 - Date.now()) / 1000);
-        console.debug(`Token valid for ${expiresIn} more seconds`);
-      }
+      // Log detailed token expiration info
+      console.debug('Token expiration check:', {
+        tokenType: token === this.accessToken() ? 'access' : 'refresh',
+        expirationTime: new Date(expirationTime).toISOString(),
+        currentTime: new Date(currentTime).toISOString(),
+        timeUntilExpiration: Math.floor((expirationTime - currentTime) / 1000),
+        bufferTime: bufferTime / 1000,
+        isExpired,
+        payload: {
+          exp: payload.exp,
+          user_id: payload.user_id,
+          // Log other relevant claims but exclude sensitive data
+          ...Object.fromEntries(
+            Object.entries(payload)
+              .filter(([key]) => !['user_id', 'exp'].includes(key))
+              .map(([key, value]) => [key, typeof value === 'string' ? value.substring(0, 10) + '...' : value])
+          )
+        }
+      });
       
       return isExpired;
     } catch (e) {
