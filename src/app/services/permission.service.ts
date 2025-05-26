@@ -20,10 +20,8 @@ export class PermissionService {
     // Subscribe to auth state changes to update permissions
     this.authService.getCurrentUser().pipe(
       tap(user => {
-        console.log('Current user object:', user); // Log the full user object
         // Get permissions directly from user object
         const permissions = this.extractPermissionsFromUser(user);
-        console.log('Loaded user permissions from user object:', permissions);
         this.userPermissions.next(permissions);
       }),
       // Only try to fetch additional permissions if user has permission to do so
@@ -33,7 +31,6 @@ export class PermissionService {
           return this.fetchAdditionalPermissions(user.role.id).pipe(
             tap(additionalPermissions => {
               if (additionalPermissions.length > 0) {
-                console.log('Loaded additional permissions:', additionalPermissions);
                 // Merge with existing permissions, avoiding duplicates
                 const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
                 this.userPermissions.next(allPermissions);
@@ -52,9 +49,7 @@ export class PermissionService {
     // Also handle permissions from login response
     this.authService.onLogin().pipe(
       tap(response => {
-        console.log('Login response user object:', response.user); // Log the full user object
         const permissions = this.extractPermissionsFromUser(response.user);
-        console.log('Login loaded permissions from user:', permissions);
         this.userPermissions.next(permissions);
       }),
       // Only try to fetch additional permissions if user has permission to do so
@@ -64,7 +59,6 @@ export class PermissionService {
           return this.fetchAdditionalPermissions(response.user.role.id).pipe(
             tap(additionalPermissions => {
               if (additionalPermissions.length > 0) {
-                console.log('Loaded additional permissions from login:', additionalPermissions);
                 // Merge with existing permissions, avoiding duplicates
                 const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
                 this.userPermissions.next(allPermissions);
@@ -86,22 +80,12 @@ export class PermissionService {
       console.warn('No user object provided to extractPermissionsFromUser');
       return [];
     }
-    
-    console.log('Extracting permissions from user object structure:', {
-      hasRole: !!user.role,
-      roleId: user.role?.id,
-      roleName: user.role?.name,
-      hasPermissions: !!user.permissions,
-      hasRolePermissions: !!user.role?.permissions,
-      hasRoleRolePermissions: !!user.role?.role_permissions
-    });
 
     // Try to get permissions from different possible locations in the user object
     const permissions = new Set<string>();
     
     // Check user.permissions (direct permissions array)
     if (user.permissions && Array.isArray(user.permissions)) {
-      console.log('Found permissions in user.permissions:', user.permissions);
       user.permissions.forEach((p: any) => {
         if (typeof p === 'string') {
           permissions.add(p);
@@ -113,7 +97,6 @@ export class PermissionService {
     
     // Check role.permissions
     if (user.role?.permissions && Array.isArray(user.role.permissions)) {
-      console.log('Found permissions in user.role.permissions:', user.role.permissions);
       user.role.permissions.forEach((p: any) => {
         if (typeof p === 'string') {
           permissions.add(p);
@@ -125,7 +108,6 @@ export class PermissionService {
     
     // Check role.role_permissions
     if (user.role?.role_permissions && Array.isArray(user.role.role_permissions)) {
-      console.log('Found permissions in user.role.role_permissions:', user.role.role_permissions);
       user.role.role_permissions.forEach((rp: any) => {
         if (rp.permission?.codename) {
           permissions.add(rp.permission.codename);
@@ -136,9 +118,7 @@ export class PermissionService {
       });
     }
 
-    const extractedPermissions = Array.from(permissions);
-    console.log('Extracted permissions:', extractedPermissions);
-    return extractedPermissions;
+    return Array.from(permissions);
   }
 
   private fetchAdditionalPermissions(roleId: number): Observable<string[]> {
@@ -238,7 +218,6 @@ export class PermissionService {
 
     return this.http.get<any>(nextUrl).pipe(
       switchMap(response => {
-        console.log('Fetching next page of permissions:', response);
         if (response.results && Array.isArray(response.results)) {
           currentPermissions.push(...response.results.map((p: any) => p.codename || p));
         }
@@ -250,7 +229,6 @@ export class PermissionService {
         return of(currentPermissions);
       }),
       catchError(error => {
-        console.error('Error fetching next page of permissions:', error);
         return of(currentPermissions);
       })
     );

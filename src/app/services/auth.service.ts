@@ -57,7 +57,6 @@ export class AuthService {
               this.isAuthenticated.set(true);
             },
             error: (error) => {
-              console.error('Initial token refresh failed:', error);
               this.logout();
             }
           });
@@ -66,7 +65,6 @@ export class AuthService {
         this.logout();
       }
     } catch (error) {
-      console.error('Error initializing auth state:', error);
       this.logout();
     }
   }
@@ -250,7 +248,6 @@ export class AuthService {
               };
             }),
             catchError(error => {
-              console.warn('Error fetching role permissions:', error);
               // Return user details without permissions if fetching fails
               return of(userDetails);
             })
