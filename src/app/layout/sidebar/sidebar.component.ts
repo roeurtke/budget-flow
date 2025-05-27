@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToggleSidebarDirective } from '../../shared/directives/toggle-sidebar.directive';
 import { PermissionService } from '../../services/permission.service';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 interface NavItem {
