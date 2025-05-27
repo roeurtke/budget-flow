@@ -46,10 +46,15 @@ export class UserService {
     if (dtParams.order && dtParams.order.length > 0) {
       const order = dtParams.order[0];
       const columnName = dtParams.columns[order.column].data;
-      ordering = order.dir === 'desc' ? `-${columnName}` : columnName;
+      // Ensure columnName is treated as a string, even if it's null/undefined
+      const sortColumn = columnName ? String(columnName) : '';
+      ordering = order.dir === 'desc' ? `-${sortColumn}` : sortColumn;
     }
 
-    return this.getUserList(page, pageSize, searchTerm, ordering);
+    // Explicitly ensure ordering is a string, default to empty string if null or undefined
+    const finalOrdering = ordering ?? '';
+
+    return this.getUserList(page, pageSize, searchTerm, finalOrdering);
   }
   
   getUserById(userId: string): Observable<User> {
