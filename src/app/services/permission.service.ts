@@ -114,7 +114,7 @@ export class PermissionService {
   }
 
   private fetchAdditionalPermissions(roleId: number): Observable<string[]> {
-    // Only try to fetch if we have permission to do so
+    console.log('Fetching role permissions for role ID:', roleId); // Debug log
     return this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { 
       params: { 
         role: roleId.toString(), 
@@ -133,26 +133,31 @@ export class PermissionService {
         }
 
         const extractedPermissions = permissions
-        .filter(p => p.status !== false)
-        .map(p => p.permission?.codename || p.codename)
-        .filter(Boolean);
+          .filter(p => p.status !== false)
+          .map(p => p.permission?.codename || p.codename)
+          .filter(Boolean);
 
-        // console.log('Fetched permissions from API:', extractedPermissions); // Debug log
+        console.log('Fetched permissions from API:', extractedPermissions); // Debug log
         return extractedPermissions;
       }),
       catchError(error => {
-        console.warn('Error fetching role permissions, trying alternative endpoint:', error);
-        return this.fetchAllPaginatedPermissions(roleId);
+        if (error.status === 403) {
+          console.warn('Access denied: User does not have permission to fetch role permissions.');
+        } else {
+          console.warn('Error fetching role permissions:', error);
+        }
+        return of([]); // Return an empty array to avoid breaking the flow
       })
     );
   }
 
   private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
+    console.log('Fetching paginated permissions for role ID:', roleId); // Debug log
     return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
       switchMap(response => {
         const allPermissions: string[] = [];
         
-        // Add permissions from first page
+        // Add permissions from the first page
         if (response.results && Array.isArray(response.results)) {
           allPermissions.push(...response.results.map((p: any) => p.codename || p));
         }
@@ -165,9 +170,12 @@ export class PermissionService {
         return of(allPermissions);
       }),
       catchError(error => {
-        console.warn('Error fetching paginated permissions:', error);
-        // Return empty array instead of throwing error
-        return of([]);
+        if (error.status === 403) {
+          console.warn('Access denied: User does not have permission to fetch paginated permissions.');
+        } else {
+          console.warn('Error fetching paginated permissions:', error);
+        }
+        return of([]); // Return an empty array to avoid breaking the flow
       })
     );
   }
