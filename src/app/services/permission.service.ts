@@ -151,41 +151,7 @@ export class PermissionService {
       })
     );
   }
-
-  private fetchUserPermissions(roleId: number): Observable<string[]> {
-    // Try to get permissions directly from the role-permissions endpoint first
-    return this.http.get<any>(`${this.apiUrl}/api/role-permissions/`, { 
-      params: { 
-        role: roleId.toString(), 
-        page_size: '100' 
-      } 
-    }).pipe(
-      map(response => {
-        let permissions: any[] = [];
-        
-        // Handle different possible response formats
-        if (Array.isArray(response)) {
-          permissions = response;
-        } else if (response.results && Array.isArray(response.results)) {
-          permissions = response.results;
-        } else if (response.permission) {
-          permissions = [response];
-        }
-
-        // Extract permission codenames and filter by status
-        return permissions
-          .filter(p => p.status !== false)
-          .map(p => p.permission?.codename || p.codename)
-          .filter(Boolean);
-      }),
-      catchError(error => {
-        console.warn('Error fetching role permissions, trying alternative endpoint:', error);
-        // If role-permissions endpoint fails, try the permissions endpoint
-        return this.fetchAllPaginatedPermissions(roleId);
-      })
-    );
-  }
-
+  
   private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
     return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
       switchMap(response => {
