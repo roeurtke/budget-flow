@@ -24,25 +24,21 @@ export class PermissionService {
         const permissions = this.extractPermissionsFromUser(user);
         this.userPermissions.next(permissions);
       }),
-      // Only try to fetch additional permissions if user has permission to do so
+      // Always fetch additional permissions without checking for 'can_view_permission'
       switchMap(user => {
-        const permissions = this.extractPermissionsFromUser(user);
-        if (permissions.includes('can_view_permission')) {
-          return this.fetchAdditionalPermissions(user.role.id).pipe(
-            tap(additionalPermissions => {
-              if (additionalPermissions.length > 0) {
-                // Merge with existing permissions, avoiding duplicates
-                const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
-                this.userPermissions.next(allPermissions);
-              }
-            }),
-            catchError(error => {
-              console.warn('Error fetching additional permissions:', error);
-              return of([]);
-            })
-          );
-        }
-        return of([]);
+        return this.fetchAdditionalPermissions(user.role.id).pipe(
+          tap(additionalPermissions => {
+            if (additionalPermissions.length > 0) {
+              // Merge with existing permissions, avoiding duplicates
+              const allPermissions = [...new Set([...this.userPermissions.value, ...additionalPermissions])];
+              this.userPermissions.next(allPermissions);
+            }
+          }),
+          catchError(error => {
+            console.warn('Error fetching additional permissions:', error);
+            return of([]);
+          })
+        );
       })
     ).subscribe();
 
@@ -52,25 +48,21 @@ export class PermissionService {
         const permissions = this.extractPermissionsFromUser(response.user);
         this.userPermissions.next(permissions);
       }),
-      // Only try to fetch additional permissions if user has permission to do so
+      // Always fetch additional permissions without checking for 'can_view_permission'
       switchMap(response => {
-        const permissions = this.extractPermissionsFromUser(response.user);
-        if (permissions.includes('can_view_permission')) {
-          return this.fetchAdditionalPermissions(response.user.role.id).pipe(
-            tap(additionalPermissions => {
-              if (additionalPermissions.length > 0) {
-                // Merge with existing permissions, avoiding duplicates
-                const allPermissions = [...new Set([...permissions, ...additionalPermissions])];
-                this.userPermissions.next(allPermissions);
-              }
-            }),
-            catchError(error => {
-              console.warn('Error fetching additional permissions from login:', error);
-              return of([]);
-            })
-          );
-        }
-        return of([]);
+        return this.fetchAdditionalPermissions(response.user.role.id).pipe(
+          tap(additionalPermissions => {
+            if (additionalPermissions.length > 0) {
+              // Merge with existing permissions, avoiding duplicates
+              const allPermissions = [...new Set([...this.userPermissions.value, ...additionalPermissions])];
+              this.userPermissions.next(allPermissions);
+            }
+          }),
+          catchError(error => {
+            console.warn('Error fetching additional permissions from login:', error);
+            return of([]);
+          })
+        );
       })
     ).subscribe();
   }
@@ -140,10 +132,13 @@ export class PermissionService {
           permissions = [response];
         }
 
-        return permissions
-          .filter(p => p.status !== false)
-          .map(p => p.permission?.codename || p.codename)
-          .filter(Boolean);
+        const extractedPermissions = permissions
+        .filter(p => p.status !== false)
+        .map(p => p.permission?.codename || p.codename)
+        .filter(Boolean);
+
+        // console.log('Fetched permissions from API:', extractedPermissions); // Debug log
+        return extractedPermissions;
       }),
       catchError(error => {
         console.warn('Error fetching role permissions, trying alternative endpoint:', error);
@@ -151,7 +146,7 @@ export class PermissionService {
       })
     );
   }
-  
+
   private fetchAllPaginatedPermissions(roleId: number): Observable<string[]> {
     return this.http.get<any>(`${this.apiUrl}/api/permissions/?role=${roleId}&page_size=100`).pipe(
       switchMap(response => {
