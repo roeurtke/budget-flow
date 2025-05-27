@@ -110,7 +110,7 @@ export class SidebarComponent implements OnInit {
           'can_view_list_user',
           'can_view_list_role',
           'can_view_list_permission',
-          'can_view_list_ability'
+          'can_view_list_role_permission'
         ])
       }
     ];

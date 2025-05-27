@@ -214,69 +214,61 @@ export class AuthService {
       ));
     }
 
-    // Try to get user details from the /me/ endpoint first
+    // Get user details from the /me/ endpoint
     return this.http.get<UserDetails>(this.currentUserUrl).pipe(
-      switchMap(userDetails => {
-        // If we have a role, fetch its permissions
-        if (userDetails.role?.id) {
-          return this.http.get<any>(`${environment.apiUrl}/api/role-permissions/`, {
-            params: { 
-              role: userDetails.role.id.toString(),
-              page_size: '100'
-            }
-          }).pipe(
-            map(response => {
-              let permissions: any[] = [];
-              
-              // Handle different possible response formats
-              if (Array.isArray(response)) {
-                permissions = response;
-              } else if (response.results && Array.isArray(response.results)) {
-                permissions = response.results;
-              }
-
-              // Extract permission codenames and filter by status
-              const permissionCodenames = permissions
-                .filter(p => p.status !== false)
-                .map(p => p.permission?.codename || p.codename)
-                .filter(Boolean);
-
-              // Add permissions to user details
-              return {
-                ...userDetails,
-                permissions: permissionCodenames
-              };
-            }),
-            catchError(error => {
-              // Return user details without permissions if fetching fails
-              return of(userDetails);
-            })
-          );
-        }
-        return of(userDetails);
-      }),
-      catchError((error) => {
-        // If /me/ endpoint fails, fall back to the user ID endpoint
-        if (error.status === 403 || error.status === 404) {
-          const userId = this.tokenService.extractUserIdFromToken(accessToken);
-          if (!userId) {
-            return throwError(() => new AuthenticationError(
-              'INVALID_TOKEN',
-              'User ID is missing in the token'
-            ));
-          }
-          return this.fetchUserDetails(userId);
-        }
-        return throwError(() => error);
+      map(userDetails => {
+        // Extract permissions from user object
+        const permissions = this.extractPermissionsFromUser(userDetails);
+        return {
+          ...userDetails,
+          permissions: permissions
+        };
       })
     );
   }
 
-  private fetchUserDetails(userId: number): Observable<UserDetails> {
-    const userDetailsUrl = `${environment.apiUrl}/api/users/${userId}/`;
-    return this.http.get<UserDetails>(userDetailsUrl).pipe(
-      catchError(this.handleAuthError)
-    );
+  private extractPermissionsFromUser(user: any): string[] {
+    if (!user) {
+      return [];
+    }
+
+    const permissions = new Set<string>();
+    
+    // Check user.permissions (direct permissions array)
+    if (user.permissions && Array.isArray(user.permissions)) {
+      user.permissions.forEach((p: any) => {
+        if (typeof p === 'string') {
+          permissions.add(p);
+        } else if (p.codename) {
+          permissions.add(p.codename);
+        }
+      });
+    }
+    
+    // Check role.permissions
+    if (user.role?.permissions && Array.isArray(user.role.permissions)) {
+      user.role.permissions.forEach((p: any) => {
+        if (typeof p === 'string') {
+          permissions.add(p);
+        } else if (p.codename) {
+          permissions.add(p.codename);
+        }
+      });
+    }
+    
+    // Check role.role_permissions
+    if (user.role?.role_permissions && Array.isArray(user.role.role_permissions)) {
+      user.role.role_permissions.forEach((rp: any) => {
+        if (rp.permission?.codename) {
+          permissions.add(rp.permission.codename);
+        }
+        if (rp.status !== false && rp.codename) {
+          permissions.add(rp.codename);
+        }
+      });
+    }
+
+    return Array.from(permissions);
   }
 
   private handleAuthError = (error: HttpErrorResponse): Observable<never> => {
