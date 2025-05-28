@@ -6,6 +6,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { MainComponent } from './layout/main/main.component';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { IncomesComponent } from './pages/incomes/list/incomes.component';
+import { CreateComponent as IncomeCreateComponent } from './pages/incomes/create/create.component';
 import { IncomeCategoriesComponent } from './pages/income-categories/list/income-categories.component';
 import { ExpensesComponent } from './pages/expenses/list/expenses.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expense-categories.component';
@@ -41,7 +42,7 @@ export const routes: Routes = [
           { path: 'dashboard', component: DashboardComponent },
           // Income Management Routes
           { path: 'pages/incomes', canActivate: [PermissionGuard], data: { permission: 'can_view_list_income' }, component: IncomesComponent },
-          { path: 'pages/incomes/create', canActivate: [PermissionGuard], data: { permission: 'can_create_income' }, component: IncomesComponent },
+          { path: 'pages/incomes/create', canActivate: [PermissionGuard], data: { permission: 'can_create_income' }, component: IncomeCreateComponent },
           { path: 'pages/incomes/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_income' }, component: IncomesComponent },
           { path: 'pages/incomes/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_income' }, component: IncomesComponent },
           { path: 'pages/incomes/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_income' }, component: IncomesComponent },

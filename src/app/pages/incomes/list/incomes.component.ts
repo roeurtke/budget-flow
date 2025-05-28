@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
+import { Router } from '@angular/router';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -24,7 +25,7 @@ export class IncomesComponent {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private incomeService: IncomeService) {}
+  constructor(private incomeService: IncomeService, private router: Router) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -137,6 +138,6 @@ export class IncomesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
-    console.log('Create user clicked');
+    this.router.navigate(['/pages/incomes/create']);
   }
 }
