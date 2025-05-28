@@ -15,7 +15,7 @@ interface PermissionOption {
 }
 
 @Component({
-  selector: 'app-update',
+  selector: 'app-ability-update',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './update.component.html',

@@ -5,7 +5,7 @@ import { PermissionService } from '../../../services/permission.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-update',
+  selector: 'app-permission-update',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './update.component.html',
   styleUrl: './update.component.css'

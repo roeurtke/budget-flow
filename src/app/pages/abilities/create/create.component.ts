@@ -8,7 +8,7 @@ import {Router } from '@angular/router';
 import { FormArray } from '@angular/forms';
 
 @Component({
-  selector: 'app-create',
+  selector: 'app-ability-create',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './create.component.html',
   styleUrl: './create.component.css'

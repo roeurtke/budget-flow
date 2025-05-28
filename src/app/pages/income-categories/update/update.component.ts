@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-update',
+  selector: 'app-income-category-update',
   imports: [],
   templateUrl: './update.component.html',
   styleUrl: './update.component.css'
