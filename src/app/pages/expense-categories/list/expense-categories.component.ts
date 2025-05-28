@@ -5,6 +5,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
+import { Router } from '@angular/router';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -23,7 +24,7 @@ export class ExpenseCategoriesComponent {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private expenseCategoryService: ExpenseCategoryService) {}
+  constructor(private expenseCategoryService: ExpenseCategoryService, private router: Router) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -121,6 +122,6 @@ export class ExpenseCategoriesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
-    console.log('Create user clicked');
+    this.router.navigate(['/pages/expense_categories/create']);
   }
 }
