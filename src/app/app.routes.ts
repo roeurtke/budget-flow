@@ -9,6 +9,7 @@ import { IncomesComponent } from './pages/incomes/list/incomes.component';
 import { CreateComponent as IncomeCreateComponent } from './pages/incomes/create/create.component';
 import { IncomeCategoriesComponent } from './pages/income-categories/list/income-categories.component';
 import { ExpensesComponent } from './pages/expenses/list/expenses.component';
+import { CreateComponent as ExpenseCreateComponent } from './pages/expenses/create/create.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expense-categories.component';
 import { UsersComponent } from './pages/users/list/users.component';
 import { DetailComponent as UserDetailComponent } from './pages/users/detail/detail.component';
@@ -49,7 +50,7 @@ export const routes: Routes = [
 
           // Expense Management Routes
           { path: 'pages/expenses', canActivate: [PermissionGuard], data: { permission: 'can_view_list_expense' }, component: ExpensesComponent },
-          { path: 'pages/expenses/create', canActivate: [PermissionGuard], data: { permission: 'can_create_expense' }, component: ExpensesComponent },
+          { path: 'pages/expenses/create', canActivate: [PermissionGuard], data: { permission: 'can_create_expense' }, component: ExpenseCreateComponent },
           { path: 'pages/expenses/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense' }, component: ExpensesComponent },
           { path: 'pages/expenses/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense' }, component: ExpensesComponent },
           { path: 'pages/expenses/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_expense' }, component: ExpensesComponent },
