@@ -1,7 +1,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">CREATE NEW EXPENSE CATEGORY</h6>
-        <button type="submit" class="btn btn-primary btn-sm" [disabled]="createForm.invalid">
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="createForm.invalid" (click)="createExpenseCategory()">
             <i class="fas fa-save"></i> Save
         </button>
     </div>
@@ -26,7 +26,7 @@
     </div>
     <div class="card-footer text-right">
         <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Cancel</button>
-        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="createForm.invalid">
+        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="createForm.invalid" (click)="createExpenseCategory()">
             <i class="fas fa-save"></i> Save
         </button>
     </div>
