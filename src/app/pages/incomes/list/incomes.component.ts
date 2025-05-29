@@ -40,6 +40,7 @@ export class IncomesComponent {
       ...dataTablesConfig,
       serverSide: true,
       processing: true,
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
         this.incomeService.getIncomesForDataTables(dataTablesParameters).subscribe({
@@ -71,7 +72,12 @@ export class IncomesComponent {
         { 
           data: null,
           title: 'ID',
+          orderable: false,
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
+        },
+        {
+          data: 'id',
+          visible: false // hidden real ID for sorting
         },
         {
           data: 'date',
