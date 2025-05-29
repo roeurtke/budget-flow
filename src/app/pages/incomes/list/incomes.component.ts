@@ -163,7 +163,7 @@ export class IncomesComponent {
 
   onDetail(incomeId: Number): void {
     if (!incomeId) {
-      console.error('No user ID provided for show');
+      console.error('No income ID provided for show');
       return;
     }
     this.router.navigate([`/pages/incomes/detail/${incomeId}`]);
@@ -171,11 +171,11 @@ export class IncomesComponent {
 
   onUpdate(incomeId: Number): void {
     if (!incomeId) {
-      console.error('No user ID provided for edit');
+      console.error('No income ID provided for edit');
       return;
     }
     if (!this.canUpdateIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to update users.', 'error');
+      Swal.fire('Access Denied', 'You do not have permission to update incomes.', 'error');
       return;
     }
     this.router.navigate([`/pages/incomes/update/${incomeId}`]);
@@ -184,7 +184,7 @@ export class IncomesComponent {
   onDelete(incomeId: Number): void {
     if (!incomeId) return;
     if (!this.canDeleteIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to delete users.', 'error');
+      Swal.fire('Access Denied', 'You do not have permission to delete incomes.', 'error');
       return;
     }
   
@@ -249,21 +249,21 @@ export class IncomesComponent {
       const btn_delete = target.closest('.btn-danger');
       
       if (btn_detail) {
-        const userId = btn_detail?.getAttribute('data-id');
-        if (userId) {
-          this.onDetail(Number(userId)); // Redirect to detail page
+        const incomeId = btn_detail?.getAttribute('data-id');
+        if (incomeId) {
+          this.onDetail(Number(incomeId)); // Redirect to detail page
         }
       }
       else if (btn_update) {
-        const userId = btn_update?.getAttribute('data-id');
-        if (userId) {
-          this.onUpdate(Number(userId));
+        const incomeId = btn_update?.getAttribute('data-id');
+        if (incomeId) {
+          this.onUpdate(Number(incomeId));
         } 
       }
       else if (btn_delete) {
-        const userId = btn_delete?.getAttribute('data-id');
-        if (userId) {
-          this.onDelete(Number(userId));
+        const incomeId = btn_delete?.getAttribute('data-id');
+        if (incomeId) {
+          this.onDelete(Number(incomeId));
         }
       }
     });

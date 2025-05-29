@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-expenses',
@@ -22,10 +24,18 @@ export class ExpensesComponent {
 
   loading = false;
   error: string | null = null;
+  canCreateExpense = false;
+  canUpdateExpense = false;
+  canDeleteExpense = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private expenseService: ExpenseService, private router: Router) {}
+  constructor(
+    private expenseService: ExpenseService,
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -33,6 +43,9 @@ export class ExpensesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_expense').subscribe(has => this.canCreateExpense = has);
+    this.permissionService.hasPermission('can_update_expense').subscribe(has => this.canUpdateExpense = has);
+    this.permissionService.hasPermission('can_delete_expense').subscribe(has => this.canDeleteExpense = has);
   }
 
   initializeDataTable(): void {
@@ -145,5 +158,25 @@ export class ExpensesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     this.router.navigate(['/pages/expenses/create'])
+  }
+
+  onDetail(expenseId: Number): void {
+    if (!expenseId) {
+      console.error('No expense ID provided for show');
+      return;
+    }
+    this.router.navigate([`/pages/expenses/detail/${expenseId}`]);
+  }
+
+  onUpdate(expenseId: Number): void {
+    if (!expenseId) {
+      console.error('No expense ID provided for edit');
+      return;
+    }
+    if (!this.canUpdateExpense) {
+      Swal.fire('Access Denied', 'You do not have permission to update expenses.', 'error');
+      return;
+    }
+    this.router.navigate([`/pages/expenses/update/${expenseId}`]);
   }
 }
