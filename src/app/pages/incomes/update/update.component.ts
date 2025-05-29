@@ -26,6 +26,7 @@ export class UpdateComponent {
     private route: ActivatedRoute,
     private router: Router) {
     this.updateForm = this.fb.group({
+      date: [''],
       name: ['',],
       description: [''],
       income_amount: [''],
@@ -61,6 +62,7 @@ export class UpdateComponent {
         }));
         const matchedIncomeCategory = this.incomeCategories.find(ic => ic.value === income.income_category.id);
         this.updateForm.patchValue({
+          date: income.date,
           name: income.name,
           description: income.description,
           income_amount: income.income_amount,
@@ -68,26 +70,26 @@ export class UpdateComponent {
           status: income.status
         });
       },
-      error: (err) => console.error('Failed to load user or roles:', err)
+      error: (err) => console.error('Failed to load income or income categories:', err)
     });
   }
 
-  // updateRole(): void {
-  //   if (this.updateForm.invalid) {
-  //     this.updateForm.markAllAsTouched();
-  //     return;
-  //   }
+  updateIncome(): void {
+    if (this.updateForm.invalid) {
+      this.updateForm.markAllAsTouched();
+      return;
+    }
 
-  //   const roleData = this.updateForm.value;
-  //   this.incomeService.updateRole(Number(this.roleId), roleData).subscribe({
-  //     next: () => {
-  //       this.router.navigate(['/pages/roles']);
-  //     },
-  //     error: (error) => {
-  //       console.error('Error updating role:', error);
-  //     }
-  //   });
-  // }
+    const incomeData = this.updateForm.value;
+    this.incomeService.updateIncome(Number(this.incomeId), incomeData).subscribe({
+      next: () => {
+        this.router.navigate(['/pages/incomes']);
+      },
+      error: (error) => {
+        console.error('Error updating income:', error);
+      }
+    });
+  }
 
   onCancel(): void {
     this.router.navigate(['/pages/incomes']);
