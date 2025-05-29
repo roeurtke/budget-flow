@@ -13,11 +13,11 @@
                         <tr><td colspan="4" class="text-left tw-bg-gray-100"><label>Income Information</label></td></tr>
                         <tr>
                             <td width="20%" class="text-right"><label for="date">Date</label></td>
-                            <td><input type="date" id="date" formControlName="date" class="form-control" required autofocus></td>
+                            <td><input type="date" id="date" formControlName="date" class="form-control"></td>
                         </tr>
                         <tr>
                             <td width="20%" class="text-right"><label for="name">Name</label></td>
-                            <td><input type="text" id="name" formControlName="name" class="form-control" required autofocus></td>
+                            <td><input type="text" id="name" formControlName="name" class="form-control"></td>
                         </tr>
                         <tr>
                             <td width="20%" class="text-right"><label for="description">Description</label></td>
@@ -25,12 +25,12 @@
                         </tr>
                         <tr>
                             <td width="20%" class="text-right"><label for="income_amount">Income Amount</label></td>
-                            <td><input type="text" id="income_amount" formControlName="income_amount" class="form-control" required autofocus></td>
+                            <td><input type="text" id="income_amount" formControlName="income_amount" class="form-control"></td>
                         </tr>
                         <tr>
                             <td width="20%" class="text-right"><label for="income_category">Income Category</label></td>
                             <td>
-                                <select id="income_category" formControlName="income_category" class="form-control" required>
+                                <select id="income_category" formControlName="income_category" class="form-control">
                                     <option value="" disabled>Select an income</option>
                                     <option *ngFor="let ic of incomeCategories" [value]="ic.value">{{ ic.label }}</option>
                                 </select>
