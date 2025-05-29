@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-incomes',
@@ -22,6 +24,9 @@ export class IncomesComponent {
 
   loading = false;
   error: string | null = null;
+  canCreateIncome = false;
+  canUpdateIncome = false;
+  canDeleteIncome = false;
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
@@ -145,5 +150,25 @@ export class IncomesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     this.router.navigate(['/pages/incomes/create']);
+  }
+
+  onDetail(incomeId: Number): void {
+    if (!incomeId) {
+      console.error('No user ID provided for show');
+      return;
+    }
+    this.router.navigate([`/pages/incomes/detail/${incomeId}`]);
+  }
+
+  onUpdate(incomeId: Number): void {
+    if (!incomeId) {
+      console.error('No user ID provided for edit');
+      return;
+    }
+    if (!this.canUpdateIncome) {
+      Swal.fire('Access Denied', 'You do not have permission to update users.', 'error');
+      return;
+    }
+    this.router.navigate([`/pages/incomes/update/${incomeId}`]);
   }
 }

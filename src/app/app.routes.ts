@@ -7,6 +7,8 @@ import { MainComponent } from './layout/main/main.component';
 import { DashboardComponent } from './layout/dashboard/dashboard.component';
 import { IncomesComponent } from './pages/incomes/list/incomes.component';
 import { CreateComponent as IncomeCreateComponent } from './pages/incomes/create/create.component';
+import { DetailComponent as IncomeDetailComponent } from './pages/incomes/detail/detail.component';
+import { UpdateComponent as IncomeUpdateComponent } from './pages/incomes/update/update.component';
 import { IncomeCategoriesComponent } from './pages/income-categories/list/income-categories.component';
 import { CreateComponent as IncomeCategoryCreateComponent } from './pages/income-categories/create/create.component';
 import { ExpensesComponent } from './pages/expenses/list/expenses.component';
@@ -53,8 +55,8 @@ export const routes: Routes = [
           // Expense Management Routes
           { path: 'pages/expenses', canActivate: [PermissionGuard], data: { permission: 'can_view_list_expense' }, component: ExpensesComponent },
           { path: 'pages/expenses/create', canActivate: [PermissionGuard], data: { permission: 'can_create_expense' }, component: ExpenseCreateComponent },
-          { path: 'pages/expenses/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense' }, component: ExpensesComponent },
-          { path: 'pages/expenses/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense' }, component: ExpensesComponent },
+          { path: 'pages/expenses/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense' }, component: IncomeDetailComponent },
+          { path: 'pages/expenses/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense' }, component: IncomeUpdateComponent },
           { path: 'pages/expenses/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_expense' }, component: ExpensesComponent },
 
           // Income Category Management Routes
