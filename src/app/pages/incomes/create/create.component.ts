@@ -53,8 +53,8 @@ export class CreateComponent {
       return;
     }
 
-    const incomeData = this.createForm.valid;
-    console.log('Income creating data: ', incomeData)
+    const incomeData = this.createForm.value;
+    // console.log('Income creating data: ', incomeData)
     this.incomeService.createIncome(incomeData).subscribe({
       next: () => {
         this.router.navigate(['/pages/incomes']);
