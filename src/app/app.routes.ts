@@ -11,12 +11,16 @@ import { DetailComponent as IncomeDetailComponent } from './pages/incomes/detail
 import { UpdateComponent as IncomeUpdateComponent } from './pages/incomes/update/update.component';
 import { IncomeCategoriesComponent } from './pages/income-categories/list/income-categories.component';
 import { CreateComponent as IncomeCategoryCreateComponent } from './pages/income-categories/create/create.component';
+import { DetailComponent as IncomeCategoryDetailComponent } from './pages/income-categories/detail/detail.component';
+import { UpdateComponent as IncomeCategoryUpdateComponent } from './pages/income-categories/update/update.component';
 import { ExpensesComponent } from './pages/expenses/list/expenses.component';
 import { CreateComponent as ExpenseCreateComponent } from './pages/expenses/create/create.component';
 import { DetailComponent as  ExpenseDetailComponent} from './pages/expenses/detail/detail.component';
 import { UpdateComponent as ExpenseUpdateComponent } from './pages/expenses/update/update.component';
 import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expense-categories.component';
 import { CreateComponent as ExpenseCategoryCreateComponent} from './pages/expense-categories/create/create.component';
+import { DetailComponent as ExpenseCategoryDetailComponent } from './pages/expense-categories/detail/detail.component';
+import { UpdateComponent as ExpenseCategoryUpdateComponent } from './pages/expense-categories/update/update.component';
 import { UsersComponent } from './pages/users/list/users.component';
 import { DetailComponent as UserDetailComponent } from './pages/users/detail/detail.component';
 import { CreateComponent as UserCreateComponent } from './pages/users/create/create.component';
@@ -64,15 +68,15 @@ export const routes: Routes = [
           // Income Category Management Routes
           { path: 'pages/income_categories', canActivate: [PermissionGuard], data: { permission: 'can_view_list_income_category' }, component: IncomeCategoriesComponent },
           { path: 'pages/income_categories/create', canActivate: [PermissionGuard], data: { permission: 'can_create_income_category' }, component: IncomeCategoryCreateComponent },
-          { path: 'pages/income_categories/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_income_category' }, component: IncomeCategoriesComponent },
-          { path: 'pages/income_categories/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_income_category' }, component: IncomeCategoriesComponent },
+          { path: 'pages/income_categories/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_income_category' }, component: IncomeCategoryDetailComponent },
+          { path: 'pages/income_categories/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_income_category' }, component: IncomeCategoryUpdateComponent },
           { path: 'pages/income_categories/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_income_category' }, component: IncomeCategoriesComponent },
 
           // Expense Category Management Routes
           { path: 'pages/expense_categories', canActivate: [PermissionGuard], data: { permission: 'can_view_list_expense_category' }, component: ExpenseCategoriesComponent },
           { path: 'pages/expense_categories/create', canActivate: [PermissionGuard], data: { permission: 'can_create_expense_category' }, component: ExpenseCategoryCreateComponent },
-          { path: 'pages/expense_categories/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense_category' }, component: ExpenseCategoriesComponent },
-          { path: 'pages/expense_categories/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense_category' }, component: ExpenseCategoriesComponent },
+          { path: 'pages/expense_categories/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense_category' }, component: ExpenseCategoryDetailComponent },
+          { path: 'pages/expense_categories/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense_category' }, component: ExpenseCategoryUpdateComponent },
           { path: 'pages/expense_categories/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_expense_category' }, component: ExpenseCategoriesComponent },
 
           // User Management Routes
