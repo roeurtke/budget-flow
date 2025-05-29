@@ -47,6 +47,7 @@ export class UsersComponent implements OnInit {
       ...dataTablesConfig,
       serverSide: true,
       processing: true,
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
         this.userService.getUsersForDataTables(dataTablesParameters).subscribe({
@@ -73,7 +74,12 @@ export class UsersComponent implements OnInit {
         { 
           data: null,
           title: 'ID',
+          orderable: false,
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
+        },
+        {
+          data: 'id',
+          visible: false
         },
         { data: 'username',
           title: 'Username',

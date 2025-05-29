@@ -34,6 +34,7 @@ export class RolesComponent {
       ...dataTablesConfig,
       serverSide: true,
       processing: true,
+      order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
         this.roleService.getRolesForDataTables(dataTablesParameters).subscribe({
@@ -60,7 +61,12 @@ export class RolesComponent {
         { 
           data: null,
           title: 'ID',
+          orderable: false,
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
+        },
+        {
+          data: 'id',
+          visible: false
         },
         { data: 'name',
           title: 'Name',
