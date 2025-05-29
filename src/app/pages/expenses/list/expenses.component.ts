@@ -138,6 +138,7 @@ export class ExpensesComponent {
           title: 'Actions',
           orderable: false,
           render: (data: any, type: any, row: any) => {
+            const isInactive = !row.status;
             return `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
                 <i class="fas fa-sm fa-list-alt"></i>
@@ -145,7 +146,7 @@ export class ExpensesComponent {
               <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
                 <i class="fas fa-sm fa-edit"></i>
               </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete">
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
               </button>
             `;
