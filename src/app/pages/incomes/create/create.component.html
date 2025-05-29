@@ -1,7 +1,7 @@
 <div class="card shadow mb-4">
     <div class="card-header py-2 d-flex justify-content-between align-items-center">
         <h6 class="m-0 font-weight-bold text-primary">CREATE INCOME</h6>
-        <button type="submit" class="btn btn-primary btn-sm" [disabled]="createForm.invalid">
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="createForm.invalid" (click)="createIncomeCategory()">
             <i class="fas fa-save"></i> Save
         </button>
     </div>
@@ -30,7 +30,10 @@
                         <tr>
                             <td width="20%" class="text-right"><label for="income_category">Income Category <small class="required">*</small></label></td>
                             <td>
-                                <select id="income_category" formControlName="income_category" class="form-control" required></select>
+                                <select id="income_category" formControlName="income_category" class="form-control" required>
+                                    <option value="" disabled>Select an income</option>
+                                    <option *ngFor="let ic of income_categories" [value]="ic.value">{{ ic.label }}</option>
+                                </select>
                             </td>
                         </tr>
                     </tbody>
@@ -40,7 +43,7 @@
     </div>
     <div class="card-footer text-right">
         <button type="button" class="btn btn-secondary btn-sm" (click)="onCancel()">Back</button>
-        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="createForm.invalid">
+        <button type="submit" class="btn btn-primary btn-sm ml-2" [disabled]="createForm.invalid" (click)="createIncomeCategory()">
             <i class="fas fa-save"></i> Save
         </button>
     </div>
