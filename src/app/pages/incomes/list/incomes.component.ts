@@ -209,7 +209,7 @@ export class IncomesComponent {
       if (result.isConfirmed) {
         Swal.fire({
           title: 'Deleting...',
-          html: 'Please wait while we delete the user',
+          html: 'Please wait while we delete the income',
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });

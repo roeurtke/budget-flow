@@ -208,7 +208,7 @@ export class ExpensesComponent {
       if (result.isConfirmed) {
         Swal.fire({
           title: 'Deleting...',
-          html: 'Please wait while we delete the user',
+          html: 'Please wait while we delete the expense',
           allowOutsideClick: false,
           didOpen: () => Swal.showLoading()
         });
