@@ -58,7 +58,7 @@ export class ExpenseService {
     return this.http.post(`${this.apiUrl}/api/expenses/`, expenseData);
   }
 
-  updateExpense(expenseId: string, expenseData: any): Observable<any> {
+  updateExpense(expenseId: number, expenseData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/api/expenses/${expenseId}/`, expenseData);
   }
 
