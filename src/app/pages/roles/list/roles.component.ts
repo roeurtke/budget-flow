@@ -144,16 +144,16 @@ export class RolesComponent {
       console.error('No user ID provided for show');
       return;
     }
-    if (!this.canUpdateRole) {
-      Swal.fire('Access Denied', 'You do not have permission to update roles.', 'error');
-      return;
-    }
     this.router.navigate([`/pages/roles/detail/${roleId}`]);
   }
 
   onUpdate(roleId: Number): void {
     if (!roleId) {
       console.error('No user ID provided for update');
+      return;
+    }
+    if (!this.canUpdateRole) {
+      Swal.fire('Access Denied', 'You do not have permission to update roles.', 'error');
       return;
     }
     this.router.navigate([`/pages/roles/update/${roleId}`]);
