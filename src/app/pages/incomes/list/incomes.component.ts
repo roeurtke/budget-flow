@@ -161,6 +161,10 @@ export class IncomesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateIncome) {
+      Swal.fire('Access Denied', 'You do not have permission to create incomes.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/incomes/create']);
   }
 

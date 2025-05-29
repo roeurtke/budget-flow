@@ -144,6 +144,10 @@ export class ExpenseCategoriesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateExpenseCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to create expense category.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/expense_categories/create']);
   }
 

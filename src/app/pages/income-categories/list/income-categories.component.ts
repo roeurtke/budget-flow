@@ -144,6 +144,10 @@ export class IncomeCategoriesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateIncomeCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to create income category.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/income_categories/create']);
   }
 

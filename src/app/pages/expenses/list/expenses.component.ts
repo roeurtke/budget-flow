@@ -160,6 +160,10 @@ export class ExpensesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateExpense) {
+      Swal.fire('Access Denied', 'You do not have permission to create expenses.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/expenses/create'])
   }
 
