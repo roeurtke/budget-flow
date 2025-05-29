@@ -50,7 +50,7 @@ export class ExpenseCategoryService {
     return this.getExpenseCategoryList(page, pageSize, searchTerm, ordering);
   }
 
-  getExpenseCategoryById(expenseCategoryId: string): Observable<ExpenseCategory> {
+  getExpenseCategoryById(expenseCategoryId: number): Observable<ExpenseCategory> {
     return this.http.get<ExpenseCategory>(`${this.apiUrl}/api/expense-categories/${expenseCategoryId}/`);
   }
 
