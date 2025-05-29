@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-income-categories',
@@ -21,10 +23,18 @@ export class IncomeCategoriesComponent {
 
   loading = false;
   error: string | null = null;
+  canCreateIncomeCategory = false;
+  canUpdateIncomeCategory = false;
+  canDeleteIncomeCategory = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private incomeCategoryService: IncomeCategoryService, private router: Router) {}
+  constructor(
+    private incomeCategoryService: IncomeCategoryService,
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -32,6 +42,9 @@ export class IncomeCategoriesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_income_category').subscribe(has => this.canCreateIncomeCategory = has);
+    this.permissionService.hasPermission('can_update_income_category').subscribe(has => this.canUpdateIncomeCategory = has);
+    this.permissionService.hasPermission('can_delete_income_category').subscribe(has => this.canDeleteIncomeCategory = has);
   }
 
   initializeDataTable(): void {
@@ -129,5 +142,113 @@ export class IncomeCategoriesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     this.router.navigate(['/pages/income_categories/create']);
+  }
+
+  onDetail(incomeCategoryId: Number): void {
+    if (!incomeCategoryId) {
+      console.error('No income category ID provided for show');
+      return;
+    }
+    this.router.navigate([`/pages/income_categories/detail/${incomeCategoryId}`]);
+  }
+
+  onUpdate(incomeCategoryId: Number): void {
+    if (!incomeCategoryId) {
+      console.error('No income category ID provided for edit');
+      return;
+    }
+    if (!this.canUpdateIncomeCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to update income category.', 'error');
+      return;
+    }
+    this.router.navigate([`/pages/income_categories/update/${incomeCategoryId}`]);
+  }
+
+  onDelete(incomeCategoryId: Number): void {
+    if (!incomeCategoryId) return;
+    if (!this.canDeleteIncomeCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to delete income category.', 'error');
+      return;
+    }
+  
+    const id = Number(incomeCategoryId);
+    if (isNaN(id)) return;
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn',
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the income category',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.incomeCategoryService.deleteIncomeCategory(id).subscribe({
+          next: () => {
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Income category has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            // Refresh the DataTable after deletion
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
+          },
+          error: (err) => {
+            Swal.close();
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete income category.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_delete = target.closest('.btn-danger');
+      
+      if (btn_detail) {
+        const incomeCategoryId = btn_detail?.getAttribute('data-id');
+        if (incomeCategoryId) {
+          this.onDetail(Number(incomeCategoryId)); // Redirect to detail page
+        }
+      }
+      else if (btn_update) {
+        const incomeCategoryId = btn_update?.getAttribute('data-id');
+        if (incomeCategoryId) {
+          this.onUpdate(Number(incomeCategoryId));
+        } 
+      }
+      else if (btn_delete) {
+        const incomeCategoryId = btn_delete?.getAttribute('data-id');
+        if (incomeCategoryId) {
+          this.onDelete(Number(incomeCategoryId));
+        }
+      }
+    });
   }
 }
