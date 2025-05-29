@@ -27,10 +27,16 @@ export class IncomesComponent {
   canCreateIncome = false;
   canUpdateIncome = false;
   canDeleteIncome = false;
+
+  // DataTables properties
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private incomeService: IncomeService, private router: Router) {}
+  constructor(
+    private incomeService: IncomeService,
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     (window as any).jsZip = jszip;
@@ -38,6 +44,9 @@ export class IncomesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_income').subscribe(has => this.canCreateIncome = has);
+    this.permissionService.hasPermission('can_update_income').subscribe(has => this.canUpdateIncome = has);
+    this.permissionService.hasPermission('can_delete_income').subscribe(has => this.canDeleteIncome = has);
   }
 
   initializeDataTable(): void {
@@ -170,5 +179,93 @@ export class IncomesComponent {
       return;
     }
     this.router.navigate([`/pages/incomes/update/${incomeId}`]);
+  }
+
+  onDelete(incomeId: Number): void {
+    if (!incomeId) return;
+    if (!this.canDeleteIncome) {
+      Swal.fire('Access Denied', 'You do not have permission to delete users.', 'error');
+      return;
+    }
+  
+    const id = Number(incomeId);
+    if (isNaN(id)) return;
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn',
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the user',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.incomeService.deleteIncome(id).subscribe({
+          next: () => {
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'User has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            // Refresh the DataTable after deletion
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
+          },
+          error: (err) => {
+            Swal.close();
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete user.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_delete = target.closest('.btn-danger');
+      
+      if (btn_detail) {
+        const userId = btn_detail?.getAttribute('data-id');
+        if (userId) {
+          this.onDetail(Number(userId)); // Redirect to detail page
+        }
+      }
+      else if (btn_update) {
+        const userId = btn_update?.getAttribute('data-id');
+        if (userId) {
+          this.onUpdate(Number(userId));
+        } 
+      }
+      else if (btn_delete) {
+        const userId = btn_delete?.getAttribute('data-id');
+        if (userId) {
+          this.onDelete(Number(userId));
+        }
+      }
+    });
   }
 }

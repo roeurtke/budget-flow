@@ -62,7 +62,7 @@ export class IncomeService {
     return this.http.put(`${this.apiUrl}/api/incomes/${incomeId}/`, incomeData);
   }
 
-  deleteIncome(incomeId: string): Observable<any> {
+  deleteIncome(incomeId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/api/incomes/${incomeId}/`);
   }
 }
