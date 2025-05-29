@@ -24,6 +24,7 @@ export class ExpenseCategoriesComponent {
   loading = false;
   error: string | null = null;
   canCreateExpenseCategory = false;
+  canViewExpenseCategory = false;
   canUpdateExpenseCategory = false;
   canDeleteExpenseCategory = false;
 
@@ -43,6 +44,7 @@ export class ExpenseCategoriesComponent {
 
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_expense_category').subscribe(has => this.canCreateExpenseCategory = has);
+    this.permissionService.hasPermission('can_view_expense_category').subscribe(has => this.canViewExpenseCategory = has);
     this.permissionService.hasPermission('can_update_expense_category').subscribe(has => this.canUpdateExpenseCategory = has);
     this.permissionService.hasPermission('can_delete_expense_category').subscribe(has => this.canDeleteExpenseCategory = has);
   }
@@ -148,6 +150,10 @@ export class ExpenseCategoriesComponent {
   onDetail(expenseCategoryId: Number): void {
     if (!expenseCategoryId) {
       console.error('No expense category ID provided for show');
+      return;
+    }
+    if (!this.canViewExpenseCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to view expense category.', 'error');
       return;
     }
     this.router.navigate([`/pages/expense_categories/detail/${expenseCategoryId}`]);

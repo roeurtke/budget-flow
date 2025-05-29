@@ -22,6 +22,7 @@ export class RolesComponent {
   loading = false;
   error: string | null = null;
   canCreateRole = false;
+  canViewRole = false;
   canUpdateRole = false;
   canDeleteRole = false;
 
@@ -37,6 +38,7 @@ export class RolesComponent {
   ngOnInit(): void {
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_role').subscribe(has => this.canCreateRole = has);
+    this.permissionService.hasPermission('can_view_role').subscribe(has => this.canViewRole = has);
     this.permissionService.hasPermission('can_update_role').subscribe(has => this.canUpdateRole = has);
     this.permissionService.hasPermission('can_delete_role').subscribe(has => this.canDeleteRole = has);
   }
@@ -142,6 +144,10 @@ export class RolesComponent {
   onDetail(roleId: Number): void {
     if (!roleId) {
       console.error('No user ID provided for show');
+      return;
+    }
+    if (!this.canViewRole) {
+      Swal.fire('Access Denied', 'You do not have permission to view roles.', 'error');
       return;
     }
     this.router.navigate([`/pages/roles/detail/${roleId}`]);

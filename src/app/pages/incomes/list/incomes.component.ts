@@ -25,6 +25,7 @@ export class IncomesComponent {
   loading = false;
   error: string | null = null;
   canCreateIncome = false;
+  canViewIncome = false;
   canUpdateIncome = false;
   canDeleteIncome = false;
 
@@ -45,6 +46,7 @@ export class IncomesComponent {
 
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_income').subscribe(has => this.canCreateIncome = has);
+    this.permissionService.hasPermission('can_view_income').subscribe(has => this.canViewIncome = has);
     this.permissionService.hasPermission('can_update_income').subscribe(has => this.canUpdateIncome = has);
     this.permissionService.hasPermission('can_delete_income').subscribe(has => this.canDeleteIncome = has);
   }
@@ -165,6 +167,10 @@ export class IncomesComponent {
   onDetail(incomeId: Number): void {
     if (!incomeId) {
       console.error('No income ID provided for show');
+      return;
+    }
+    if (!this.canViewIncome) {
+      Swal.fire('Access Denied', 'You do not have permission to view incomes.', 'error');
       return;
     }
     this.router.navigate([`/pages/incomes/detail/${incomeId}`]);

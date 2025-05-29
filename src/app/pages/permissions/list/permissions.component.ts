@@ -21,6 +21,7 @@ export class PermissionsComponent {
   loading = false;
   error: string | null = null;
   canCreatePermission = false;
+  canViewPermission = false;
   canUpdatePermission = false;
   canDeletePermission = false;
 
@@ -35,6 +36,7 @@ export class PermissionsComponent {
   ngOnInit(): void {
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_permission').subscribe(has => this.canCreatePermission = has);
+    this.permissionService.hasPermission('can_view_permission').subscribe(has => this.canViewPermission = has);
     this.permissionService.hasPermission('can_update_permission').subscribe(has => this.canUpdatePermission = has);
     this.permissionService.hasPermission('can_delete_permission').subscribe(has => this.canDeletePermission = has);
   }
@@ -144,6 +146,10 @@ export class PermissionsComponent {
   onDetail(permissionId: number): void {
     if (!permissionId) {
       console.error('No user ID provided for show');
+      return;
+    }
+    if (!this.canViewPermission) {
+      Swal.fire('Access Denied', 'You do not have permission to view permissions.', 'error');
       return;
     }
     this.router.navigate([`/pages/permissions/detail/${permissionId}`]);

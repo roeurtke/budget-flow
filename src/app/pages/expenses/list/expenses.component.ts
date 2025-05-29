@@ -25,6 +25,7 @@ export class ExpensesComponent {
   loading = false;
   error: string | null = null;
   canCreateExpense = false;
+  canViewExpense = false;
   canUpdateExpense = false;
   canDeleteExpense = false;
 
@@ -44,6 +45,7 @@ export class ExpensesComponent {
 
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_expense').subscribe(has => this.canCreateExpense = has);
+    this.permissionService.hasPermission('can_view_expense').subscribe(has => this.canViewExpense = has);
     this.permissionService.hasPermission('can_update_expense').subscribe(has => this.canUpdateExpense = has);
     this.permissionService.hasPermission('can_delete_expense').subscribe(has => this.canDeleteExpense = has);
   }
@@ -164,6 +166,10 @@ export class ExpensesComponent {
   onDetail(expenseId: Number): void {
     if (!expenseId) {
       console.error('No expense ID provided for show');
+      return;
+    }
+    if (!this.canViewExpense) {
+      Swal.fire('Access Denied', 'You do not have permission to view expenses.', 'error');
       return;
     }
     this.router.navigate([`/pages/expenses/detail/${expenseId}`]);

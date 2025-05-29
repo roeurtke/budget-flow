@@ -22,6 +22,7 @@ export class UsersComponent implements OnInit {
   loading = false;
   error: string | null = null;
   canCreateUser = false;
+  canViewUser = false;
   canUpdateUser = false;
   canDeleteUser = false;
 
@@ -38,6 +39,7 @@ export class UsersComponent implements OnInit {
   ngOnInit(): void {
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_user').subscribe(has => this.canCreateUser = has);
+    this.permissionService.hasPermission('can_view_user').subscribe(has => this.canViewUser = has);
     this.permissionService.hasPermission('can_update_user').subscribe(has => this.canUpdateUser = has);
     this.permissionService.hasPermission('can_delete_user').subscribe(has => this.canDeleteUser = has);
   }
@@ -183,6 +185,10 @@ export class UsersComponent implements OnInit {
   onDetail(userId: Number): void {
     if (!userId) {
       console.error('No user ID provided for show');
+      return;
+    }
+    if (!this.canViewUser) {
+      Swal.fire('Access Denied', 'You do not have permission to view users.', 'error');
       return;
     }
     this.router.navigate([`/pages/users/detail/${userId}`]);

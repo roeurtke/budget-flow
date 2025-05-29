@@ -24,6 +24,7 @@ export class IncomeCategoriesComponent {
   loading = false;
   error: string | null = null;
   canCreateIncomeCategory = false;
+  canViewIncomeCategory = false;
   canUpdateIncomeCategory = false;
   canDeleteIncomeCategory = false;
 
@@ -43,6 +44,7 @@ export class IncomeCategoriesComponent {
 
     this.initializeDataTable();
     this.permissionService.hasPermission('can_create_income_category').subscribe(has => this.canCreateIncomeCategory = has);
+    this.permissionService.hasPermission('can_view_income_category').subscribe(has => this.canViewIncomeCategory = has);
     this.permissionService.hasPermission('can_update_income_category').subscribe(has => this.canUpdateIncomeCategory = has);
     this.permissionService.hasPermission('can_delete_income_category').subscribe(has => this.canDeleteIncomeCategory = has);
   }
@@ -148,6 +150,10 @@ export class IncomeCategoriesComponent {
   onDetail(incomeCategoryId: Number): void {
     if (!incomeCategoryId) {
       console.error('No income category ID provided for show');
+      return;
+    }
+    if (!this.canViewIncomeCategory) {
+      Swal.fire('Access Denied', 'You do not have permission to view income category.', 'error');
       return;
     }
     this.router.navigate([`/pages/income_categories/detail/${incomeCategoryId}`]);

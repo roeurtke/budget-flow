@@ -22,6 +22,7 @@ export class AbilitiesComponent {
   loading = false;
   error: string | null = null;
   // canCreateAbility = false;
+  canViewAbility = false;
   canUpdateAbility = false;
   canDeleteAbility = false;
 
@@ -37,6 +38,7 @@ export class AbilitiesComponent {
   ngOnInit(): void {
     this.initializeDataTable();
     // this.permissionService.hasPermission('can_create_role_permission').subscribe(has => this.canCreateAbility = has);
+    this.permissionService.hasPermission('can_view_role_permission').subscribe(has => this.canViewAbility = has);
     this.permissionService.hasPermission('can_update_role_permission').subscribe(has => this.canUpdateAbility = has);
     this.permissionService.hasPermission('can_delete_role_permission').subscribe(has => this.canDeleteAbility = has);
   }
@@ -141,6 +143,10 @@ export class AbilitiesComponent {
 
   onDetail(rolePermissionId: number): void {
     if (!rolePermissionId) {return;}
+    if (!this.canViewAbility) {
+      Swal.fire('Access Denied', 'You do not have permission to view abilities.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/abilities/detail', rolePermissionId]);
   }
 
