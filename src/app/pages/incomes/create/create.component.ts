@@ -47,7 +47,7 @@ export class CreateComponent {
     });
   }
 
-  createIncomeCategory(): void {
+  createIncome(): void {
     if (this.createForm.invalid) {
       this.createForm.markAllAsTouched();
       return;
