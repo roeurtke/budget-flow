@@ -20,13 +20,23 @@ export class PermissionsComponent {
 
   loading = false;
   error: string | null = null;
+  canCreatePermission = false;
+  canUpdatePermission = false;
+  canDeletePermission = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private permissionService: PermissionService, private router: Router) {}
+  constructor(
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_permission').subscribe(has => this.canCreatePermission = has);
+    this.permissionService.hasPermission('can_update_permission').subscribe(has => this.canUpdatePermission = has);
+    this.permissionService.hasPermission('can_delete_permission').subscribe(has => this.canDeletePermission = has);
   }
 
   initializeDataTable(): void {
@@ -124,6 +134,10 @@ export class PermissionsComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreatePermission) {
+      Swal.fire('Access Denied', 'You do not have permission to create permissions.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/permissions/create']);
   }
 
@@ -140,11 +154,19 @@ export class PermissionsComponent {
       console.error('No user ID provided for update');
       return;
     }
+    if (!this.canUpdatePermission) {
+      Swal.fire('Access Denied', 'You do not have permission to update permissions.', 'error');
+      return;
+    }
     this.router.navigate([`/pages/permissions/update/${permissionId}`]);
   }
 
   onDelete(userId: Number): void {
     if (!userId) return;
+    if (!this.canDeletePermission) {
+      Swal.fire('Access Denied', 'You do not have permission to delete permissions.', 'error');
+      return;
+    }
   
     const id = Number(userId);
     if (isNaN(id)) return;

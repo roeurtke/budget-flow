@@ -8,6 +8,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-abilities',
@@ -20,13 +21,24 @@ export class AbilitiesComponent {
 
   loading = false;
   error: string | null = null;
+  // canCreateAbility = false;
+  canUpdateAbility = false;
+  canDeleteAbility = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private abilityService: AbilityService, private router: Router) {}
+  constructor(
+    private abilityService: AbilityService,
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
+    // this.permissionService.hasPermission('can_create_role_permission').subscribe(has => this.canCreateAbility = has);
+    this.permissionService.hasPermission('can_update_role_permission').subscribe(has => this.canUpdateAbility = has);
+    this.permissionService.hasPermission('can_delete_role_permission').subscribe(has => this.canDeleteAbility = has);
   }
 
   initializeDataTable(): void {
@@ -134,11 +146,19 @@ export class AbilitiesComponent {
 
   onUpdate(rolePermissionId: number): void {
     if (!rolePermissionId) {return;}
+    if (!this.canUpdateAbility) {
+      Swal.fire('Access Denied', 'You do not have permission to update abilities.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/abilities/update', rolePermissionId]);
   }
 
   onDelete(userId: Number): void {
     if (!userId) return;
+    if (!this.canDeleteAbility) {
+      Swal.fire('Access Denied', 'You do not have permission to delete abilities.', 'error');
+      return;
+    }
   
     const id = Number(userId);
     if (isNaN(id)) return;

@@ -8,6 +8,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-roles',
@@ -20,13 +21,24 @@ export class RolesComponent {
 
   loading = false;
   error: string | null = null;
+  canCreateRole = false;
+  canUpdateRole = false;
+  canDeleteRole = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private roleService: RoleService, private router: Router) {}
+  constructor(
+    private roleService: RoleService,
+    private permissionService: PermissionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
+    this.permissionService.hasPermission('can_create_role').subscribe(has => this.canCreateRole = has);
+    this.permissionService.hasPermission('can_update_role').subscribe(has => this.canUpdateRole = has);
+    this.permissionService.hasPermission('can_delete_role').subscribe(has => this.canDeleteRole = has);
   }
 
   initializeDataTable(): void {
@@ -120,12 +132,20 @@ export class RolesComponent {
 
   onCreate(event: Event): void {
     event.preventDefault();
+    if (!this.canCreateRole) {
+      Swal.fire('Access Denied', 'You do not have permission to create roles.', 'error');
+      return;
+    }
     this.router.navigate(['/pages/roles/create']);
   }
 
   onDetail(roleId: Number): void {
     if (!roleId) {
       console.error('No user ID provided for show');
+      return;
+    }
+    if (!this.canUpdateRole) {
+      Swal.fire('Access Denied', 'You do not have permission to update roles.', 'error');
       return;
     }
     this.router.navigate([`/pages/roles/detail/${roleId}`]);
@@ -141,6 +161,10 @@ export class RolesComponent {
 
   onDelete(userId: Number): void {
     if (!userId) return;
+    if (!this.canDeleteRole) {
+      Swal.fire('Access Denied', 'You do not have permission to delete roles.', 'error');
+      return;
+    }
   
     const id = Number(userId);
     if (isNaN(id)) return;
