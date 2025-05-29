@@ -29,7 +29,7 @@ export class CreateComponent {
       });
   }
 
-  ngngOnInit(): void {
+  ngOnInit(): void {
     this.loadExpenseCategories();
   }
 
