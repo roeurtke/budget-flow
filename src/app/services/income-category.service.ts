@@ -58,11 +58,11 @@ export class IncomeCategoryService {
     return this.http.post(`${this.apiUrl}/api/income-categories/`, incomeCategoryData);
   }
 
-  updateIncomeCategory(incomeCategoryId: string, incomeCategoryData: any): Observable<any> {
+  updateIncomeCategory(incomeCategoryId: number, incomeCategoryData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/api/income-categories/${incomeCategoryId}/`, incomeCategoryData);
   }
 
-  deleteIncomeCategory(incomeCategoryId: string): Observable<any> {
+  deleteIncomeCategory(incomeCategoryId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/api/income-categories/${incomeCategoryId}/`);
   }
 }
