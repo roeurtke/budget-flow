@@ -58,11 +58,11 @@ export class ExpenseCategoryService {
     return this.http.post(`${this.apiUrl}/api/expense-categories/`, expenseCategoryData);
   }
 
-  updateExpenseCategory(expenseCategoryId: string, expenseCategoryData: any): Observable<any> {
+  updateExpenseCategory(expenseCategoryId: number, expenseCategoryData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/api/expense-categories/${expenseCategoryId}/`, expenseCategoryData);
   }
 
-  deleteExpenseCategory(expenseCategoryId: string): Observable<any> {
+  deleteExpenseCategory(expenseCategoryId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/api/expense-categories/${expenseCategoryId}/`);
   }
 }
