@@ -62,7 +62,7 @@ export class ExpenseService {
     return this.http.put(`${this.apiUrl}/api/expenses/${expenseId}/`, expenseData);
   }
 
-  deleteExpense(expenseId: string): Observable<any> {
+  deleteExpense(expenseId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/api/expenses/${expenseId}/`);
   }
 }

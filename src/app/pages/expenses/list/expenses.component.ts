@@ -179,4 +179,92 @@ export class ExpensesComponent {
     }
     this.router.navigate([`/pages/expenses/update/${expenseId}`]);
   }
+
+  onDelete(incomeId: Number): void {
+    if (!incomeId) return;
+    if (!this.canDeleteExpense) {
+      Swal.fire('Access Denied', 'You do not have permission to delete incomes.', 'error');
+      return;
+    }
+  
+    const id = Number(incomeId);
+    if (isNaN(id)) return;
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action cannot be undone!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      customClass: {
+        popup: 'animated bounceIn',
+        confirmButton: 'btn btn-sm btn-danger',
+        cancelButton: 'btn btn-sm btn-secondary ml-2'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: 'Deleting...',
+          html: 'Please wait while we delete the user',
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading()
+        });
+  
+        this.expenseService.deleteExpense(id).subscribe({
+          next: () => {
+            Swal.close();
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Expense has been deleted.',
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true
+            });
+            // Refresh the DataTable after deletion
+            this.dtElement.dtInstance.then((dtInstance: any) => {
+              dtInstance.ajax.reload();
+            });
+          },
+          error: (err) => {
+            Swal.close();
+            console.error('Delete failed', err);
+            Swal.fire('Error', 'Failed to delete expense.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  ngAfterViewInit(): void {
+    document.querySelector('table')?.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const btn_detail = target.closest('.btn-primary');
+      const btn_update = target.closest('.btn-secondary');
+      const btn_delete = target.closest('.btn-danger');
+      
+      if (btn_detail) {
+        const expenseId = btn_detail?.getAttribute('data-id');
+        if (expenseId) {
+          this.onDetail(Number(expenseId)); // Redirect to detail page
+        }
+      }
+      else if (btn_update) {
+        const expenseId = btn_update?.getAttribute('data-id');
+        if (expenseId) {
+          this.onUpdate(Number(expenseId));
+        } 
+      }
+      else if (btn_delete) {
+        const expenseId = btn_delete?.getAttribute('data-id');
+        if (expenseId) {
+          this.onDelete(Number(expenseId));
+        }
+      }
+    });
+  }
 }

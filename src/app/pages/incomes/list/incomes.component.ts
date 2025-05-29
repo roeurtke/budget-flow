@@ -221,7 +221,7 @@ export class IncomesComponent {
               toast: true,
               position: 'top-end',
               icon: 'success',
-              title: 'User has been deleted.',
+              title: 'Income has been deleted.',
               showConfirmButton: false,
               timer: 2000,
               timerProgressBar: true
@@ -234,7 +234,7 @@ export class IncomesComponent {
           error: (err) => {
             Swal.close();
             console.error('Delete failed', err);
-            Swal.fire('Error', 'Failed to delete user.', 'error');
+            Swal.fire('Error', 'Failed to delete income.', 'error');
           }
         });
       }
