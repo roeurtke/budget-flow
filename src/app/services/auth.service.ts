@@ -218,6 +218,8 @@ export class AuthService {
     return this.http.get<UserDetails>(this.currentUserUrl).pipe(
       map(userDetails => {
         const permissions = this.extractPermissionsFromUser(userDetails);
+        console.log('User Details:', userDetails); // Debug user info
+        console.log('User Permissions:', permissions); // Debug permissions
         return {
           ...userDetails,
           permissions: permissions
