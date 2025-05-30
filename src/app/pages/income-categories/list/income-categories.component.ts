@@ -145,7 +145,15 @@ export class IncomeCategoriesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateIncomeCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to create income category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create income category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/income_categories/create']);
@@ -157,7 +165,15 @@ export class IncomeCategoriesComponent {
       return;
     }
     if (!this.canViewIncomeCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to view income category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view income category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/income_categories/detail/${incomeCategoryId}`]);
@@ -169,7 +185,15 @@ export class IncomeCategoriesComponent {
       return;
     }
     if (!this.canUpdateIncomeCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to update income category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update income category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/income_categories/update/${incomeCategoryId}`]);
@@ -178,7 +202,15 @@ export class IncomeCategoriesComponent {
   onDelete(incomeCategoryId: Number): void {
     if (!incomeCategoryId) return;
     if (!this.canDeleteIncomeCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to delete income category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete income category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   

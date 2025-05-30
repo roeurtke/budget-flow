@@ -144,7 +144,15 @@ export class AbilitiesComponent {
   onDetail(rolePermissionId: number): void {
     if (!rolePermissionId) {return;}
     if (!this.canViewAbility) {
-      Swal.fire('Access Denied', 'You do not have permission to view abilities.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view abilities.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/abilities/detail', rolePermissionId]);
@@ -153,7 +161,15 @@ export class AbilitiesComponent {
   onUpdate(rolePermissionId: number): void {
     if (!rolePermissionId) {return;}
     if (!this.canUpdateAbility) {
-      Swal.fire('Access Denied', 'You do not have permission to update abilities.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update abilities.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/abilities/update', rolePermissionId]);
@@ -162,7 +178,15 @@ export class AbilitiesComponent {
   onDelete(userId: Number): void {
     if (!userId) return;
     if (!this.canDeleteAbility) {
-      Swal.fire('Access Denied', 'You do not have permission to delete abilities.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete abilities.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   

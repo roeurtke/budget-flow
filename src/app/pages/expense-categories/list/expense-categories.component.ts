@@ -145,7 +145,15 @@ export class ExpenseCategoriesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateExpenseCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to create expense category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create expense category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/expense_categories/create']);
@@ -157,7 +165,15 @@ export class ExpenseCategoriesComponent {
       return;
     }
     if (!this.canViewExpenseCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to view expense category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view expense category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/expense_categories/detail/${expenseCategoryId}`]);
@@ -169,7 +185,15 @@ export class ExpenseCategoriesComponent {
       return;
     }
     if (!this.canUpdateExpenseCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to update expense category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update expense category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/expense_categories/update/${expenseCategoryId}`]);
@@ -178,7 +202,15 @@ export class ExpenseCategoriesComponent {
   onDelete(expenseCategoryId: Number): void {
     if (!expenseCategoryId) return;
     if (!this.canDeleteExpenseCategory) {
-      Swal.fire('Access Denied', 'You do not have permission to delete expense category.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete expense category.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   

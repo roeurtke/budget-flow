@@ -161,7 +161,15 @@ export class ExpensesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateExpense) {
-      Swal.fire('Access Denied', 'You do not have permission to create expenses.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create expenses.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/expenses/create'])
@@ -173,7 +181,15 @@ export class ExpensesComponent {
       return;
     }
     if (!this.canViewExpense) {
-      Swal.fire('Access Denied', 'You do not have permission to view expenses.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view expenses.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/expenses/detail/${expenseId}`]);
@@ -185,7 +201,15 @@ export class ExpensesComponent {
       return;
     }
     if (!this.canUpdateExpense) {
-      Swal.fire('Access Denied', 'You do not have permission to update expenses.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update expenses.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/expenses/update/${expenseId}`]);
@@ -194,7 +218,15 @@ export class ExpensesComponent {
   onDelete(incomeId: Number): void {
     if (!incomeId) return;
     if (!this.canDeleteExpense) {
-      Swal.fire('Access Denied', 'You do not have permission to delete incomes.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete incomes.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   

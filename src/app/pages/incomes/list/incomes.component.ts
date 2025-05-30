@@ -162,7 +162,15 @@ export class IncomesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to create incomes.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create incomes.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/incomes/create']);
@@ -174,7 +182,15 @@ export class IncomesComponent {
       return;
     }
     if (!this.canViewIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to view incomes.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view incomes.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/incomes/detail/${incomeId}`]);
@@ -186,7 +202,15 @@ export class IncomesComponent {
       return;
     }
     if (!this.canUpdateIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to update incomes.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update incomes.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/incomes/update/${incomeId}`]);
@@ -195,7 +219,15 @@ export class IncomesComponent {
   onDelete(incomeId: Number): void {
     if (!incomeId) return;
     if (!this.canDeleteIncome) {
-      Swal.fire('Access Denied', 'You do not have permission to delete incomes.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete incomes.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   

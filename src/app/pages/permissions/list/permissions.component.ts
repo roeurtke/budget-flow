@@ -137,7 +137,15 @@ export class PermissionsComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreatePermission) {
-      Swal.fire('Access Denied', 'You do not have permission to create permissions.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create permissions.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/permissions/create']);
@@ -149,7 +157,15 @@ export class PermissionsComponent {
       return;
     }
     if (!this.canViewPermission) {
-      Swal.fire('Access Denied', 'You do not have permission to view permissions.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view permissions.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/permissions/detail/${permissionId}`]);
@@ -161,7 +177,15 @@ export class PermissionsComponent {
       return;
     }
     if (!this.canUpdatePermission) {
-      Swal.fire('Access Denied', 'You do not have permission to update permissions.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update permissions.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/permissions/update/${permissionId}`]);
@@ -170,7 +194,15 @@ export class PermissionsComponent {
   onDelete(userId: Number): void {
     if (!userId) return;
     if (!this.canDeletePermission) {
-      Swal.fire('Access Denied', 'You do not have permission to delete permissions.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete permissions.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   
