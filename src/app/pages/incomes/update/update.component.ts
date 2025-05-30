@@ -52,7 +52,7 @@ export class UpdateComponent {
 
   loadIncomeAndCategories(incomeId: string): void {
     forkJoin({
-      incomeCategories: this.incomeCategoryService.getIcomeCategories(),
+      incomeCategories: this.incomeCategoryService.getIncomeCategories(),
       income: this.incomeService.getIncomeById(incomeId)
     }).subscribe({
       next: ({ incomeCategories, income }) => {
