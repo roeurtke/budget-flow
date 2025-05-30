@@ -34,7 +34,7 @@ export class CreateComponent {
   }
 
   loadIncomeCategories(): void {
-    this.incomeCategoryService.getIcomeCategories().subscribe({
+    this.incomeCategoryService.getIncomeCategories().subscribe({
       next: (response) => {
         this.income_categories = response.map((income_category: any) => ({
           value: income_category.id,
