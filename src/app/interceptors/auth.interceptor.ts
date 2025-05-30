@@ -26,7 +26,6 @@ export const authInterceptor: HttpInterceptorFn = (
   }
 
   const accessToken = tokenService.getAccessToken();
-  console.log('Access Token in Interceptor:', accessToken);
   const refreshToken = tokenService.getRefreshToken();
 
   // If we have a valid access token, use it
