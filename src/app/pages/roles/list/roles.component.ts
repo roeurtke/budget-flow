@@ -142,7 +142,7 @@ export class RolesComponent {
         customClass: {
           confirmButton: 'btn btn-sm btn-primary'
         },
-        buttonsStyling: false // Important: disables SweetAlert2 default styling so your class is applied
+        buttonsStyling: false
       });
       return;
     }

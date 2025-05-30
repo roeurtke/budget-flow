@@ -185,7 +185,7 @@ export class UsersComponent implements OnInit {
         customClass: {
           confirmButton: 'btn btn-sm btn-primary'
         },
-        buttonsStyling: false
+        buttonsStyling: false // Important: disables SweetAlert2 default styling so your class is applied
       });
       return;
     }
