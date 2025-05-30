@@ -136,11 +136,13 @@ export class UsersComponent implements OnInit {
             const isInactive = !row.status;
             let buttons = '';
             
-            // Detail button - always visible if user can view users
-            buttons += `
+            // Detail button - only visible if user can view users
+            if (this.canViewUser) {
+              buttons += `
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Detail">
                 <i class="fas fa-sm fa-id-card"></i>
               </button>`;
+            }
 
             // Change Password button - only visible if user can update users
             if (this.canUpdateUser) {
@@ -176,7 +178,15 @@ export class UsersComponent implements OnInit {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateUser) {
-      Swal.fire('Access Denied', 'You do not have permission to create users.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create users.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate(['/pages/users/create']);
@@ -188,7 +198,15 @@ export class UsersComponent implements OnInit {
       return;
     }
     if (!this.canViewUser) {
-      Swal.fire('Access Denied', 'You do not have permission to view users.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view users.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/users/detail/${userId}`]);
@@ -200,7 +218,15 @@ export class UsersComponent implements OnInit {
       return;
     }
     if (!this.canUpdateUser) {
-      Swal.fire('Access Denied', 'You do not have permission to update users.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update users.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/users/update/${userId}`]);
@@ -221,7 +247,15 @@ export class UsersComponent implements OnInit {
   onDelete(userId: Number): void {
     if (!userId) return;
     if (!this.canDeleteUser) {
-      Swal.fire('Access Denied', 'You do not have permission to delete users.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete users.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   
