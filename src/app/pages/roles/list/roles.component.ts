@@ -135,7 +135,15 @@ export class RolesComponent {
   onCreate(event: Event): void {
     event.preventDefault();
     if (!this.canCreateRole) {
-      Swal.fire('Access Denied', 'You do not have permission to create roles.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to create roles.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false // Important: disables SweetAlert2 default styling so your class is applied
+      });
       return;
     }
     this.router.navigate(['/pages/roles/create']);
@@ -147,7 +155,15 @@ export class RolesComponent {
       return;
     }
     if (!this.canViewRole) {
-      Swal.fire('Access Denied', 'You do not have permission to view roles.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to view roles.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/roles/detail/${roleId}`]);
@@ -159,7 +175,15 @@ export class RolesComponent {
       return;
     }
     if (!this.canUpdateRole) {
-      Swal.fire('Access Denied', 'You do not have permission to update roles.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to update roles.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
     this.router.navigate([`/pages/roles/update/${roleId}`]);
@@ -168,7 +192,15 @@ export class RolesComponent {
   onDelete(userId: Number): void {
     if (!userId) return;
     if (!this.canDeleteRole) {
-      Swal.fire('Access Denied', 'You do not have permission to delete roles.', 'error');
+      Swal.fire({
+        title: 'Access Denied',
+        text: 'You do not have permission to delete roles.',
+        icon: 'error',
+        customClass: {
+          confirmButton: 'btn btn-sm btn-primary'
+        },
+        buttonsStyling: false
+      });
       return;
     }
   
