@@ -122,7 +122,7 @@ export class AbilitiesComponent {
               <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Set Permission">
                 <i class="fas fa-sm fa-shield-alt"></i>
               </button>
               <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isActive ? 'disabled' : ''}>
