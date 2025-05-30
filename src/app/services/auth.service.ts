@@ -38,6 +38,11 @@ export class AuthService {
     return this.loginSubject.asObservable();
   }
 
+  // Add method to expose access token
+  getAccessToken(): string | null {
+    return this.tokenService.getAccessToken();
+  }
+
   private initializeAuthState(): void {
     try {
       const accessToken = this.tokenService.getAccessToken();
@@ -50,7 +55,6 @@ export class AuthService {
         // If access token is expired but we have a refresh token, try to refresh
         if (isExpired) {
           // console.log('Access token expired during initialization, attempting refresh...');
-          // Use the shared refresh observable
           this.refreshToken().subscribe({
             next: (response) => {
               // console.log('Initial token refresh successful');
@@ -110,7 +114,6 @@ export class AuthService {
   }
 
   refreshToken(): Observable<RefreshResponse> {
-    // If we already have a refresh in progress, return the shared observable
     if (this.refreshInProgress && this.refreshObservable) {
       console.debug('Reusing existing refresh attempt');
       return this.refreshObservable;
@@ -137,7 +140,6 @@ export class AuthService {
     this.refreshTokenSubject.next(null);
     console.debug('Starting new token refresh process');
 
-    // Create a shared observable for the refresh attempt
     this.refreshObservable = this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
       tap({
         next: (response) => {
@@ -189,7 +191,6 @@ export class AuthService {
           error
         ));
       }),
-      // Share the result with all subscribers
       shareReplay(1)
     );
 
@@ -214,10 +215,8 @@ export class AuthService {
       ));
     }
 
-    // Get user details from the /me/ endpoint
     return this.http.get<UserDetails>(this.currentUserUrl).pipe(
       map(userDetails => {
-        // Extract permissions from user object
         const permissions = this.extractPermissionsFromUser(userDetails);
         return {
           ...userDetails,
@@ -234,7 +233,6 @@ export class AuthService {
 
     const permissions = new Set<string>();
     
-    // Check user.permissions (direct permissions array)
     if (user.permissions && Array.isArray(user.permissions)) {
       user.permissions.forEach((p: any) => {
         if (typeof p === 'string') {
@@ -245,7 +243,6 @@ export class AuthService {
       });
     }
     
-    // Check role.permissions
     if (user.role?.permissions && Array.isArray(user.role.permissions)) {
       user.role.permissions.forEach((p: any) => {
         if (typeof p === 'string') {
@@ -256,7 +253,6 @@ export class AuthService {
       });
     }
     
-    // Check role.role_permissions
     if (user.role?.role_permissions && Array.isArray(user.role.role_permissions)) {
       user.role.role_permissions.forEach((rp: any) => {
         if (rp.permission?.codename) {
@@ -276,10 +272,6 @@ export class AuthService {
       return throwError(() => new TokenExpiredError());
     }
     if (error.status === 400 || error.status === 403) {
-      // return throwError(() => new AuthenticationError(
-      //   'INVALID_CREDENTIALS',
-      //   'Invalid credentials provided'
-      // ));
       return throwError(() => error);
     }
     return throwError(() => new AuthenticationError(
