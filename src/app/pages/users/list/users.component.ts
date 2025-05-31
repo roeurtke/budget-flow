@@ -7,8 +7,9 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { format } from 'date-fns';
-import Swal from 'sweetalert2';
 import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-users',
@@ -38,10 +39,10 @@ export class UsersComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.permissionService.hasPermission('can_create_user').subscribe(has => this.canCreateUser = has);
-    this.permissionService.hasPermission('can_view_user').subscribe(has => this.canViewUser = has);
-    this.permissionService.hasPermission('can_update_user').subscribe(has => this.canUpdateUser = has);
-    this.permissionService.hasPermission('can_delete_user').subscribe(has => this.canDeleteUser = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_CREATE_USER).subscribe(has => this.canCreateUser = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_USER).subscribe(has => this.canViewUser = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_USER).subscribe(has => this.canUpdateUser = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_USER).subscribe(has => this.canDeleteUser = has);
   }
 
   initializeDataTable(): void {
@@ -137,36 +138,29 @@ export class UsersComponent implements OnInit {
             let buttons = '';
             
             // Detail button - only visible if user can view users
-            if (this.canViewUser) {
-              buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Detail">
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewUser ? 'Detail' : 'No permission'}" ${!this.canViewUser ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-id-card"></i>
               </button>`;
-            }
 
             // Change Password button - only visible if user can update users
-            if (this.canUpdateUser) {
-              buttons += `
-                <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="Change Password">
-                  <i class="fas fa-key"></i>
-                </button>`;
-            }
+            buttons += `
+              <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateUser ? 'Change Password' : 'No permission'}" ${!this.canUpdateUser ? 'disabled' : ''}>
+                <i class="fas fa-key"></i>
+              </button>`;
 
             // Edit button - only visible if user can update users
-            if (this.canUpdateUser) {
-              buttons += `
-                <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
-                  <i class="fas fa-sm fa-edit"></i>
-                </button>`;
-            }
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateUser ? 'Edit' : 'No permission'}" ${!this.canUpdateUser ? 'disabled' : ''}>
+                <i class="fas fa-sm fa-edit"></i>
+              </button>`;
 
             // Delete button - only visible if user can delete users
-            if (this.canDeleteUser) {
-              buttons += `
-                <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
-                  <i class="fas fa-trash"></i>
-                </button>`;
-            }
+            const deleteDisabled = !this.canDeleteUser || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteUser ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
+                <i class="fas fa-trash"></i>
+              </button>`;
 
             return buttons;
           }
