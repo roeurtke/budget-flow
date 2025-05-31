@@ -43,7 +43,7 @@ export class UpdateComponent {
     ];
   }
 
-  loadPermission(permissionId: Number): void {
+  loadPermission(permissionId: number): void {
     this.permissionService.getPermissionById(permissionId).subscribe({
       next: (permission) => {
         if (permission) {
