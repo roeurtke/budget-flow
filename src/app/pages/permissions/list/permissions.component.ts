@@ -125,7 +125,7 @@ export class PermissionsComponent {
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>`;
             buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdatePermission ? 'Edit' : 'No permission'}" ${!this.canUpdatePermission ? 'disabled' : ''}">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdatePermission ? 'Edit' : 'No permission'}" ${!this.canUpdatePermission ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-edit"></i>
               </button>`;
             

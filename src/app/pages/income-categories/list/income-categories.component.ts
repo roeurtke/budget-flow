@@ -133,7 +133,7 @@ export class IncomeCategoriesComponent {
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>`;
             buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateIncomeCategory ? 'Edit' : 'No permission'}" ${!this.canUpdateIncomeCategory ? 'disabled' : ''}">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateIncomeCategory ? 'Edit' : 'No permission'}" ${!this.canUpdateIncomeCategory ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-edit"></i>
               </button>`;
             

@@ -149,7 +149,7 @@ export class ExpensesComponent {
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>`;
             buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateExpense ? 'Edit' : 'No permission'}" ${!this.canUpdateExpense ? 'disabled' : ''}">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateExpense ? 'Edit' : 'No permission'}" ${!this.canUpdateExpense ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-edit"></i>
               </button>`;
             

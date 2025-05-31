@@ -123,7 +123,7 @@ export class RolesComponent {
                 <i class="fas fa-sm fa-list-alt"></i>
               </button>`;
             buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateRole ? 'Edit' : 'No permission'}" ${!this.canUpdateRole ? 'disabled' : ''}">
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateRole ? 'Edit' : 'No permission'}" ${!this.canUpdateRole ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-edit"></i>
               </button>`;
             
