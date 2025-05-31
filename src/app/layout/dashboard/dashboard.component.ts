@@ -8,4 +8,8 @@ import { Component } from '@angular/core';
 })
 export class DashboardComponent {
 
+  onClick(event: Event): void {
+    event.preventDefault();
+    console.log('Clicked');
+  }
 }

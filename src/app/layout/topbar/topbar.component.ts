@@ -47,4 +47,9 @@ export class TopbarComponent {
   logout() {
     this.authService.logout();
   }
+
+  onClick(event: Event): void {
+    event.preventDefault();
+    console.log('Clicked');
+  }
 }
