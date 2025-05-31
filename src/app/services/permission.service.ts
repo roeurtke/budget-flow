@@ -5,7 +5,7 @@ import { map, catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { Permission } from '../interfaces/fetch-data.interface';
-import { PermissionCode, PermissionMap } from '../shared/permissions/permissions.constants';
+import { PermissionMap } from '../shared/permissions/permissions.constants';
 
 @Injectable({
   providedIn: 'root'
@@ -84,9 +84,43 @@ export class PermissionService {
     );
   }
 
-  /**
-   * Generic check using PermissionMap: canPerform('income', 'create')
-   */
+  canViewDashboard(): Observable<boolean> {
+    return of(true);
+  }
+
+  canViewIncomeList(): Observable<boolean> {
+    return this.canPerform('income', 'list');
+  }
+
+  canViewExpenseList(): Observable<boolean> {
+    return this.canPerform('expense', 'list');
+  }
+
+  canViewIncomeCategoryList(): Observable<boolean> {
+    return this.canPerform('incomeCategory', 'list');
+  }
+
+  canViewExpenseCategoryList(): Observable<boolean> {
+    return this.canPerform('expenseCategory', 'list');
+  }
+
+  canViewUserList(): Observable<boolean> {
+    return this.canPerform('user', 'list');
+  }
+
+  canViewRoleList(): Observable<boolean> {
+    return this.canPerform('role', 'list');
+  }
+
+  canViewPermissionList(): Observable<boolean> {
+    return this.canPerform('permission', 'list');
+  }
+
+  canViewAbilityList(): Observable<boolean> {
+    return this.canPerform('ability', 'list');
+  }
+
+  // Generic check using PermissionMap: canPerform('income', 'create')
   canPerform(module: keyof typeof PermissionMap, action: keyof typeof PermissionMap[keyof typeof PermissionMap]): Observable<boolean> {
     const permission = PermissionMap[module]?.[action];
     if (!permission) {
@@ -158,46 +192,5 @@ export class PermissionService {
     return this.http.delete<Permission>(`${this.apiUrl}/api/permissions/${permissionId}/`).pipe(
       catchError(err => err.status === 404 ? of(null) : throwError(() => err))
     );
-  }
-
-  canViewDashboard(): Observable<boolean> {
-    return this.hasAnyPermission([
-      PermissionCode.CAN_VIEW_LIST_INCOME,
-      PermissionCode.CAN_VIEW_LIST_EXPENSE,
-      PermissionCode.CAN_VIEW_LIST_INCOME_CATEGORY,
-      PermissionCode.CAN_VIEW_LIST_EXPENSE_CATEGORY
-    ]);
-  }
-
-  canViewIncomeList(): Observable<boolean> {
-    return this.canPerform('income', 'list');
-  }
-
-  canViewExpenseList(): Observable<boolean> {
-    return this.canPerform('expense', 'list');
-  }
-
-  canViewIncomeCategoryList(): Observable<boolean> {
-    return this.canPerform('incomeCategory', 'list');
-  }
-
-  canViewExpenseCategoryList(): Observable<boolean> {
-    return this.canPerform('expenseCategory', 'list');
-  }
-
-  canViewUserList(): Observable<boolean> {
-    return this.canPerform('user', 'list');
-  }
-
-  canViewRoleList(): Observable<boolean> {
-    return this.canPerform('role', 'list');
-  }
-
-  canViewPermissionList(): Observable<boolean> {
-    return this.canPerform('permission', 'list');
-  }
-
-  canViewAbilityList(): Observable<boolean> {
-    return this.canPerform('ability', 'list');
   }
 }

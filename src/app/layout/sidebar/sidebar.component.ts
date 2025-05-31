@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToggleSidebarDirective } from '../../shared/directives/toggle-sidebar.directive';
 import { PermissionService } from '../../services/permission.service';
+import { PermissionCode } from '../../shared/permissions/permissions.constants';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
@@ -74,10 +75,10 @@ export class SidebarComponent implements OnInit {
         ],
         collapsed: false,
         permission: this.permissionService.hasAnyPermission([
-          'can_view_list_income',
-          'can_view_list_expense',
-          'can_view_list_income_category',
-          'can_view_list_expense_category'
+          PermissionCode.CAN_VIEW_LIST_INCOME,
+          PermissionCode.CAN_VIEW_LIST_EXPENSE,
+          PermissionCode.CAN_CREATE_INCOME_CATEGORY,
+          PermissionCode.CAN_CREATE_EXPENSE_CATEGORY
         ])
       },
       {
@@ -107,10 +108,10 @@ export class SidebarComponent implements OnInit {
         ],
         collapsed: false,
         permission: this.permissionService.hasAnyPermission([
-          'can_view_list_user',
-          'can_view_list_role',
-          'can_view_list_permission',
-          'can_view_list_role_permission'
+          PermissionCode.CAN_VIEW_LIST_USER,
+          PermissionCode.CAN_VIEW_LIST_ROLE,
+          PermissionCode.CAN_VIEW_LIST_PERMISSION,
+          PermissionCode.CAN_VIEW_LIST_ROLE_PERMISSION
         ])
       }
     ];
