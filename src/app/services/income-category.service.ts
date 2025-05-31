@@ -15,11 +15,13 @@ export class IncomeCategoryService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getIncomeCategories(): Observable<IncomeCategory[]> {
-    return this.http.get<{ results?: IncomeCategory[] } | IncomeCategory[]>(`${this.apiUrl}/api/income-categories/`).pipe(
+    return this.http.get<{ results?: IncomeCategory[] } | IncomeCategory[]>(`${this.apiUrl}/api/income-categories/`, { params: { page_size: '100' } }).pipe(
       map((response: { results?: IncomeCategory[] } | IncomeCategory[]) => {
+        let incomeCategories: IncomeCategory[] = [];
         if (Array.isArray(response)) return response;
-        if (response.results) return response.results;
-        return [response as IncomeCategory];
+        else if (response.results) incomeCategories = response.results;
+        else incomeCategories = [response as IncomeCategory];
+        return incomeCategories.filter(income_category => income_category.status == true);
       })
     );
   }

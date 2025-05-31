@@ -15,11 +15,13 @@ export class ExpenseCategoryService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getExpenseCategories(): Observable<ExpenseCategory[]> {
-    return this.http.get<{ results?: ExpenseCategory[] } | ExpenseCategory[]>(`${this.apiUrl}/api/expense-categories/`).pipe(
+    return this.http.get<{ results?: ExpenseCategory[] } | ExpenseCategory[]>(`${this.apiUrl}/api/expense-categories/`, { params: { page_size: '100' } }).pipe(
       map((response: { results?: ExpenseCategory[] } | ExpenseCategory[]) => {
+        let expenseCategories: ExpenseCategory[] = [];
         if (Array.isArray(response)) return response;
-        if (response.results) return response.results;
-        return [response as ExpenseCategory];
+        else if (response.results) expenseCategories = response.results;
+        else expenseCategories = [response as ExpenseCategory];
+        return expenseCategories.filter(expense_category => expense_category.status == true);
       })
     );
   }
