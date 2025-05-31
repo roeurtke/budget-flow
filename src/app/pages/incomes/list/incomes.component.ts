@@ -7,11 +7,12 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
+import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import Swal from 'sweetalert2';
-import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-incomes',
@@ -45,10 +46,10 @@ export class IncomesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.permissionService.hasPermission('can_create_income').subscribe(has => this.canCreateIncome = has);
-    this.permissionService.hasPermission('can_view_income').subscribe(has => this.canViewIncome = has);
-    this.permissionService.hasPermission('can_update_income').subscribe(has => this.canUpdateIncome = has);
-    this.permissionService.hasPermission('can_delete_income').subscribe(has => this.canDeleteIncome = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_CREATE_INCOME).subscribe(has => this.canCreateIncome = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_INCOME).subscribe(has => this.canViewIncome = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_INCOME).subscribe(has => this.canUpdateIncome = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_INCOME).subscribe(has => this.canDeleteIncome = has);
   }
 
   initializeDataTable(): void {
@@ -142,17 +143,23 @@ export class IncomesComponent {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
-            return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+            let buttons = '';
+            
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewIncome ? 'Show' : 'No permission'}" ${!this.canViewIncome ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-list-alt"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              </button>`;
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateIncome ? 'Edit' : 'No permission'}" ${!this.canUpdateIncome ? 'disabled' : ''}">
                 <i class="fas fa-sm fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
+              </button>`;
+            
+            const deleteDisabled = !this.canDeleteIncome || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteIncome ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+            return buttons;
           }
         }
       ]

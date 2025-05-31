@@ -1,5 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -35,10 +36,10 @@ export class PermissionsComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.permissionService.hasPermission('can_create_permission').subscribe(has => this.canCreatePermission = has);
-    this.permissionService.hasPermission('can_view_permission').subscribe(has => this.canViewPermission = has);
-    this.permissionService.hasPermission('can_update_permission').subscribe(has => this.canUpdatePermission = has);
-    this.permissionService.hasPermission('can_delete_permission').subscribe(has => this.canDeletePermission = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_CREATE_PERMISSION).subscribe(has => this.canCreatePermission = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_PERMISSION).subscribe(has => this.canViewPermission = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_PERMISSION).subscribe(has => this.canUpdatePermission = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_PERMISSION).subscribe(has => this.canDeletePermission = has);
   }
 
   initializeDataTable(): void {
@@ -117,17 +118,23 @@ export class PermissionsComponent {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
-            return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+            let buttons = '';
+            
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewPermission ? 'Show' : 'No permission'}" ${!this.canViewPermission ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-list-alt"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              </button>`;
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdatePermission ? 'Edit' : 'No permission'}" ${!this.canUpdatePermission ? 'disabled' : ''}">
                 <i class="fas fa-sm fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
+              </button>`;
+            
+            const deleteDisabled = !this.canDeletePermission || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeletePermission ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+            return buttons;
           }
         }
       ]

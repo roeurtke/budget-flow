@@ -7,8 +7,9 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
 import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-abilities',
@@ -38,9 +39,9 @@ export class AbilitiesComponent {
   ngOnInit(): void {
     this.initializeDataTable();
     // this.permissionService.hasPermission('can_create_role_permission').subscribe(has => this.canCreateAbility = has);
-    this.permissionService.hasPermission('can_view_role_permission').subscribe(has => this.canViewAbility = has);
-    this.permissionService.hasPermission('can_update_role_permission').subscribe(has => this.canUpdateAbility = has);
-    this.permissionService.hasPermission('can_delete_role_permission').subscribe(has => this.canDeleteAbility = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_ROLE_PERMISSION).subscribe(has => this.canViewAbility = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_ROLE_PERMISSION).subscribe(has => this.canUpdateAbility = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_ROLE_PERMISSION).subscribe(has => this.canDeleteAbility = has);
   }
 
   initializeDataTable(): void {
@@ -117,18 +118,24 @@ export class AbilitiesComponent {
           title: 'Actions',
           orderable: false,
           render: (data: any, type: any, row: any) => {
-            const isActive = !row.status;
-            return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+            const isInactive = !row.status;
+            let buttons = '';
+            
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewAbility ? 'Show' : 'No permission'}" ${!this.canViewAbility ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-list-alt"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Set Permission">
+              </button>`;
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateAbility ? 'Set Permission' : 'No permission'}" ${!this.canUpdateAbility ? 'disabled' : ''}">
                 <i class="fas fa-sm fa-shield-alt"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isActive ? 'disabled' : ''}>
+              </button>`;
+            
+            const deleteDisabled = !this.canDeleteAbility || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteAbility ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+            return buttons;
           }
         }
       ]

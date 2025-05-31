@@ -7,8 +7,9 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { format } from 'date-fns';
 import { Router } from '@angular/router';
-import Swal from 'sweetalert2';
 import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-roles',
@@ -37,10 +38,10 @@ export class RolesComponent {
 
   ngOnInit(): void {
     this.initializeDataTable();
-    this.permissionService.hasPermission('can_create_role').subscribe(has => this.canCreateRole = has);
-    this.permissionService.hasPermission('can_view_role').subscribe(has => this.canViewRole = has);
-    this.permissionService.hasPermission('can_update_role').subscribe(has => this.canUpdateRole = has);
-    this.permissionService.hasPermission('can_delete_role').subscribe(has => this.canDeleteRole = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_CREATE_ROLE).subscribe(has => this.canCreateRole = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_ROLE).subscribe(has => this.canViewRole = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_ROLE).subscribe(has => this.canUpdateRole = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_ROLE).subscribe(has => this.canDeleteRole = has);
   }
 
   initializeDataTable(): void {
@@ -115,17 +116,23 @@ export class RolesComponent {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
-            return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+            let buttons = '';
+            
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewRole ? 'Show' : 'No permission'}" ${!this.canViewRole ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-list-alt"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              </button>`;
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateRole ? 'Edit' : 'No permission'}" ${!this.canUpdateRole ? 'disabled' : ''}">
                 <i class="fas fa-sm fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
+              </button>`;
+            
+            const deleteDisabled = !this.canDeleteRole || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteRole ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+            return buttons;
           }
         }
       ]

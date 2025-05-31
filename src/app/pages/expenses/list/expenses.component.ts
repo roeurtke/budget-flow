@@ -7,11 +7,12 @@ import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { format } from 'date-fns';
+import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import Swal from 'sweetalert2';
-import { PermissionService } from '../../../services/permission.service';
 
 @Component({
   selector: 'app-expenses',
@@ -44,10 +45,10 @@ export class ExpensesComponent {
     pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
-    this.permissionService.hasPermission('can_create_expense').subscribe(has => this.canCreateExpense = has);
-    this.permissionService.hasPermission('can_view_expense').subscribe(has => this.canViewExpense = has);
-    this.permissionService.hasPermission('can_update_expense').subscribe(has => this.canUpdateExpense = has);
-    this.permissionService.hasPermission('can_delete_expense').subscribe(has => this.canDeleteExpense = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_CREATE_EXPENSE).subscribe(has => this.canCreateExpense = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_EXPENSE).subscribe(has => this.canViewExpense = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_UPDATE_EXPENSE).subscribe(has => this.canUpdateExpense = has);
+    this.permissionService.hasPermission(PermissionCode.CAN_DELETE_EXPENSE).subscribe(has => this.canDeleteExpense = has);
   }
 
   initializeDataTable(): void {
@@ -141,17 +142,23 @@ export class ExpensesComponent {
           orderable: false,
           render: (data: any, type: any, row: any) => {
             const isInactive = !row.status;
-            return `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="Show">
+            let buttons = '';
+            
+            buttons += `
+              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewExpense ? 'Show' : 'No permission'}" ${!this.canViewExpense ? 'disabled' : ''}>
                 <i class="fas fa-sm fa-list-alt"></i>
-              </button>
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="Edit">
+              </button>`;
+            buttons += `
+              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateExpense ? 'Edit' : 'No permission'}" ${!this.canUpdateExpense ? 'disabled' : ''}">
                 <i class="fas fa-sm fa-edit"></i>
-              </button>
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="Delete" ${isInactive ? 'disabled' : ''}>
+              </button>`;
+            
+            const deleteDisabled = !this.canDeleteExpense || isInactive;
+            buttons += `
+              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteExpense ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
                 <i class="fas fa-trash"></i>
-              </button>
-            `;
+              </button>`;
+            return buttons;
           }
         }
       ]
