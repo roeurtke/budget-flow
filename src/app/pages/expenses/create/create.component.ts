@@ -23,7 +23,7 @@ export class CreateComponent {
       this.createForm = this.fb.group({
         date: ['', Validators.required],
         name: ['', Validators.required],
-        description: ['', Validators.required],
+        description: [''],
         spent_amount: ['', Validators.required],
         expense_category: ['', Validators.required],
       });
