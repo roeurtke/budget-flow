@@ -8,7 +8,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError, switchMap, catchError } from 'rxjs';
 import { TokenService } from '../services/token.service';
-import { AuthService } from '../services/auth.service'; // Import AuthService
+import { TokenRefreshService } from '../services/token-refresh.service';
 import { Router } from '@angular/router';
 import { TokenExpiredError } from '../interfaces/auth.interface';
 
@@ -17,7 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
   const tokenService = inject(TokenService);
-  const authService = inject(AuthService); // Inject AuthService
+  const tokenRefreshService = inject(TokenRefreshService);
   const router = inject(Router);
 
   // Skip auth endpoints
@@ -33,7 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(addAuthHeader(req, accessToken)).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          return handleUnauthorizedError(req, next, authService, tokenService, router);
+          return handleUnauthorizedError(req, next, tokenRefreshService, tokenService, router);
         } else if (error.status === 403) {
           // Log for debugging; 403 might indicate permission issues
           console.error('403 Forbidden: Check user permissions for', req.url, error);
@@ -46,7 +46,7 @@ export const authInterceptor: HttpInterceptorFn = (
 
   // If we have a valid refresh token, try to refresh
   if (refreshToken && !tokenService.isTokenExpired(refreshToken)) {
-    return handleTokenRefresh(req, next, authService, tokenService, router);
+    return handleTokenRefresh(req, next, tokenRefreshService, tokenService, router);
   }
 
   // No valid tokens, redirect to login
@@ -73,16 +73,16 @@ function addAuthHeader(req: HttpRequest<unknown>, token: string): HttpRequest<un
 function handleTokenRefresh(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService,
+  tokenRefreshService: TokenRefreshService,
   tokenService: TokenService,
   router: Router
 ): Observable<HttpEvent<unknown>> {
-  return authService.refreshToken().pipe(
+  return tokenRefreshService.refreshToken().pipe(
     switchMap((response) => {
       if (!response.access) {
         throw new Error('Invalid refresh response: no access token received');
       }
-      // Token is already set by authService.refreshToken()
+      // Token is already set by tokenRefreshService.refreshToken()
       return next(addAuthHeader(req, response.access));
     }),
     catchError((error) => {
@@ -95,7 +95,7 @@ function handleTokenRefresh(
 function handleUnauthorizedError(
   req: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService,
+  tokenRefreshService: TokenRefreshService,
   tokenService: TokenService,
   router: Router
 ): Observable<HttpEvent<unknown>> {
@@ -106,7 +106,7 @@ function handleUnauthorizedError(
     return throwError(() => new TokenExpiredError('Session expired. Please log in again.'));
   }
 
-  return handleTokenRefresh(req, next, authService, tokenService, router);
+  return handleTokenRefresh(req, next, tokenRefreshService, tokenService, router);
 }
 
 function handleSessionExpired(tokenService: TokenService, router: Router): void {

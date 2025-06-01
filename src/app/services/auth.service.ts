@@ -12,6 +12,7 @@ import {
   InvalidTokenError
 } from '../interfaces/auth.interface';
 import { TokenService } from './token.service';
+import { TokenRefreshService } from './token-refresh.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,15 +20,12 @@ import { TokenService } from './token.service';
 export class AuthService {
   private readonly loginUrl = `${environment.apiUrl}/api/login/`;
   private readonly registerUrl = `${environment.apiUrl}/api/register/`;
-  private readonly refreshApiUrl = `${environment.apiUrl}/api/token/refresh/`;
   private readonly currentUserUrl = `${environment.apiUrl}/api/users/me/`;
   private readonly isAuthenticated = signal<boolean>(false);
   private readonly http = inject(HttpClient);
   private readonly tokenService = inject(TokenService);
-  private refreshTokenSubject = new BehaviorSubject<RefreshResponse | null>(null);
-  private refreshInProgress = false;
+  private readonly tokenRefreshService = inject(TokenRefreshService);
   private loginSubject = new Subject<LoginResponse>();
-  private refreshObservable: Observable<RefreshResponse> | null = null;
 
   constructor() {
     this.initializeAuthState();
@@ -54,13 +52,11 @@ export class AuthService {
         
         // If access token is expired but we have a refresh token, try to refresh
         if (isExpired) {
-          // console.log('Access token expired during initialization, attempting refresh...');
-          this.refreshToken().subscribe({
-            next: (response) => {
-              // console.log('Initial token refresh successful');
+          this.tokenRefreshService.refreshToken().subscribe({
+            next: () => {
               this.isAuthenticated.set(true);
             },
-            error: (error) => {
+            error: () => {
               this.logout();
             }
           });
@@ -114,87 +110,15 @@ export class AuthService {
   }
 
   refreshToken(): Observable<RefreshResponse> {
-    if (this.refreshInProgress && this.refreshObservable) {
-      console.debug('Reusing existing refresh attempt');
-      return this.refreshObservable;
-    }
-
-    const refreshToken = this.tokenService.getRefreshToken();
-    if (!refreshToken) {
-      console.warn('No refresh token available');
-      this.logout();
-      return throwError(() => new AuthenticationError(
-        'NO_REFRESH_TOKEN',
-        'No refresh token available'
-      ));
-    }
-
-    const isExpired = this.tokenService.isTokenExpired(refreshToken);
-    if (isExpired) {
-      console.warn('Refresh token is expired');
-      this.logout();
-      return throwError(() => new TokenExpiredError('Refresh token is expired'));
-    }
-
-    this.refreshInProgress = true;
-    this.refreshTokenSubject.next(null);
-    console.debug('Starting new token refresh process');
-
-    this.refreshObservable = this.http.post<RefreshResponse>(this.refreshApiUrl, { refresh: refreshToken }).pipe(
-      tap({
-        next: (response) => {
-          console.debug('Token refresh successful');
-          if (!response.access) {
-            console.error('Invalid refresh response: no access token received');
-            throw new InvalidTokenError('Invalid refresh response: no access token received');
-          }
-          this.tokenService.setAccessToken(response.access);
-          if (response.refresh) {
-            this.tokenService.setRefreshToken(response.refresh);
-          }
-          this.isAuthenticated.set(true);
-          this.refreshTokenSubject.next(response);
-        },
-        error: (error) => {
-          console.error('Refresh token error:', error);
-          if (error instanceof HttpErrorResponse) {
-            if (error.status === 401) {
-              console.warn('Refresh token rejected by server - logging out');
-              this.logout();
-            } else {
-              console.error(`Refresh token request failed with status ${error.status}:`, error.error);
-            }
-          }
-          this.refreshTokenSubject.next(null);
-        },
-        finalize: () => {
-          this.refreshInProgress = false;
-          this.refreshObservable = null;
-          console.debug('Token refresh process completed');
-        }
+    return this.tokenRefreshService.refreshToken().pipe(
+      tap(() => {
+        this.isAuthenticated.set(true);
       }),
       catchError((error) => {
-        if (error instanceof HttpErrorResponse) {
-          if (error.status === 401) {
-            return throwError(() => new TokenExpiredError('Refresh token was rejected by the server'));
-          }
-          if (error.status === 400) {
-            return throwError(() => new AuthenticationError(
-              'INVALID_REFRESH_TOKEN',
-              'Invalid refresh token format or content'
-            ));
-          }
-        }
-        return throwError(() => new AuthenticationError(
-          'REFRESH_FAILED',
-          'Token refresh failed',
-          error
-        ));
-      }),
-      shareReplay(1)
+        this.isAuthenticated.set(false);
+        return throwError(() => error);
+      })
     );
-
-    return this.refreshObservable;
   }
 
   logout(): void {
