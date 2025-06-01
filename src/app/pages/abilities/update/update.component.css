@@ -68,6 +68,7 @@ label {
     transition: background-color 0.2s;
     margin-bottom: 0; /* Ensure no extra margin */
     line-height: 1.3; /* Tighter line height */
+    color: #475f7b;
 }
 
 .permission-item label:hover {
