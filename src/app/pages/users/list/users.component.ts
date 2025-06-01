@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { format } from 'date-fns';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -34,6 +35,7 @@ export class UsersComponent implements OnInit {
   constructor(
     private userService: UserService, 
     private router: Router,
+    private buttonService: ButtonService,
     private permissionService: PermissionService
   ) {}
 
@@ -138,29 +140,16 @@ export class UsersComponent implements OnInit {
             let buttons = '';
             
             // Detail button - only visible if user can view users
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewUser ? 'Detail' : 'No permission'}" ${!this.canViewUser ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-id-card"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewUser);
 
             // Change Password button - only visible if user can update users
-            buttons += `
-              <button class="btn btn-dark btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateUser ? 'Change Password' : 'No permission'}" ${!this.canUpdateUser ? 'disabled' : ''}>
-                <i class="fas fa-key"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-key', 'Change Password', row.id, 'btn-dark', this.canUpdateUser);
 
             // Edit button - only visible if user can update users
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateUser ? 'Edit' : 'No permission'}" ${!this.canUpdateUser ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdateUser);
 
             // Delete button - only visible if user can delete users
-            const deleteDisabled = !this.canDeleteUser || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteUser ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeleteUser, isInactive);
 
             return buttons;
           }
