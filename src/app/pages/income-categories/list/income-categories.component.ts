@@ -8,6 +8,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -35,6 +36,7 @@ export class IncomeCategoriesComponent {
   constructor(
     private incomeCategoryService: IncomeCategoryService,
     private permissionService: PermissionService,
+    private buttonService: ButtonService,
     private router: Router
   ) {}
 
@@ -128,20 +130,9 @@ export class IncomeCategoriesComponent {
             const isInactive = !row.status;
             let buttons = '';
             
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewIncomeCategory ? 'Show' : 'No permission'}" ${!this.canViewIncomeCategory ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-list-alt"></i>
-              </button>`;
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateIncomeCategory ? 'Edit' : 'No permission'}" ${!this.canUpdateIncomeCategory ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
-            
-            const deleteDisabled = !this.canDeleteIncomeCategory || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteIncomeCategory ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewIncomeCategory);
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdateIncomeCategory);
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeleteIncomeCategory, isInactive);
             return buttons;
           }
         }

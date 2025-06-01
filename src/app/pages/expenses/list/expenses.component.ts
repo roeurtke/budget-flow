@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { format } from 'date-fns';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -36,6 +37,7 @@ export class ExpensesComponent {
   constructor(
     private expenseService: ExpenseService,
     private permissionService: PermissionService,
+    private buttonService: ButtonService,
     private router: Router
   ) {}
 
@@ -144,20 +146,9 @@ export class ExpensesComponent {
             const isInactive = !row.status;
             let buttons = '';
             
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewExpense ? 'Show' : 'No permission'}" ${!this.canViewExpense ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-list-alt"></i>
-              </button>`;
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateExpense ? 'Edit' : 'No permission'}" ${!this.canUpdateExpense ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
-            
-            const deleteDisabled = !this.canDeleteExpense || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteExpense ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewExpense);
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdateExpense);
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeleteExpense, isInactive);
             return buttons;
           }
         }

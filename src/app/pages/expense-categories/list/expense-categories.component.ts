@@ -8,6 +8,7 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Router } from '@angular/router';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -35,6 +36,7 @@ export class ExpenseCategoriesComponent {
   constructor(
     private expenseCategoryService: ExpenseCategoryService,
     private permissionService: PermissionService,
+    private buttonService: ButtonService,
     private router: Router
   ) {}
 
@@ -128,20 +130,9 @@ export class ExpenseCategoriesComponent {
             const isInactive = !row.status;
             let buttons = '';
             
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewExpenseCategory ? 'Show' : 'No permission'}" ${!this.canViewExpenseCategory ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-list-alt"></i>
-              </button>`;
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateExpenseCategory ? 'Edit' : 'No permission'}" ${!this.canUpdateExpenseCategory ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
-            
-            const deleteDisabled = !this.canDeleteExpenseCategory || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteExpenseCategory ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewExpenseCategory);
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdateExpenseCategory);
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeleteExpenseCategory, isInactive);
             return buttons;
           }
         }

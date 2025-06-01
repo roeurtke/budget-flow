@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { Subject } from 'rxjs';
@@ -31,6 +32,7 @@ export class PermissionsComponent {
 
   constructor(
     private permissionService: PermissionService,
+    private buttonService: ButtonService,
     private router: Router
   ) {}
 
@@ -120,20 +122,9 @@ export class PermissionsComponent {
             const isInactive = !row.status;
             let buttons = '';
             
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewPermission ? 'Show' : 'No permission'}" ${!this.canViewPermission ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-list-alt"></i>
-              </button>`;
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdatePermission ? 'Edit' : 'No permission'}" ${!this.canUpdatePermission ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
-            
-            const deleteDisabled = !this.canDeletePermission || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeletePermission ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewPermission);
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdatePermission);
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeletePermission, isInactive);
             return buttons;
           }
         }

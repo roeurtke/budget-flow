@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { Router } from '@angular/router';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
+import { ButtonService } from '../../../services/button.service';
 import jszip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -37,6 +38,7 @@ export class IncomesComponent {
   constructor(
     private incomeService: IncomeService,
     private permissionService: PermissionService,
+    private buttonService: ButtonService,
     private router: Router
   ) {}
 
@@ -145,20 +147,9 @@ export class IncomesComponent {
             const isInactive = !row.status;
             let buttons = '';
             
-            buttons += `
-              <button class="btn btn-primary btn-sm btn-icon" data-id="${row.id}" title="${this.canViewIncome ? 'Show' : 'No permission'}" ${!this.canViewIncome ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-list-alt"></i>
-              </button>`;
-            buttons += `
-              <button class="btn btn-secondary btn-sm btn-icon" data-id="${row.id}" title="${this.canUpdateIncome ? 'Edit' : 'No permission'}" ${!this.canUpdateIncome ? 'disabled' : ''}>
-                <i class="fas fa-sm fa-edit"></i>
-              </button>`;
-            
-            const deleteDisabled = !this.canDeleteIncome || isInactive;
-            buttons += `
-              <button class="btn btn-danger btn-sm btn-icon" data-id="${row.id}" title="${this.canDeleteIncome ? (isInactive ? 'Inactive' : 'Delete') : 'No permission'}" ${deleteDisabled ? 'disabled' : ''}>
-                <i class="fas fa-trash"></i>
-              </button>`;
+            buttons += this.buttonService.actionButton('fas fa-sm fa-id-card', 'Detail', row.id, 'btn-primary', this.canViewIncome);
+            buttons += this.buttonService.actionButton('fas fa-sm fa-edit', 'Edit', row.id, 'btn-secondary', this.canUpdateIncome);
+            buttons += this.buttonService.actionButton('fas fa-trash', 'Delete', row.id, 'btn-danger', this.canDeleteIncome, isInactive);
             return buttons;
           }
         }
