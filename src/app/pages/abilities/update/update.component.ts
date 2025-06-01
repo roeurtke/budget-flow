@@ -8,10 +8,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { RolePermission, Permission, Role } from '../../../interfaces/fetch-data.interface';
+import { PermissionMap } from '../../../shared/permissions/permissions.constants';
 
 interface PermissionOption {
   value: number;
   label: string;
+  module?: string;
+}
+
+interface GroupedPermissions {
+  module: string;
+  permissions: PermissionOption[];
 }
 
 @Component({
@@ -26,6 +33,7 @@ export class UpdateComponent implements OnInit {
   roleId: number | null = null;
   roles: PermissionOption[] = [];
   permissions: PermissionOption[] = [];
+  groupedPermissions: GroupedPermissions[] = [];
   errorMessage: string | null = null;
   isLoading = false;
 
@@ -79,6 +87,7 @@ export class UpdateComponent implements OnInit {
   ): void {
     this.permissions = this.mapToOptions(permissions);
     this.roles = this.mapToOptions(roles);
+    this.groupedPermissions = this.groupPermissionsByModule(permissions);
     
     this.permissionArray.clear();
     this.updateForm.patchValue({ role: role.id });
@@ -95,8 +104,57 @@ export class UpdateComponent implements OnInit {
   private mapToOptions(items: (Permission | Role)[]): PermissionOption[] {
     return items.map(item => ({
       value: item.id,
-      label: item.name
+      label: item.name,
+      module: this.getModuleFromPermission(item as Permission)
     }));
+  }
+
+  private getModuleFromPermission(permission: Permission): string {
+    // Extract module name from permission codename (e.g., "can_create_user" -> "user")
+    const codename = permission.codename?.toLowerCase() || '';
+    for (const [module, actions] of Object.entries(PermissionMap)) {
+      for (const [action, permCode] of Object.entries(actions)) {
+        if (permCode === codename) {
+          return module;
+        }
+      }
+    }
+    return 'other';
+  }
+
+  private groupPermissionsByModule(permissions: Permission[]): GroupedPermissions[] {
+    const grouped = new Map<string, PermissionOption[]>();
+    
+    // Initialize with all modules from PermissionMap
+    Object.keys(PermissionMap).forEach(module => {
+      grouped.set(module, []);
+    });
+    grouped.set('other', []); // For permissions that don't match any module
+
+    // Group permissions by module
+    this.mapToOptions(permissions).forEach(permission => {
+      const module = permission.module || 'other';
+      const modulePermissions = grouped.get(module) || [];
+      modulePermissions.push(permission);
+      grouped.set(module, modulePermissions);
+    });
+
+    // Convert to array and filter out empty modules
+    return Array.from(grouped.entries())
+      .filter(([_, permissions]) => permissions.length > 0)
+      .map(([module, permissions]) => ({
+        module: this.formatModuleName(module),
+        permissions
+      }))
+      .sort((a, b) => a.module.localeCompare(b.module));
+  }
+
+  private formatModuleName(module: string): string {
+    // Convert module name to title case and replace camelCase with spaces
+    return module
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim();
   }
 
   setPermissionsForRole(): void {
