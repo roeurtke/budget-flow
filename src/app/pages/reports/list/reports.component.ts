@@ -6,6 +6,8 @@ import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
 import { format } from 'date-fns';
 import { ReportService } from '../../../services/report.service';
+import { PermissionService } from '../../../services/permission.service';
+import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import { MonthlySummary } from '../../../interfaces/report.interface';
 
 @Component({
@@ -22,19 +24,25 @@ export class ReportsComponent {
   loading = false;
   error: string | null = null;
 
+  canviewReport = false;
+
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+    private reportService: ReportService,
+    private permissionService: PermissionService,
+  ) {}
 
   ngOnInit(): void {
     this.initializeDataTable();
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_REPORT).subscribe(has => this.canviewReport = has);
   }
 
   initializeDataTable(): void {
     this.dtOptions = {
       ...dataTablesConfig,
-      serverSide: true,
+      serverSide: false,
       processing: true,
       order: [[1, 'desc']],
       ajax: (dataTablesParameters: any, callback: any) => {
@@ -42,9 +50,9 @@ export class ReportsComponent {
         this.reportService.getFinancialSummaryForDataTables(dataTablesParameters).subscribe({
           next: (response) => {
             callback({
-              recordsTotal: response.count,
-              recordsFiltered: response.count,
-              data: response.results
+              recordsTotal: response.monthly_summary.length,
+              recordsFiltered: response.monthly_summary.length,
+              data: response.monthly_summary
             });
             this.loading = false;
           },

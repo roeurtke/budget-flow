@@ -8,7 +8,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ReportService {
-  private apiUrl = `${environment.apiUrl}/api/financial-summary/`;
+  private apiUrl = `${environment.apiUrl}/api/reports/financial-summary/`;
 
   constructor(private http: HttpClient) { }
 
@@ -17,24 +17,7 @@ export class ReportService {
   }
 
   getFinancialSummaryForDataTables(dtParams: any): Observable<any> {
-    const page = (dtParams.start / dtParams.length) + 1;
-    const pageSize = dtParams.length;
-    const searchTerm = dtParams.search.value;
-
-    let ordering = '';
-    if (dtParams.order && dtParams.order.length > 0) {
-      const order = dtParams.order[0];
-      const columnName = dtParams.columns[order.column].data;
-      ordering = order.dir === 'desc' ? `-${columnName}` : columnName;
-    }
-
-    return this.http.get<any>(this.apiUrl, {
-      params: {
-        page: page.toString(),
-        page_size: pageSize.toString(),
-        search: searchTerm,
-        ordering
-      }
-    });
+    // Since the backend doesn't support pagination, we'll just get all data
+    return this.http.get<any>(this.apiUrl);
   }
 } 
