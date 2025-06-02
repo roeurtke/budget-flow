@@ -21,6 +21,7 @@ import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expe
 import { CreateComponent as ExpenseCategoryCreateComponent} from './pages/expense-categories/create/create.component';
 import { DetailComponent as ExpenseCategoryDetailComponent } from './pages/expense-categories/detail/detail.component';
 import { UpdateComponent as ExpenseCategoryUpdateComponent } from './pages/expense-categories/update/update.component';
+
 import { UsersComponent } from './pages/users/list/users.component';
 import { DetailComponent as UserDetailComponent } from './pages/users/detail/detail.component';
 import { CreateComponent as UserCreateComponent } from './pages/users/create/create.component';

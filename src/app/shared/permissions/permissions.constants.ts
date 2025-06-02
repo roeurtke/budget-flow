@@ -54,6 +54,9 @@ export enum PermissionCode {
   CAN_VIEW_EXPENSE_CATEGORY      = 'can_view_expense_category',
   CAN_UPDATE_EXPENSE_CATEGORY    = 'can_update_expense_category',
   CAN_DELETE_EXPENSE_CATEGORY    = 'can_delete_expense_category',
+
+  // Report
+  CAN_VIEW_REPORT = 'can_view_report',
 }
 
 export const PermissionMap = {
@@ -112,5 +115,8 @@ export const PermissionMap = {
     view: PermissionCode.CAN_VIEW_EXPENSE_CATEGORY,
     update: PermissionCode.CAN_UPDATE_EXPENSE_CATEGORY,
     delete: PermissionCode.CAN_DELETE_EXPENSE_CATEGORY,
+  },
+  report: {
+    list: PermissionCode.CAN_VIEW_REPORT,
   },
 };

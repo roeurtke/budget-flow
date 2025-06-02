@@ -104,6 +104,10 @@ export class PermissionService {
     return this.canPerform('expenseCategory', 'list');
   }
 
+  canViewReportList(): Observable<boolean> {
+    return this.canPerform('report', 'list');
+  }
+
   canViewUserList(): Observable<boolean> {
     return this.canPerform('user', 'list');
   }

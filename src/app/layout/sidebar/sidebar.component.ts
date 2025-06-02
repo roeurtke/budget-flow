@@ -71,14 +71,20 @@ export class SidebarComponent implements OnInit {
             label: 'Expense Category', 
             link: '/pages/expense_categories',
             permission: this.permissionService.canViewExpenseCategoryList()
+          },
+          { 
+            label: 'Report', 
+            link: '/pages/reports',
+            permission: this.permissionService.canViewReportList()
           }
         ],
         collapsed: false,
         permission: this.permissionService.hasAnyPermission([
           PermissionCode.CAN_VIEW_LIST_INCOME,
           PermissionCode.CAN_VIEW_LIST_EXPENSE,
-          PermissionCode.CAN_CREATE_INCOME_CATEGORY,
-          PermissionCode.CAN_CREATE_EXPENSE_CATEGORY
+          PermissionCode.CAN_VIEW_LIST_INCOME_CATEGORY,
+          PermissionCode.CAN_VIEW_LIST_EXPENSE_CATEGORY,
+          PermissionCode.CAN_VIEW_REPORT
         ])
       },
       {
