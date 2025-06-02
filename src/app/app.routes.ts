@@ -21,7 +21,7 @@ import { ExpenseCategoriesComponent } from './pages/expense-categories/list/expe
 import { CreateComponent as ExpenseCategoryCreateComponent} from './pages/expense-categories/create/create.component';
 import { DetailComponent as ExpenseCategoryDetailComponent } from './pages/expense-categories/detail/detail.component';
 import { UpdateComponent as ExpenseCategoryUpdateComponent } from './pages/expense-categories/update/update.component';
-
+import { ReportsComponent } from './pages/reports/list/reports.component';
 import { UsersComponent } from './pages/users/list/users.component';
 import { DetailComponent as UserDetailComponent } from './pages/users/detail/detail.component';
 import { CreateComponent as UserCreateComponent } from './pages/users/create/create.component';
@@ -79,6 +79,9 @@ export const routes: Routes = [
           { path: 'pages/expense_categories/detail/:id', canActivate: [PermissionGuard], data: { permission: 'can_view_expense_category' }, component: ExpenseCategoryDetailComponent },
           { path: 'pages/expense_categories/update/:id', canActivate: [PermissionGuard], data: { permission: 'can_update_expense_category' }, component: ExpenseCategoryUpdateComponent },
           { path: 'pages/expense_categories/delete/:id', canActivate: [PermissionGuard], data: { permission: 'can_delete_expense_category' }, component: ExpenseCategoriesComponent },
+
+          // Report Management Routes
+          { path: 'pages/reports', canActivate: [PermissionGuard], data: { permission: 'can_view_report' }, component: ReportsComponent },
 
           // User Management Routes
           { path: 'pages/users', canActivate: [PermissionGuard], data: { permission: 'can_view_list_user' }, component: UsersComponent },
