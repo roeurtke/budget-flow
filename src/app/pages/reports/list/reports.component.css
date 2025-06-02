@@ -1,12 +1,3 @@
-.h2, h2 {
-    font-size: 1rem;
-    color: #475f7b;
-}
-
-.fa-sm {
-    font-size: 0.78em;
-    margin-left: 5px;
-}
 
 label {
     font-size: 0.8rem;
@@ -36,12 +27,23 @@ label {
     color: #475f7b;
 }
 
-/* Optional: Adjust section headers for better spacing */
-.tw-bg-gray-100 {
-    padding: 8px;
-}
-
 /* Ensure table rows are compact */
 .table-bordered tr {
     height: 32px;
+}
+
+.table-bordered td, .table-bordered th {
+    border: none;
+}
+
+.table td, .table th {
+    border-top: none;
+}
+
+tbody, td, tfoot, th, thead, tr {
+    border-style: none;
+}
+
+.table > :not(caption) > * > * {
+    box-shadow: none;
 }
