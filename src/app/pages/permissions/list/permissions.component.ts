@@ -85,15 +85,15 @@ export class PermissionsComponent {
         },
         { data: 'name',
           title: 'Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'codename',
           title: 'Codename',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'description',
           title: 'Description',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         {
           data: 'status',
@@ -107,12 +107,12 @@ export class PermissionsComponent {
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: null,

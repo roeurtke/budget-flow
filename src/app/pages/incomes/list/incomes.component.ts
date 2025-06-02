@@ -105,25 +105,25 @@ export class IncomesComponent {
         },
         { data: 'name',
           title: 'Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'description',
           title: 'Description',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'income_amount',
           title: 'Income Amount',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         },
         { data: 'currency',
           title: 'Currency',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         {
           data: 'income_category',
           title: 'Income Category',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.name || '-'
         },
         {
           data: 'status',
@@ -137,7 +137,7 @@ export class IncomesComponent {
         {
           data: 'user',
           title: 'User',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.username || '-'
         },
         {
           data: null,

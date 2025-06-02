@@ -87,11 +87,11 @@ export class RolesComponent {
         },
         { data: 'name',
           title: 'Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'description',
           title: 'Description',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         {
           data: 'status',
@@ -105,12 +105,12 @@ export class RolesComponent {
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: null,

@@ -88,7 +88,7 @@ export class AbilitiesComponent {
         {
           data: 'name',
           title: 'Role',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.name || '-'
         },
         {
           data: 'permission_count',
@@ -108,12 +108,12 @@ export class AbilitiesComponent {
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: null,

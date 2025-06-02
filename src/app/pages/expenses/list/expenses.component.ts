@@ -100,29 +100,29 @@ export class ExpensesComponent {
         {
           data: 'date',
           title: 'Date',
-          render: (data: string) => data ? format(new Date(data), 'dd-MM-yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd-MM-yyyy') : '-'
         },
         { data: 'name',
           title: 'Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'description',
           title: 'Description',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'spent_amount',
           title: 'Spent Amount',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         },
         { data: 'currency',
           title: 'Currency',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         {
           data: 'expense_category',
           title: 'Expense category',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.name || '-'
         },
         {
           data: 'status',
@@ -136,7 +136,7 @@ export class ExpensesComponent {
         {
           data: 'user',
           title: 'User',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.username || '-'
         },
         {
           data: null,

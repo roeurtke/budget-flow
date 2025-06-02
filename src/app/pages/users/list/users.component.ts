@@ -88,29 +88,29 @@ export class UsersComponent implements OnInit {
         },
         { data: 'username',
           title: 'Username',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'email',
           title: 'Email',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'first_name',
           title: 'First Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'last_name',
           title: 'Last Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'spending_limit',
           title: 'Limit (USD)',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         },
         {
           data: 'role',
           title: 'Role',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.name || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.name || '-'
         },
         {
           data: 'status',
@@ -124,12 +124,12 @@ export class UsersComponent implements OnInit {
         {
           data: 'created_at',
           title: 'Created',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: 'updated_at',
           title: 'Updated',
-          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : ''
+          render: (data: string) => data ? format(new Date(data), 'dd/MM/yyyy') : '-'
         },
         {
           data: null,

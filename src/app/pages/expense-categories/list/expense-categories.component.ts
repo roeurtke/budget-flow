@@ -98,15 +98,15 @@ export class ExpenseCategoriesComponent {
         },
         { data: 'name',
           title: 'Name',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'description',
           title: 'Description',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         { data: 'master_report',
           title: 'Report',
-          render: (data: string) => data || 'None'
+          render: (data: string) => data || '-'
         },
         {
           data: 'status',
@@ -120,7 +120,7 @@ export class ExpenseCategoriesComponent {
         {
           data: 'user',
           title: 'User',
-          render: (data: any) => typeof data === 'string' ? data || 'None' : data?.username || 'None'
+          render: (data: any) => typeof data === 'string' ? data || '-' : data?.username || '-'
         },
         {
           data: null,
