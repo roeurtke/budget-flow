@@ -44,15 +44,20 @@ export class ReportsComponent {
       ...dataTablesConfig,
       serverSide: false,
       processing: true,
-      order: [[1, 'desc']],
+      order: [[1, 'asc']],
       ajax: (dataTablesParameters: any, callback: any) => {
         this.loading = true;
         this.reportService.getFinancialSummaryForDataTables(dataTablesParameters).subscribe({
           next: (response) => {
+            // Add the year from the response to each monthly summary item
+            const dataWithYear = response.monthly_summary.map((item: any) => ({
+              ...item,
+              year: response.year
+            }));
             callback({
-              recordsTotal: response.monthly_summary.length,
-              recordsFiltered: response.monthly_summary.length,
-              data: response.monthly_summary
+              recordsTotal: dataWithYear.length,
+              recordsFiltered: dataWithYear.length,
+              data: dataWithYear
             });
             this.loading = false;
           },
@@ -75,28 +80,34 @@ export class ReportsComponent {
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         {
-          data: 'id',
-          visible: false // hidden real ID for sorting
-        },
-        {
           data: 'month',
           title: 'Month',
-          render: (data: string) => data ? format(new Date(data), 'dd-MM-yyyy') : ''
+          render: (data: number, type: any, row: any) => {
+            if (type === 'display' && data) {
+              // Construct a date using the year from the response and the month data (subtract 1 as months are 0-indexed)
+              const date = new Date(row.year, data - 1, 1); 
+              return format(date, 'MMMM yyyy');
+            } else if (data) {
+               // For sorting or filtering, return a sortable string like 'YYYY-MM'
+              return `${row.year}-${data.toString().padStart(2, '0')}`;
+            }
+            return '';
+          }
         },
         { data: 'total_income',
           title: 'Total Income',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         },
         { data: 'total_expense',
           title: 'Total Expense',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         },
         { data: 'net_income',
           title: 'Next Income',
           type: 'number',
-          render: (data: number) => data || 'None'
+          render: (data: number) => data || '-'
         }
       ]
     };
