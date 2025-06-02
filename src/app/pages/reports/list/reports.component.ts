@@ -23,6 +23,8 @@ export class ReportsComponent {
   year: number = new Date().getFullYear();
   loading = false;
   error: string | null = null;
+  totalIncome: number = 0;
+  totalExpense: number = 0;
 
   canviewReport = false;
 
@@ -33,6 +35,16 @@ export class ReportsComponent {
     private reportService: ReportService,
     private permissionService: PermissionService,
   ) {}
+
+  // Calculate total income for all months
+  calculateTotalIncome(data: any[]): number {
+    return data.reduce((sum, item) => sum + (item.total_income || 0), 0);
+  }
+
+  // Calculate total expense for all months
+  calculateTotalExpense(data: any[]): number {
+    return data.reduce((sum, item) => sum + (item.total_expense || 0), 0);
+  }
 
   ngOnInit(): void {
     this.initializeDataTable();
@@ -56,6 +68,10 @@ export class ReportsComponent {
                 ...item,
                 year: response.year
               }));
+
+            // Calculate totals
+            this.totalIncome = this.calculateTotalIncome(dataWithYearAndFiltered);
+            this.totalExpense = this.calculateTotalExpense(dataWithYearAndFiltered);
 
             callback({
               recordsTotal: dataWithYearAndFiltered.length,

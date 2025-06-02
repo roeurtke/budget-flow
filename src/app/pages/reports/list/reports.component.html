@@ -49,3 +49,24 @@
         </div>
     </div>
 </div>
+
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered text-center" width="100%" cellspacing="0">
+                    <tbody>
+                        <tr>
+                            <td width="50%" class="text-right"><label for="total_income">Total Income:</label></td>
+                            <td width="50%" class="text-left">{{ totalIncome | currency:'USD':'symbol':'1.2-2' }}</td>
+                        </tr>
+                        <tr>
+                            <td width="50%" class="text-right"><label for="total_expense">Total Expense:</label></td>
+                            <td width="50%" class="text-left">{{ totalExpense | currency:'USD':'symbol':'1.2-2' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
