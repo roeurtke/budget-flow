@@ -49,15 +49,18 @@ export class ReportsComponent {
         this.loading = true;
         this.reportService.getFinancialSummaryForDataTables(dataTablesParameters).subscribe({
           next: (response) => {
-            // Add the year from the response to each monthly summary item
-            const dataWithYear = response.monthly_summary.map((item: any) => ({
-              ...item,
-              year: response.year
-            }));
+            // Add the year from the response to each monthly summary item and filter out records with no income or expense
+            const dataWithYearAndFiltered = response.monthly_summary
+              .filter((item: any) => item.total_income !== 0 || item.total_expense !== 0)
+              .map((item: any) => ({
+                ...item,
+                year: response.year
+              }));
+
             callback({
-              recordsTotal: dataWithYear.length,
-              recordsFiltered: dataWithYear.length,
-              data: dataWithYear
+              recordsTotal: dataWithYearAndFiltered.length,
+              recordsFiltered: dataWithYearAndFiltered.length,
+              data: dataWithYearAndFiltered
             });
             this.loading = false;
           },
@@ -95,17 +98,17 @@ export class ReportsComponent {
           }
         },
         { data: 'total_income',
-          title: 'Total Income',
+          title: 'Total Income (USD)',
           type: 'number',
           render: (data: number) => data || '-'
         },
         { data: 'total_expense',
-          title: 'Total Expense',
+          title: 'Total Expense (USD)',
           type: 'number',
           render: (data: number) => data || '-'
         },
         { data: 'net_income',
-          title: 'Next Income',
+          title: 'Remaining Income',
           type: 'number',
           render: (data: number) => data || '-'
         }
