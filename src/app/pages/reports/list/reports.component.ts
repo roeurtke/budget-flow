@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
-import { Subject } from 'rxjs';
-import { format, getMonth, getYear } from 'date-fns';
+import { Subject, of, firstValueFrom } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { format, getMonth, getYear, eachDayOfInterval, startOfMonth, endOfMonth, parseISO, isSameDay } from 'date-fns';
 import { ReportService } from '../../../services/report.service';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
@@ -15,6 +16,14 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { IncomeService } from '../../../services/income.service';
 import { ExpenseService } from '../../../services/expense.service';
+import { Income, Expense } from '../../../interfaces/fetch-data.interface';
+
+// Define a type for the daily data structure
+type DailyFinancialEntry = {
+  date: Date;
+  incomes: (Income & { amount: number })[];
+  expenses: (Expense & { amount: number })[];
+};
 
 @Component({
   selector: 'app-reports',
@@ -40,6 +49,8 @@ export class ReportsComponent implements OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
 
   availableMonths: { month: number, year: number }[] = [];
+
+  dailyData: DailyFinancialEntry[] = [];
 
   constructor(
     private reportService: ReportService,
@@ -159,44 +170,248 @@ export class ReportsComponent implements OnInit {
     XLSX.writeFile(workbook, `financial_report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
   }
 
-  printReport(): void {
-    if (this.filteredData.length === 0) {
-      // If no data is filtered, do not print
-      console.log('No data to print.');
-      return;
+  private async loadDailyData(startDate: Date, endDate: Date): Promise<void> {
+    try {
+      // Get all days in the month range
+      const days = eachDayOfInterval({ start: startDate, end: endDate });
+      
+      // Get all incomes and expenses
+      const incomes$ = this.incomeService.getIncomes().pipe(catchError(() => of([])));
+      const expenses$ = this.expenseService.getExpenses().pipe(catchError(() => of([])));
+
+      const [allIncomes, allExpenses] = await Promise.all([
+        firstValueFrom(incomes$),
+        firstValueFrom(expenses$)
+      ]);
+
+      // console.log('Fetched Incomes:', allIncomes);
+      // console.log('Fetched Expenses:', allExpenses);
+
+      // Create daily data structure
+      this.dailyData = days.map(date => {
+        const dayIncomes = (allIncomes as Income[] || []).filter(income => 
+          income && income.date && isSameDay(parseISO(income.date), date)
+        ).map(income => ({
+          ...income,
+          amount: Number(income.income_amount) || 0
+        }));
+        
+        const dayExpenses = (allExpenses as Expense[] || []).filter(expense => 
+          expense && expense.date && isSameDay(parseISO(expense.date), date)
+        ).map(expense => ({
+          ...expense,
+          amount: Number(expense.spent_amount) || 0
+        }));
+
+        return {
+          date,
+          incomes: dayIncomes,
+          expenses: dayExpenses
+        };
+      });
+      // console.log('Processed dailyData:', this.dailyData);
+
+    } catch (error) {
+      console.error('Error loading daily data:', error);
+      this.dailyData = [];
     }
-    const data = this.filteredData;
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(16);
-    doc.text('Financial Report', 14, 15);
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`, 14, 22);
+  }
 
-    // Add table
-    const tableData = data.map(item => [
-      format(new Date(this.year, item.month - 1, 1), 'MMMM yyyy'),
-      item.total_income.toFixed(2),
-      item.total_expense.toFixed(2),
-      item.net_income.toFixed(2)
-    ]);
+  async printReport(): Promise<void> {
+    try {
+      const startMonth = this.filterForm.get('start_month')?.value;
+      const endMonth = this.filterForm.get('end_month')?.value;
 
-    autoTable(doc, {
-      head: [['Month', 'Total Income', 'Total Expense', 'Net Income']],
-      body: tableData,
-      startY: 30,
-      theme: 'grid',
-      styles: { fontSize: 8 },
-      headStyles: { fillColor: [66, 139, 202] }
-    });
+      if (!startMonth || !endMonth) {
+        console.log('Please select both start and end months.');
+        return;
+      }
 
-    // Add totals
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
-    doc.text(`Total Income: ${this.totalIncome.toFixed(2)}`, 14, finalY);
-    doc.text(`Total Expense: ${this.totalExpense.toFixed(2)}`, 14, finalY + 7);
+      const [startYear, startMonthNum] = startMonth.split('-').map(Number);
+      const [endYear, endMonthNum] = endMonth.split('-').map(Number);
+      
+      // Note: Month numbers from the form are 0-indexed for Date constructor
+      const startDate = startOfMonth(new Date(startYear, startMonthNum));
+      const endDate = endOfMonth(new Date(endYear, endMonthNum));
 
-    doc.save(`financial_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      // Load daily data
+      await this.loadDailyData(startDate, endDate);
+
+      if (this.dailyData.length === 0 || this.dailyData.every(day => day.incomes.length === 0 && day.expenses.length === 0)) {
+        console.log('No data available for the selected period.');
+        // Optionally show a message to the user in the UI
+        return;
+      }
+
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(16);
+      doc.text('Financial Report', 14, 15);
+      doc.setFontSize(10);
+      doc.text(`Period: ${format(startDate, 'MMMM yyyy')} to ${format(endDate, 'MMMM yyyy')}`, 14, 22);
+      doc.text(`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`, 14, 29);
+
+      let yPosition = 40;
+      const pageHeight = doc.internal.pageSize.height;
+      const margin = 14;
+      const lineHeight = 7;
+      const tableMarginTop = 5;
+      const summaryMarginTop = 5;
+      const sectionMarginBottom = 10; // Space after each day's section
+      const minSpaceForElement = 20; // Minimum space needed for a header or summary line
+
+      // Process each day
+      for (const day of this.dailyData) {
+
+        // Only add day section if there are incomes or expenses for the day
+        if (day.incomes.length === 0 && day.expenses.length === 0) {
+          continue; // Skip this day if no transactions
+        }
+
+        // Check if we need a new page before adding day header
+        if (yPosition + minSpaceForElement > pageHeight - margin) { 
+          doc.addPage();
+          yPosition = margin;
+        }
+
+        // Add date header
+        doc.setFontSize(12);
+        doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+        yPosition += lineHeight;
+
+        // Add incomes
+        if (day.incomes && day.incomes.length > 0) {
+          // Check if we need a new page before adding incomes table header
+           if (yPosition + minSpaceForElement > pageHeight - margin) { 
+            doc.addPage();
+            yPosition = margin;
+            // Repeat date header on new page for clarity
+            doc.setFontSize(12);
+            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+            yPosition += lineHeight;
+          }
+
+          doc.setFontSize(10);
+          doc.text('Incomes:', margin, yPosition);
+          yPosition += lineHeight;
+
+          const incomeTableData = day.incomes.map(income => [
+            income.income_category?.name || 'Uncategorized',
+            income.description || '-',
+            (income.amount || 0).toFixed(2)
+          ]);
+
+          autoTable(doc, {
+            startY: yPosition,
+            head: [['Category', 'Description', 'Amount']],
+            body: incomeTableData,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [41, 128, 185] },
+            margin: { left: margin }
+             // Removed didDrawPage from here to handle page numbers globally later
+          });
+
+          yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
+        }
+
+        // Add expenses
+        if (day.expenses && day.expenses.length > 0) {
+          // Check if we need a new page before adding expenses table header
+           if (yPosition + minSpaceForElement > pageHeight - margin) { 
+            doc.addPage();
+            yPosition = margin;
+            // Repeat date header on new page for clarity
+            doc.setFontSize(12);
+            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+            yPosition += lineHeight;
+          }
+
+          doc.setFontSize(10);
+          doc.text('Expenses:', margin, yPosition);
+          yPosition += lineHeight;
+
+          const expenseTableData = day.expenses.map(expense => [
+            expense.expense_category?.name || 'Uncategorized',
+            expense.description || '-',
+            (expense.amount || 0).toFixed(2)
+          ]);
+
+          autoTable(doc, {
+            startY: yPosition,
+            head: [['Category', 'Description', 'Amount']],
+            body: expenseTableData,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [231, 76, 60] },
+            margin: { left: margin }
+             // Removed didDrawPage from here to handle page numbers globally later
+          });
+
+          yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
+        }
+
+        // Add daily summary only if there were transactions
+        if (day.incomes.length > 0 || day.expenses.length > 0) {
+           // Check if we need a new page before adding daily summary
+          if (yPosition + minSpaceForElement * 4 > pageHeight - margin) { // Estimate space for 4 summary lines
+            doc.addPage();
+            yPosition = margin;
+            // Repeat date header on new page for clarity
+            doc.setFontSize(12);
+            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+            yPosition += lineHeight;
+          }
+          const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
+          const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
+
+          doc.setFontSize(9);
+          doc.text(`Summary:`, margin, yPosition);
+          yPosition += lineHeight;
+          doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin + 5, yPosition);
+          yPosition += lineHeight;
+          doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin + 5, yPosition);
+          yPosition += sectionMarginBottom; // Add space after the daily section
+        }
+      }
+
+      // Add overall summary on the last page
+       // Check if we need a new page before adding overall summary
+      const estimatedOverallSummaryHeight = lineHeight * 4 + sectionMarginBottom * 2; // Estimate
+      if (yPosition + estimatedOverallSummaryHeight > pageHeight - margin) { 
+        doc.addPage();
+        yPosition = margin;
+      }
+      const totalIncome = this.dailyData.reduce((sum, day) => 
+        sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.amount || 0), 0), 0);
+      const totalExpense = this.dailyData.reduce((sum, day) => 
+        sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.amount || 0), 0), 0);
+      const totalNet = totalIncome - totalExpense;
+
+      doc.setFontSize(12);
+      doc.text('Overall Summary', margin, yPosition);
+      yPosition += lineHeight * 2;
+      doc.setFontSize(10);
+      doc.text(`Total Income: ${totalIncome.toFixed(2)}`, margin, yPosition);
+      yPosition += lineHeight;
+      doc.text(`Total Expense: ${totalExpense.toFixed(2)}`, margin, yPosition);
+      yPosition += lineHeight;
+      doc.text(`Net Income: ${totalNet.toFixed(2)}`, margin, yPosition);
+      yPosition += sectionMarginBottom;
+
+      // Add page numbers to all pages
+      const numberOfPages = (doc.internal.pages as any).length;
+      for (let i = 1; i <= numberOfPages; i++) {
+          doc.setPage(i);
+          doc.setFontSize(8);
+          doc.text('Page ' + i, doc.internal.pageSize.width - margin, doc.internal.pageSize.height - 10, { align: 'right' });
+      }
+
+      doc.save(`daily_financial_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
   }
 
   // Calculate total income for all months
@@ -249,7 +464,7 @@ export class ReportsComponent implements OnInit {
         });
       },
       columns: [
-        { 
+        {
           data: null,
           title: 'ID',
           orderable: false,
@@ -261,7 +476,7 @@ export class ReportsComponent implements OnInit {
           render: (data: number, type: any, row: any) => {
             if (type === 'display' && data) {
               // Construct a date using the year from the response and the month data (subtract 1 as months are 0-indexed)
-              const date = new Date(row.year, data - 1, 1); 
+              const date = new Date(row.year, data - 1, 1);
               return format(date, 'MMMM yyyy');
             } else if (data) {
                // For sorting or filtering, return a sortable string like 'YYYY-MM'
