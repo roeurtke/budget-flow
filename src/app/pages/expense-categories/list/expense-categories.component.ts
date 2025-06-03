@@ -105,7 +105,7 @@ export class ExpenseCategoriesComponent {
           render: (data: string) => data || '-'
         },
         { data: 'master_report',
-          title: 'Report',
+          title: 'Master Report',
           render: (data: string) => data || '-'
         },
         {
