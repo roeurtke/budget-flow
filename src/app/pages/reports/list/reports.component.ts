@@ -314,12 +314,20 @@ export class ReportsComponent implements OnInit {
           });
 
           yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
+          
+          // Add daily income total after the table
+          const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
+          doc.setFontSize(9);
+          doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin, yPosition);
+          yPosition += lineHeight + summaryMarginTop;
         }
 
         // Add expenses
         if (day.expenses && day.expenses.length > 0) {
-          // Check if we need a new page before adding expenses table header
-           if (yPosition + minSpaceForElement > pageHeight - margin) { 
+          // Check if we need a new page before adding expenses table header and table
+           const estimatedExpenseTableHeight = lineHeight + tableMarginTop; // Estimate space for header and margin before table
+
+          if (yPosition + estimatedExpenseTableHeight > pageHeight - margin) { 
             doc.addPage();
             yPosition = margin;
             // Repeat date header on new page for clarity
@@ -350,30 +358,36 @@ export class ReportsComponent implements OnInit {
           });
 
           yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
+
+          // Add daily expense total after the table
+          const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
+          doc.setFontSize(9);
+          doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin, yPosition);
+          yPosition += lineHeight + summaryMarginTop;
         }
 
         // Add daily summary only if there were transactions
-        if (day.incomes.length > 0 || day.expenses.length > 0) {
-           // Check if we need a new page before adding daily summary
-          if (yPosition + minSpaceForElement * 4 > pageHeight - margin) { // Estimate space for 4 summary lines
-            doc.addPage();
-            yPosition = margin;
-            // Repeat date header on new page for clarity
-            doc.setFontSize(12);
-            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
-            yPosition += lineHeight;
-          }
-          const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
-          const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
+        // if (day.incomes.length > 0 || day.expenses.length > 0) {
+        //    // Check if we need a new page before adding daily summary
+        //   if (yPosition + minSpaceForElement * 4 > pageHeight - margin) { // Estimate space for 4 summary lines
+        //     doc.addPage();
+        //     yPosition = margin;
+        //     // Repeat date header on new page for clarity
+        //     doc.setFontSize(12);
+        //     doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+        //     yPosition += lineHeight;
+        //   }
+        //   const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
+        //   const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
 
-          doc.setFontSize(9);
-          doc.text(`Summary:`, margin, yPosition);
-          yPosition += lineHeight;
-          doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin + 5, yPosition);
-          yPosition += lineHeight;
-          doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin + 5, yPosition);
-          yPosition += sectionMarginBottom; // Add space after the daily section
-        }
+        //   doc.setFontSize(9);
+        //   doc.text(`Summary:`, margin, yPosition);
+        //   yPosition += lineHeight;
+        //   doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin + 5, yPosition);
+        //   yPosition += lineHeight;
+        //   doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin + 5, yPosition); // Added back total expense line
+        //   yPosition += lineHeight;
+        // }
       }
 
       // Add overall summary on the last page
@@ -397,7 +411,7 @@ export class ReportsComponent implements OnInit {
       yPosition += lineHeight;
       doc.text(`Total Expense: ${totalExpense.toFixed(2)}`, margin, yPosition);
       yPosition += lineHeight;
-      doc.text(`Net Income: ${totalNet.toFixed(2)}`, margin, yPosition);
+      doc.text(`Remaining Income: ${totalNet.toFixed(2)}`, margin, yPosition);
       yPosition += sectionMarginBottom;
 
       // Add page numbers to all pages
@@ -408,7 +422,7 @@ export class ReportsComponent implements OnInit {
           doc.text('Page ' + i, doc.internal.pageSize.width - margin, doc.internal.pageSize.height - 10, { align: 'right' });
       }
 
-      doc.save(`daily_financial_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      doc.save(`financial_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     } catch (error) {
       console.error('Error generating report:', error);
     }
