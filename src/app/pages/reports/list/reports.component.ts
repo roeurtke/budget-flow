@@ -223,10 +223,10 @@ export class ReportsComponent implements OnInit {
             format(parseISO(expense.date), 'dd/MM/yyyy'),
             expense.expense_category?.name || 'Uncategorized',
             expense.description || '-',
-            (expense.amount || 0).toFixed(2)
+            (expense.spent_amount || 0).toFixed(2)
           ]);
         });
-        const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
+        const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
         worksheetData.push(['Total Expense:', '', '', dailyExpense.toFixed(2)]);
         worksheetData.push([]); // Add a blank row for spacing
       }
@@ -238,7 +238,7 @@ export class ReportsComponent implements OnInit {
     const totalIncome = this.dailyData.reduce((sum, day) =>
       sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.amount || 0), 0), 0);
     const totalExpense = this.dailyData.reduce((sum, day) =>
-      sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.amount || 0), 0), 0);
+      sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
     const totalNet = totalIncome - totalExpense;
 
     worksheetData.push(['Overall Summary']);
@@ -265,8 +265,7 @@ export class ReportsComponent implements OnInit {
         firstValueFrom(expenses$)
       ]);
 
-      // console.log('Fetched Incomes:', allIncomes);
-      // console.log('Fetched Expenses:', allExpenses);
+      console.log('Fetched Expenses from service:', allExpenses.length);
 
       // Create daily data structure
       this.dailyData = days.map(date => {
@@ -346,110 +345,63 @@ export class ReportsComponent implements OnInit {
       const sectionMarginBottom = 10; // Space after each day's section
       const minSpaceForElement = 20; // Minimum space needed for a header or summary line
 
-      // Process each day
-      for (const day of this.dailyData) {
+      // Collect all expenses from all days
+      const allExpenses = this.dailyData.reduce((acc, day) => acc.concat(day.expenses), [] as Expense[]);
 
-        // Only add day section if there are incomes or expenses for the day
-        if (day.incomes.length === 0 && day.expenses.length === 0) {
-          continue; // Skip this day if no transactions
-        }
+      console.log(`Total number of expense records collected: ${allExpenses.length}`);
 
-        // Check if we need a new page before adding day header
+      if (allExpenses.length > 0) {
+        // Check if we need a new page before adding expenses table
         if (yPosition + minSpaceForElement > pageHeight - margin) { 
           doc.addPage();
           yPosition = margin;
         }
 
-        // Add date header
         doc.setFontSize(12);
-        doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
+        doc.text('Expenses:', margin, yPosition);
         yPosition += lineHeight;
 
-        // Add incomes
-        if (day.incomes && day.incomes.length > 0) {
-          // Check if we need a new page before adding incomes table header
-           if (yPosition + minSpaceForElement > pageHeight - margin) { 
-            doc.addPage();
-            yPosition = margin;
-            // Repeat date header on new page for clarity
-            doc.setFontSize(12);
-            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
-            yPosition += lineHeight;
-          }
+        const expenseTableData = allExpenses.map(expense => [
+          format(parseISO(expense.date), 'dd/MM/yyyy'),
+          expense.expense_category?.name || 'Uncategorized',
+          expense.description || '-',
+          (expense.spent_amount || 0).toFixed(2)
+        ]);
 
-          doc.setFontSize(10);
-          doc.text('Incomes:', margin, yPosition);
-          yPosition += lineHeight;
+        // Calculate total expense for the period
+        const totalPeriodExpense = allExpenses.reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
 
-          const incomeTableData = day.incomes.map(income => [
-            format(parseISO(income.date), 'dd/MM/yyyy'),
-            income.income_category?.name || 'Uncategorized',
-            income.description || '-',
-            (income.amount || 0).toFixed(2)
-          ]);
+        // Add total row to the table data
+        expenseTableData.push([
+          '', // Empty cells
+          '',
+          'Total Expense:',
+          `$${totalPeriodExpense.toFixed(2)}`
+        ]);
 
-          autoTable(doc, {
-            startY: yPosition,
-            head: [['Date', 'Category', 'Description', 'Amount']],
-            body: incomeTableData,
-            theme: 'grid',
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [41, 128, 185] },
-            margin: { left: margin }
-          });
+        autoTable(doc, {
+          startY: yPosition,
+          head: [['Date', 'Category', 'Description', 'Amount']],
+          body: expenseTableData,
+          theme: 'grid',
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [231, 76, 60] },
+          margin: { left: margin }
+        });
 
-          yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
-          
-          // Add daily income total after the table
-          const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
-          doc.setFontSize(9);
-          doc.text(`Total Income: $${dailyIncome.toFixed(2)}`, margin, yPosition);
-          yPosition += lineHeight + summaryMarginTop;
+        yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
+      } else {
+        // Add a message if there are no expenses in the period
+        if (yPosition + minSpaceForElement > pageHeight - margin) { 
+          doc.addPage();
+          yPosition = margin;
         }
-
-        // Add expenses
-        if (day.expenses && day.expenses.length > 0) {
-          // Check if we need a new page before adding expenses table header and table
-           const estimatedExpenseTableHeight = lineHeight + tableMarginTop; // Estimate space for header and margin before table
-
-          if (yPosition + estimatedExpenseTableHeight > pageHeight - margin) { 
-            doc.addPage();
-            yPosition = margin;
-            // Repeat date header on new page for clarity
-            doc.setFontSize(12);
-            doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
-            yPosition += lineHeight;
-          }
-
-          doc.setFontSize(10);
-          doc.text('Expenses:', margin, yPosition);
-          yPosition += lineHeight;
-
-          const expenseTableData = day.expenses.map(expense => [
-            format(parseISO(expense.date), 'dd/MM/yyyy'),
-            expense.expense_category?.name || 'Uncategorized',
-            expense.description || '-',
-            (expense.amount || 0).toFixed(2)
-          ]);
-
-          autoTable(doc, {
-            startY: yPosition,
-            head: [['Date', 'Category', 'Description', 'Amount']],
-            body: expenseTableData,
-            theme: 'grid',
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [231, 76, 60] },
-            margin: { left: margin }
-          });
-
-          yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
-
-          // Add daily expense total after the table
-          const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
-          doc.setFontSize(9);
-          doc.text(`Total Expense: $${dailyExpense.toFixed(2)}`, margin, yPosition);
-          yPosition += lineHeight + summaryMarginTop;
-        }
+        doc.setFontSize(12);
+        doc.text('Expenses:', margin, yPosition);
+        yPosition += lineHeight;
+        doc.setFontSize(10);
+        doc.text('No expenses recorded for this period.', margin, yPosition);
+        yPosition += lineHeight + sectionMarginBottom;
       }
 
       // Add overall summary on the last page
@@ -462,7 +414,7 @@ export class ReportsComponent implements OnInit {
       const totalIncome = this.dailyData.reduce((sum, day) => 
         sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.amount || 0), 0), 0);
       const totalExpense = this.dailyData.reduce((sum, day) => 
-        sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.amount || 0), 0), 0);
+        sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
       const totalNet = totalIncome - totalExpense;
 
       doc.setFontSize(12);

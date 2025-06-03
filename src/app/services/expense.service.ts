@@ -15,7 +15,7 @@ export class ExpenseService {
   constructor(private http: HttpClient, private authService: AuthService) { }
 
   getExpenses(): Observable<Expense[]> {
-    return this.http.get<{ results?: Expense[] } | Expense[]>(`${this.apiUrl}/api/expenses/`).pipe(
+    return this.http.get<{ results?: Expense[] } | Expense[]>(`${this.apiUrl}/api/expenses/?page_size=1000`).pipe(
       map((response: { results?: Expense[] } | Expense[]) => {
         if (Array.isArray(response)) return response;
         if (response.results) return response.results;
