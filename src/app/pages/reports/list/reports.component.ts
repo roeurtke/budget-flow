@@ -206,10 +206,10 @@ export class ReportsComponent implements OnInit {
             format(parseISO(income.date), 'dd/MM/yyyy'),
             income.income_category?.name || 'Uncategorized',
             income.description || '-',
-            (income.amount || 0).toFixed(2)
+            (income.income_amount || 0).toFixed(2)
           ]);
         });
-        const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
+        const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.income_amount || 0), 0);
         worksheetData.push(['Total Income:', '', '', dailyIncome.toFixed(2)]);
         worksheetData.push([]); // Add a blank row for spacing
       }
@@ -236,7 +236,7 @@ export class ReportsComponent implements OnInit {
 
     // Add overall summary
     const totalIncome = this.dailyData.reduce((sum, day) =>
-      sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.amount || 0), 0), 0);
+      sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.income_amount || 0), 0), 0);
     const totalExpense = this.dailyData.reduce((sum, day) =>
       sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
     const totalNet = totalIncome - totalExpense;
@@ -345,6 +345,63 @@ export class ReportsComponent implements OnInit {
       const sectionMarginBottom = 10; // Space after each day's section
       const minSpaceForElement = 20; // Minimum space needed for a header or summary line
 
+      // Collect all incomes from all days
+      const allIncomes = this.dailyData.reduce((acc, day) => acc.concat(day.incomes), [] as Income[]);
+
+      if (allIncomes.length > 0) {
+        // Check if we need a new page before adding incomes table
+        if (yPosition + minSpaceForElement > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+
+        doc.setFontSize(12);
+        doc.text('Incomes:', margin, yPosition);
+        yPosition += lineHeight;
+
+        const incomeTableData = allIncomes.map(income => [
+          format(parseISO(income.date), 'dd/MM/yyyy'),
+          income.income_category?.name || 'Uncategorized',
+          income.description || '-',
+          (income.income_amount || 0).toFixed(2)
+        ]);
+
+        // Calculate total income for the period
+        const totalPeriodIncome = allIncomes.reduce((sum, income) => sum + (income.income_amount || 0), 0);
+
+        // Add total row to the table data
+        incomeTableData.push([
+          '', // Empty cells
+          '',
+          'Total Income:',
+          `$${totalPeriodIncome.toFixed(2)}`
+        ]);
+
+        autoTable(doc, {
+          startY: yPosition,
+          head: [['Date', 'Category', 'Description', 'Amount']],
+          body: incomeTableData,
+          theme: 'grid',
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [41, 128, 185] },
+          margin: { left: margin }
+        });
+
+        yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop + sectionMarginBottom; // Add extra space after table
+      } else {
+        // Add a message if there are no incomes in the period
+        if (yPosition + minSpaceForElement > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+        doc.setFontSize(12);
+        doc.text('Incomes:', margin, yPosition);
+        yPosition += lineHeight;
+        doc.setFontSize(10);
+        doc.text('No incomes recorded for this period.', margin, yPosition);
+        yPosition += lineHeight + sectionMarginBottom;
+      }
+
       // Collect all expenses from all days
       const allExpenses = this.dailyData.reduce((acc, day) => acc.concat(day.expenses), [] as Expense[]);
 
@@ -412,7 +469,7 @@ export class ReportsComponent implements OnInit {
         yPosition = margin;
       }
       const totalIncome = this.dailyData.reduce((sum, day) => 
-        sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.amount || 0), 0), 0);
+        sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.income_amount || 0), 0), 0);
       const totalExpense = this.dailyData.reduce((sum, day) => 
         sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
       const totalNet = totalIncome - totalExpense;
