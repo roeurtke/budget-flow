@@ -318,7 +318,7 @@ export class ReportsComponent implements OnInit {
           // Add daily income total after the table
           const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
           doc.setFontSize(9);
-          doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin, yPosition);
+          doc.text(`Total Income: $${dailyIncome.toFixed(2)}`, margin, yPosition);
           yPosition += lineHeight + summaryMarginTop;
         }
 
@@ -362,32 +362,9 @@ export class ReportsComponent implements OnInit {
           // Add daily expense total after the table
           const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
           doc.setFontSize(9);
-          doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin, yPosition);
+          doc.text(`Total Expense: $${dailyExpense.toFixed(2)}`, margin, yPosition);
           yPosition += lineHeight + summaryMarginTop;
         }
-
-        // Add daily summary only if there were transactions
-        // if (day.incomes.length > 0 || day.expenses.length > 0) {
-        //    // Check if we need a new page before adding daily summary
-        //   if (yPosition + minSpaceForElement * 4 > pageHeight - margin) { // Estimate space for 4 summary lines
-        //     doc.addPage();
-        //     yPosition = margin;
-        //     // Repeat date header on new page for clarity
-        //     doc.setFontSize(12);
-        //     doc.text(format(day.date, 'EEEE, MMMM d, yyyy'), margin, yPosition);
-        //     yPosition += lineHeight;
-        //   }
-        //   const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.amount || 0), 0);
-        //   const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.amount || 0), 0);
-
-        //   doc.setFontSize(9);
-        //   doc.text(`Summary:`, margin, yPosition);
-        //   yPosition += lineHeight;
-        //   doc.text(`Total Income: ${dailyIncome.toFixed(2)}`, margin + 5, yPosition);
-        //   yPosition += lineHeight;
-        //   doc.text(`Total Expense: ${dailyExpense.toFixed(2)}`, margin + 5, yPosition); // Added back total expense line
-        //   yPosition += lineHeight;
-        // }
       }
 
       // Add overall summary on the last page
@@ -407,11 +384,11 @@ export class ReportsComponent implements OnInit {
       doc.text('Overall Summary', margin, yPosition);
       yPosition += lineHeight * 2;
       doc.setFontSize(10);
-      doc.text(`Total Income: ${totalIncome.toFixed(2)}`, margin, yPosition);
+      doc.text(`Total Income: $${totalIncome.toFixed(2)}`, margin, yPosition);
       yPosition += lineHeight;
-      doc.text(`Total Expense: ${totalExpense.toFixed(2)}`, margin, yPosition);
+      doc.text(`Total Expense: $${totalExpense.toFixed(2)}`, margin, yPosition);
       yPosition += lineHeight;
-      doc.text(`Remaining Income: ${totalNet.toFixed(2)}`, margin, yPosition);
+      doc.text(`Remaining Income: $${totalNet.toFixed(2)}`, margin, yPosition);
       yPosition += sectionMarginBottom;
 
       // Add page numbers to all pages
