@@ -18,6 +18,7 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@types/xlsx": "^0.0.35",
     "angular-datatables": "^19.0.0",
     "bootstrap": "^5.3.5",
     "datatables.net": "^2.3.0",
@@ -36,6 +37,7 @@
     "sweetalert2": "^11.21.0",
     "tslib": "^2.3.0",
     "typeface-rubik": "^1.1.13",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
