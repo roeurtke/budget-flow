@@ -4,7 +4,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
-import { format, parseISO, getMonth, getYear } from 'date-fns';
+import { format, getMonth, getYear } from 'date-fns';
 import { ReportService } from '../../../services/report.service';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
@@ -123,8 +123,8 @@ export class ReportsComponent implements OnInit {
         return itemDate >= startDate && itemDate <= endDate;
       });
     } else {
-      // If no filters selected, show all data
-      this.filteredData = [...this.financialSummary];
+      // If no months selected, show no data
+      this.filteredData = [];
     }
 
     // Update totals
@@ -206,7 +206,7 @@ export class ReportsComponent implements OnInit {
       processing: true,
       order: [[1, 'asc']],
       ajax: (dataTablesParameters: any, callback: any) => {
-        this.loading = true;
+        // Initially load all data into financialSummary
         this.reportService.getFinancialSummaryForDataTables(dataTablesParameters).subscribe({
           next: (response) => {
             this.financialSummary = response.monthly_summary
@@ -216,16 +216,14 @@ export class ReportsComponent implements OnInit {
                 year: response.year
               }));
 
-            this.filteredData = [...this.financialSummary];
-            
-            // Calculate totals
-            this.totalIncome = this.calculateTotalIncome(this.financialSummary);
-            this.totalExpense = this.calculateTotalExpense(this.financialSummary);
+            // Initially show no data in the table
+            this.filteredData = [];
 
+            // Do not call callback with initial data
             callback({
-              recordsTotal: this.financialSummary.length,
-              recordsFiltered: this.financialSummary.length,
-              data: this.financialSummary
+              recordsTotal: 0,
+              recordsFiltered: 0,
+              data: []
             });
             this.loading = false;
           },
