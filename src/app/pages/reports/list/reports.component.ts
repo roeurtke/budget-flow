@@ -153,102 +153,123 @@ export class ReportsComponent implements OnInit {
   }
 
   async exportToExcel(): Promise<void> {
-    const startMonth = this.filterForm.get('start_month')?.value;
-    const endMonth = this.filterForm.get('end_month')?.value;
+    try {
+      const startMonth = this.filterForm.get('start_month')?.value;
+      const endMonth = this.filterForm.get('end_month')?.value;
 
-    if (!startMonth || !endMonth) {
-      console.log('Please select both start and end months.');
-      // Optionally show a message to the user in the UI
-      return;
-    }
-
-    const [startYear, startMonthNum] = startMonth.split('-').map(Number);
-    const [endYear, endMonthNum] = endMonth.split('-').map(Number);
-
-    const startDate = startOfMonth(new Date(startYear, startMonthNum));
-    const endDate = endOfMonth(new Date(endYear, endMonthNum));
-
-    // Load daily data
-    await this.loadDailyData(startDate, endDate);
-
-    if (this.dailyData.length === 0 || this.dailyData.every(day => day.incomes.length === 0 && day.expenses.length === 0)) {
-      console.log('No data available for the selected period.');
-      // Optionally show a message to the user in the UI
-      return;
-    }
-
-    const worksheetData: any[][] = [];
-
-    // Add report title and period
-    worksheetData.push(['Financial Report']);
-    worksheetData.push([`Period: ${format(startDate, 'MMMM yyyy')} to ${format(endDate, 'MMMM yyyy')}`]);
-    worksheetData.push([`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`]);
-    worksheetData.push([]); // Add a blank row for spacing
-
-    // Process each day
-    for (const day of this.dailyData) {
-
-      // Only add day section if there are incomes or expenses for the day
-      if (day.incomes.length === 0 && day.expenses.length === 0) {
-        continue; // Skip this day if no transactions
+      if (!startMonth || !endMonth) {
+        console.log('Please select both start and end months.');
+        return;
       }
 
-      // Add date header
-      worksheetData.push([format(day.date, 'EEEE, MMMM d, yyyy')]);
-      worksheetData.push([]); // Add a blank row for spacing
+      const [startYear, startMonthNum] = startMonth.split('-').map(Number);
+      const [endYear, endMonthNum] = endMonth.split('-').map(Number);
+      
+      const startDate = startOfMonth(new Date(startYear, startMonthNum));
+      const endDate = endOfMonth(new Date(endYear, endMonthNum));
 
-      // Add incomes
-      if (day.incomes && day.incomes.length > 0) {
-        worksheetData.push(['Incomes:']);
+      // Load daily data
+      await this.loadDailyData(startDate, endDate);
+
+      if (this.dailyData.length === 0 || this.dailyData.every(day => day.incomes.length === 0 && day.expenses.length === 0)) {
+        console.log('No data available for the selected period.');
+        return;
+      }
+
+      // Prepare worksheet data
+      const worksheetData: any[][] = [];
+
+      // Add report header
+      worksheetData.push(['Financial Report']);
+      worksheetData.push([`Period: ${format(startDate, 'MMMM yyyy')} to ${format(endDate, 'MMMM yyyy')}`]);
+      worksheetData.push([`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`]);
+      worksheetData.push([]); // Empty row for spacing
+
+      // Add incomes section
+      const allIncomes = this.dailyData.reduce((acc, day) => acc.concat(day.incomes), [] as Income[]);
+      if (allIncomes.length > 0) {
+        worksheetData.push(['Incomes']);
         worksheetData.push(['Date', 'Category', 'Description', 'Amount']);
-        day.incomes.forEach(income => {
+        
+        allIncomes.forEach(income => {
           worksheetData.push([
             format(parseISO(income.date), 'dd/MM/yyyy'),
             income.income_category?.name || 'Uncategorized',
             income.description || '-',
-            (income.income_amount || 0).toFixed(2)
+            Number(income.income_amount || 0)
           ]);
         });
-        const dailyIncome = (day.incomes || []).reduce((sum, income) => sum + (income.income_amount || 0), 0);
-        worksheetData.push(['Total Income:', '', '', dailyIncome.toFixed(2)]);
-        worksheetData.push([]); // Add a blank row for spacing
+
+        // Add income total
+        const totalIncome = allIncomes.reduce((sum, income) => sum + (income.income_amount || 0), 0);
+        worksheetData.push(['', '', 'Total Income:', totalIncome]);
+        worksheetData.push([]); // Empty row for spacing
+      } else {
+        worksheetData.push(['Incomes']);
+        worksheetData.push(['No incomes recorded for this period.']);
+        worksheetData.push([]); // Empty row for spacing
       }
 
-      // Add expenses
-      if (day.expenses && day.expenses.length > 0) {
-        worksheetData.push(['Expenses:']);
+      // Add expenses section
+      const allExpenses = this.dailyData.reduce((acc, day) => acc.concat(day.expenses), [] as Expense[]);
+      if (allExpenses.length > 0) {
+        worksheetData.push(['Expenses']);
         worksheetData.push(['Date', 'Category', 'Description', 'Amount']);
-        day.expenses.forEach(expense => {
+        
+        allExpenses.forEach(expense => {
           worksheetData.push([
             format(parseISO(expense.date), 'dd/MM/yyyy'),
             expense.expense_category?.name || 'Uncategorized',
             expense.description || '-',
-            (expense.spent_amount || 0).toFixed(2)
+            Number(expense.spent_amount || 0)
           ]);
         });
-        const dailyExpense = (day.expenses || []).reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
-        worksheetData.push(['Total Expense:', '', '', dailyExpense.toFixed(2)]);
-        worksheetData.push([]); // Add a blank row for spacing
+
+        // Add expense total
+        const totalExpense = allExpenses.reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
+        worksheetData.push(['', '', 'Total Expense:', totalExpense]);
+        worksheetData.push([]); // Empty row for spacing
+      } else {
+        worksheetData.push(['Expenses']);
+        worksheetData.push(['No expenses recorded for this period.']);
+        worksheetData.push([]); // Empty row for spacing
       }
 
-      worksheetData.push([]); // Add extra space between days
+      // Add summary section
+      const totalIncome = allIncomes.reduce((sum, income) => sum + (income.income_amount || 0), 0);
+      const totalExpense = allExpenses.reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
+      const netIncome = totalIncome - totalExpense;
+
+      worksheetData.push(['Summary']);
+      worksheetData.push(['Total Income:', totalIncome]);
+      worksheetData.push(['Total Expense:', totalExpense]);
+      worksheetData.push(['Net Income:', netIncome]);
+
+      // Create worksheet
+      const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+      // Set column widths
+      const colWidths = [
+        { wch: 12 }, // Date
+        { wch: 20 }, // Category
+        { wch: 30 }, // Description
+        { wch: 15 }  // Amount
+      ];
+      worksheet['!cols'] = colWidths;
+
+      // Create workbook and save file
+      const workbook: XLSX.WorkBook = { 
+        Sheets: { 'Financial Report': worksheet }, 
+        SheetNames: ['Financial Report'] 
+      };
+
+      // Generate filename with date
+      const fileName = `financial_report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
     }
-
-    // Add overall summary
-    const totalIncome = this.dailyData.reduce((sum, day) =>
-      sum + (day.incomes || []).reduce((daySum, income) => daySum + (income.income_amount || 0), 0), 0);
-    const totalExpense = this.dailyData.reduce((sum, day) =>
-      sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
-    const totalNet = totalIncome - totalExpense;
-
-    worksheetData.push(['Overall Summary']);
-    worksheetData.push(['Total Income:', '', '', totalIncome.toFixed(2)]);
-    worksheetData.push(['Total Expense:', '', '', totalExpense.toFixed(2)]);
-    worksheetData.push(['Remaining Income:', '', '', totalNet.toFixed(2)]);
-
-    const worksheet: XLSX.WorkSheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    const workbook: XLSX.WorkBook = { Sheets: { 'Financial Report': worksheet }, SheetNames: ['Financial Report'] };
-    XLSX.writeFile(workbook, `financial_report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
   }
 
   private async loadDailyData(startDate: Date, endDate: Date): Promise<void> {
