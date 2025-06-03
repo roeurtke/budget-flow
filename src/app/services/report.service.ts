@@ -9,7 +9,7 @@ import autoTable from 'jspdf-autotable';
 import { IncomeService } from './income.service';
 import { ExpenseService } from './expense.service';
 import { Income, Expense } from '../interfaces/fetch-data.interface';
-import { format, getMonth, getYear, eachDayOfInterval, startOfMonth, endOfMonth, parseISO, isSameDay } from 'date-fns';
+import { format, eachDayOfInterval, startOfMonth, endOfMonth, parseISO, isSameDay } from 'date-fns';
 import { catchError } from 'rxjs/operators';
 
 // Define a type for the daily data structure
@@ -235,7 +235,15 @@ export class ReportService {
           theme: 'grid',
           styles: { fontSize: 8 },
           headStyles: { fillColor: [41, 128, 185] },
-          margin: { left: margin }
+          margin: { left: margin },
+          didParseCell: function (data) {
+            if (
+              data.section === 'body' &&
+              data.row.index === incomeTableData.length - 1
+            ) {
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
         });
 
         yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop + sectionMarginBottom;
@@ -288,7 +296,15 @@ export class ReportService {
           theme: 'grid',
           styles: { fontSize: 8 },
           headStyles: { fillColor: [231, 76, 60] },
-          margin: { left: margin }
+          margin: { left: margin },
+          didParseCell: function (data) {
+            if (
+              data.section === 'body' &&
+              data.row.index === expenseTableData.length - 1
+            ) {
+              data.cell.styles.fontStyle = 'bold';
+            }
+          }
         });
 
         yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
