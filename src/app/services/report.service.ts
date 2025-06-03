@@ -194,9 +194,8 @@ export class ReportService {
       let yPosition = 40;
       const pageHeight = doc.internal.pageSize.height;
       const margin = 14;
-      const lineHeight = 7;
+      const lineHeight = 4;
       const tableMarginTop = 5;
-      const summaryMarginTop = 5;
       const sectionMarginBottom = 10;
       const minSpaceForElement = 20;
 
@@ -316,6 +315,7 @@ export class ReportService {
       const totalExpense = dailyData.reduce((sum, day) => 
         sum + (day.expenses || []).reduce((daySum, expense) => daySum + (expense.spent_amount || 0), 0), 0);
       const totalNet = totalIncome - totalExpense;
+      yPosition += lineHeight;
 
       doc.setFontSize(12);
       doc.text('Overall Summary', margin, yPosition);
