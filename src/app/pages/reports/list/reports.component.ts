@@ -4,7 +4,7 @@ import { DataTablesModule } from 'angular-datatables';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, getMonth, getYear } from 'date-fns';
 import { ReportService } from '../../../services/report.service';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
@@ -39,7 +39,7 @@ export class ReportsComponent implements OnInit {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
-  availableDates: { start: string[], end: string[] } = { start: [], end: [] };
+  availableMonths: { month: number, year: number }[] = [];
 
   constructor(
     private reportService: ReportService,
@@ -49,23 +49,29 @@ export class ReportsComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.filterForm = this.fb.group({
-      start_date: [''],
-      end_date: ['']
+      start_month: [''],
+      end_month: ['']
     });
   }
 
   ngOnInit(): void {
-    this.loadAvailableDates();
+    this.loadAvailableMonths();
     this.initializeDataTable();
     this.permissionService.hasPermission(PermissionCode.CAN_VIEW_REPORT).subscribe(has => this.canviewReport = has);
   }
 
-  loadAvailableDates(): void {
+  loadAvailableMonths(): void {
     // Load income dates
     this.incomeService.getIncomes().subscribe({
       next: (incomes) => {
-        const incomeDates = incomes.map(income => format(new Date(income.date), 'yyyy-MM-dd'));
-        this.updateAvailableDates(incomeDates);
+        const incomeMonths = incomes.map(income => {
+          const date = new Date(income.date);
+          return {
+            month: getMonth(date),
+            year: getYear(date)
+          };
+        });
+        this.updateAvailableMonths(incomeMonths);
       },
       error: (err) => console.error('Error loading income dates:', err)
     });
@@ -73,85 +79,65 @@ export class ReportsComponent implements OnInit {
     // Load expense dates
     this.expenseService.getExpenses().subscribe({
       next: (expenses) => {
-        const expenseDates = expenses.map(expense => format(new Date(expense.date), 'yyyy-MM-dd'));
-        this.updateAvailableDates(expenseDates);
+        const expenseMonths = expenses.map(expense => {
+          const date = new Date(expense.date);
+          return {
+            month: getMonth(date),
+            year: getYear(date)
+          };
+        });
+        this.updateAvailableMonths(expenseMonths);
       },
       error: (err) => console.error('Error loading expense dates:', err)
     });
   }
 
-  private updateAvailableDates(newDates: string[]): void {
-    // Combine existing dates with new dates and remove duplicates
-    const allDates = [...new Set([...this.availableDates.start, ...newDates])]
-      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  private updateAvailableMonths(newMonths: { month: number, year: number }[]): void {
+    // Combine existing months with new months and remove duplicates
+    const allMonths = [...new Set([...this.availableMonths, ...newMonths].map(m => `${m.year}-${m.month}`))]
+      .map(str => {
+        const [year, month] = str.split('-').map(Number);
+        return { month, year };
+      })
+      .sort((a, b) => {
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+      });
     
-    // Update both start and end date arrays
-    this.availableDates = {
-      start: allDates,
-      end: allDates
-    };
-
-    // Update the date input options
-    this.updateDateInputs();
-  }
-
-  private updateDateInputs(): void {
-    const startDateInput = document.getElementById('start_date') as HTMLInputElement;
-    const endDateInput = document.getElementById('end_date') as HTMLInputElement;
-
-    if (startDateInput && endDateInput) {
-      // Set min and max dates for start date
-      if (this.availableDates.start.length > 0) {
-        startDateInput.min = this.availableDates.start[0];
-        startDateInput.max = this.availableDates.start[this.availableDates.start.length - 1];
-      }
-
-      // Set min and max dates for end date
-      if (this.availableDates.end.length > 0) {
-        endDateInput.min = this.availableDates.end[0];
-        endDateInput.max = this.availableDates.end[this.availableDates.end.length - 1];
-      }
-    }
+    this.availableMonths = allMonths;
   }
 
   applyFilter(): void {
-    const startDate = this.filterForm.get('start_date')?.value;
-    const endDate = this.filterForm.get('end_date')?.value;
+    const startMonth = this.filterForm.get('start_month')?.value;
+    const endMonth = this.filterForm.get('end_month')?.value;
 
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
+    if (startMonth && endMonth) {
+      const [startYear, startMonthNum] = startMonth.split('-').map(Number);
+      const [endYear, endMonthNum] = endMonth.split('-').map(Number);
+      
       this.filteredData = this.financialSummary.filter(item => {
         const itemDate = new Date(this.year, item.month - 1, 1);
-        return itemDate >= start && itemDate <= end;
+        const startDate = new Date(startYear, startMonthNum, 1);
+        const endDate = new Date(endYear, endMonthNum + 1, 0); // Last day of the end month
+        
+        return itemDate >= startDate && itemDate <= endDate;
       });
-
-      // Update totals
-      this.totalIncome = this.calculateTotalIncome(this.filteredData);
-      this.totalExpense = this.calculateTotalExpense(this.filteredData);
-
-      // Refresh the DataTable
-      if (this.dtElement) {
-        this.dtElement.dtInstance.then((dtInstance: any) => {
-          dtInstance.clear();
-          dtInstance.rows.add(this.filteredData);
-          dtInstance.draw();
-        });
-      }
     } else {
-      // If no dates selected, show all data
+      // If no filters selected, show all data
       this.filteredData = [...this.financialSummary];
-      this.totalIncome = this.calculateTotalIncome(this.financialSummary);
-      this.totalExpense = this.calculateTotalExpense(this.financialSummary);
+    }
 
-      if (this.dtElement) {
-        this.dtElement.dtInstance.then((dtInstance: any) => {
-          dtInstance.clear();
-          dtInstance.rows.add(this.financialSummary);
-          dtInstance.draw();
-        });
-      }
+    // Update totals
+    this.totalIncome = this.calculateTotalIncome(this.filteredData);
+    this.totalExpense = this.calculateTotalExpense(this.filteredData);
+
+    // Refresh the DataTable
+    if (this.dtElement) {
+      this.dtElement.dtInstance.then((dtInstance: any) => {
+        dtInstance.clear();
+        dtInstance.rows.add(this.filteredData);
+        dtInstance.draw();
+      });
     }
   }
 
@@ -293,5 +279,9 @@ export class ReportsComponent implements OnInit {
         }
       ]
     };
+  }
+
+  formatMonthDisplay(month: number, year: number): string {
+    return format(new Date(year, month, 1), 'MMMM yyyy');
   }
 }

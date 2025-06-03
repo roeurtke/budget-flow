@@ -8,27 +8,29 @@
                 <table class="table table-striped table-bordered" width="100%" cellspacing="0">
                     <tbody>
                         <tr>
-                            <td width="25%">
-                                <label for="start_date" class="mb-1">Start Date</label>
-                                <select id="start_date" 
-                                        formControlName="start_date" 
+                            <td width="50%">
+                                <label for="start_month" class="mb-1">Start Month</label>
+                                <select id="start_month" 
+                                        formControlName="start_month" 
                                         class="form-control"
                                         (change)="applyFilter()">
-                                    <option value="">Select Start Date</option>
-                                    <option *ngFor="let date of availableDates.start" [value]="date">
-                                        {{date | date:'mediumDate'}}
+                                    <option value="">Select Start Month</option>
+                                    <option *ngFor="let month of availableMonths" 
+                                            [value]="month.year + '-' + month.month">
+                                        {{formatMonthDisplay(month.month, month.year)}}
                                     </option>
                                 </select>
                             </td>
-                            <td width="25%">
-                                <label for="end_date" class="mb-1">End Date</label>
-                                <select id="end_date" 
-                                        formControlName="end_date" 
+                            <td width="50%">
+                                <label for="end_month" class="mb-1">End Month</label>
+                                <select id="end_month" 
+                                        formControlName="end_month" 
                                         class="form-control"
                                         (change)="applyFilter()">
-                                    <option value="">Select End Date</option>
-                                    <option *ngFor="let date of availableDates.end" [value]="date">
-                                        {{date | date:'mediumDate'}}
+                                    <option value="">Select End Month</option>
+                                    <option *ngFor="let month of availableMonths" 
+                                            [value]="month.year + '-' + month.month">
+                                        {{formatMonthDisplay(month.month, month.year)}}
                                     </option>
                                 </select>
                             </td>
