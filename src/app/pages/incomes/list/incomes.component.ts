@@ -10,9 +10,9 @@ import { Router } from '@angular/router';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import { ButtonService } from '../../../services/button.service';
-import jszip from 'jszip';
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+// import jszip from 'jszip';
+// import pdfMake from 'pdfmake/build/pdfmake';
+// import pdfFonts from 'pdfmake/build/vfs_fonts';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -43,9 +43,9 @@ export class IncomesComponent {
   ) {}
 
   ngOnInit(): void {
-    (window as any).jsZip = jszip;
-    (window as any).pdfMake = pdfMake;
-    pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
+    // (window as any).jsZip = jszip;
+    // (window as any).pdfMake = pdfMake;
+    // pdfMake.vfs = pdfFonts as unknown as { [file: string]: string };
 
     this.initializeDataTable();
     this.permissionService.hasPermission(PermissionCode.CAN_CREATE_INCOME).subscribe(has => this.canCreateIncome = has);
@@ -82,11 +82,6 @@ export class IncomesComponent {
           }
         });
       },
-      dom: `
-        <"d-flex justify-content-between align-items-center mb-3"lBf>
-        t
-        <"d-flex justify-content-between align-items-center mt-3"ip>
-      `,
       columns: [
         { 
           data: null,
