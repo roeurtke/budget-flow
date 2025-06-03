@@ -246,11 +246,15 @@ export class ReportsComponent implements OnInit {
       const doc = new jsPDF();
       
       // Add title
+      const pageWidth = doc.internal.pageSize.width;
+      const centerX = pageWidth / 2;
+      
       doc.setFontSize(16);
-      doc.text('Financial Report', 14, 15);
+      doc.text('Financial Report', centerX, 15, { align: 'center' });
+      
       doc.setFontSize(10);
-      doc.text(`Period: ${format(startDate, 'MMMM yyyy')} to ${format(endDate, 'MMMM yyyy')}`, 14, 22);
-      doc.text(`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`, 14, 29);
+      doc.text(`Period: ${format(startDate, 'MMMM yyyy')} to ${format(endDate, 'MMMM yyyy')}`, centerX, 22, { align: 'center' });
+      doc.text(`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`, centerX, 29, { align: 'center' });
 
       let yPosition = 40;
       const pageHeight = doc.internal.pageSize.height;
