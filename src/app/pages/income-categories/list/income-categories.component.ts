@@ -92,10 +92,6 @@ export class IncomeCategoriesComponent {
           orderable: false,
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
-        {
-          data: 'id',
-          visible: false
-        },
         { data: 'name',
           title: 'Name',
           render: (data: string) => data || '-'

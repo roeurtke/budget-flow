@@ -82,10 +82,6 @@ export class AbilitiesComponent {
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         {
-          data: 'id',
-          visible: false
-        },
-        {
           data: 'name',
           title: 'Role',
           render: (data: any) => typeof data === 'string' ? data || '-' : data?.name || '-'

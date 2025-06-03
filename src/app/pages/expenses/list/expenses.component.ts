@@ -94,10 +94,6 @@ export class ExpensesComponent {
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
         {
-          data: 'id',
-          visible: false
-        },
-        {
           data: 'date',
           title: 'Date',
           render: (data: string) => data ? format(new Date(data), 'dd-MM-yyyy') : '-'

@@ -82,10 +82,6 @@ export class UsersComponent implements OnInit {
           orderable: false,
           render: (data: any, type: any, row: any, meta: any) => type === 'display' ? meta.row + 1 : ''
         },
-        {
-          data: 'id',
-          visible: false
-        },
         { data: 'username',
           title: 'Username',
           render: (data: string) => data || '-'
