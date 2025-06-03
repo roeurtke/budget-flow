@@ -30,6 +30,8 @@
     "glob": "^11.0.1",
     "jquery": "^3.7.1",
     "jquery.easing": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
     "pdfmake": "^0.2.19",
     "rimraf": "^6.0.1",

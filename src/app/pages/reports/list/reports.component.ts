@@ -1,25 +1,33 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataTablesModule } from 'angular-datatables';
 import { DataTableDirective } from 'angular-datatables';
 import { dataTablesConfig } from '../../../shared/datatables/datatables-config';
 import { Subject } from 'rxjs';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ReportService } from '../../../services/report.service';
 import { PermissionService } from '../../../services/permission.service';
 import { PermissionCode } from '../../../shared/permissions/permissions.constants';
 import { MonthlySummary } from '../../../interfaces/report.interface';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { IncomeService } from '../../../services/income.service';
+import { ExpenseService } from '../../../services/expense.service';
 
 @Component({
   selector: 'app-reports',
-  imports: [CommonModule, DataTablesModule],
+  imports: [CommonModule, DataTablesModule, ReactiveFormsModule],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css'
 })
-export class ReportsComponent {
+export class ReportsComponent implements OnInit {
   @ViewChild(DataTableDirective, { static: false }) dtElement!: DataTableDirective;
 
+  filterForm: FormGroup;
   financialSummary: MonthlySummary[] = [];
+  filteredData: MonthlySummary[] = [];
   year: number = new Date().getFullYear();
   loading = false;
   error: string | null = null;
@@ -31,10 +39,169 @@ export class ReportsComponent {
   dtOptions: any = {};
   dtTrigger: Subject<any> = new Subject<any>();
 
+  availableDates: { start: string[], end: string[] } = { start: [], end: [] };
+
   constructor(
     private reportService: ReportService,
     private permissionService: PermissionService,
-  ) {}
+    private incomeService: IncomeService,
+    private expenseService: ExpenseService,
+    private fb: FormBuilder
+  ) {
+    this.filterForm = this.fb.group({
+      start_date: [''],
+      end_date: ['']
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadAvailableDates();
+    this.initializeDataTable();
+    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_REPORT).subscribe(has => this.canviewReport = has);
+  }
+
+  loadAvailableDates(): void {
+    // Load income dates
+    this.incomeService.getIncomes().subscribe({
+      next: (incomes) => {
+        const incomeDates = incomes.map(income => format(new Date(income.date), 'yyyy-MM-dd'));
+        this.updateAvailableDates(incomeDates);
+      },
+      error: (err) => console.error('Error loading income dates:', err)
+    });
+
+    // Load expense dates
+    this.expenseService.getExpenses().subscribe({
+      next: (expenses) => {
+        const expenseDates = expenses.map(expense => format(new Date(expense.date), 'yyyy-MM-dd'));
+        this.updateAvailableDates(expenseDates);
+      },
+      error: (err) => console.error('Error loading expense dates:', err)
+    });
+  }
+
+  private updateAvailableDates(newDates: string[]): void {
+    // Combine existing dates with new dates and remove duplicates
+    const allDates = [...new Set([...this.availableDates.start, ...newDates])]
+      .sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    
+    // Update both start and end date arrays
+    this.availableDates = {
+      start: allDates,
+      end: allDates
+    };
+
+    // Update the date input options
+    this.updateDateInputs();
+  }
+
+  private updateDateInputs(): void {
+    const startDateInput = document.getElementById('start_date') as HTMLInputElement;
+    const endDateInput = document.getElementById('end_date') as HTMLInputElement;
+
+    if (startDateInput && endDateInput) {
+      // Set min and max dates for start date
+      if (this.availableDates.start.length > 0) {
+        startDateInput.min = this.availableDates.start[0];
+        startDateInput.max = this.availableDates.start[this.availableDates.start.length - 1];
+      }
+
+      // Set min and max dates for end date
+      if (this.availableDates.end.length > 0) {
+        endDateInput.min = this.availableDates.end[0];
+        endDateInput.max = this.availableDates.end[this.availableDates.end.length - 1];
+      }
+    }
+  }
+
+  applyFilter(): void {
+    const startDate = this.filterForm.get('start_date')?.value;
+    const endDate = this.filterForm.get('end_date')?.value;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+
+      this.filteredData = this.financialSummary.filter(item => {
+        const itemDate = new Date(this.year, item.month - 1, 1);
+        return itemDate >= start && itemDate <= end;
+      });
+
+      // Update totals
+      this.totalIncome = this.calculateTotalIncome(this.filteredData);
+      this.totalExpense = this.calculateTotalExpense(this.filteredData);
+
+      // Refresh the DataTable
+      if (this.dtElement) {
+        this.dtElement.dtInstance.then((dtInstance: any) => {
+          dtInstance.clear();
+          dtInstance.rows.add(this.filteredData);
+          dtInstance.draw();
+        });
+      }
+    } else {
+      // If no dates selected, show all data
+      this.filteredData = [...this.financialSummary];
+      this.totalIncome = this.calculateTotalIncome(this.financialSummary);
+      this.totalExpense = this.calculateTotalExpense(this.financialSummary);
+
+      if (this.dtElement) {
+        this.dtElement.dtInstance.then((dtInstance: any) => {
+          dtInstance.clear();
+          dtInstance.rows.add(this.financialSummary);
+          dtInstance.draw();
+        });
+      }
+    }
+  }
+
+  exportToExcel(): void {
+    const data = this.filteredData.length > 0 ? this.filteredData : this.financialSummary;
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data.map(item => ({
+      'Month': format(new Date(this.year, item.month - 1, 1), 'MMMM yyyy'),
+      'Total Income': item.total_income,
+      'Total Expense': item.total_expense,
+      'Net Income': item.net_income
+    })));
+
+    const workbook: XLSX.WorkBook = { Sheets: { 'Financial Report': worksheet }, SheetNames: ['Financial Report'] };
+    XLSX.writeFile(workbook, `financial_report_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+  }
+
+  printReport(): void {
+    const data = this.filteredData.length > 0 ? this.filteredData : this.financialSummary;
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.text('Financial Report', 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${format(new Date(), 'dd-MM-yyyy')}`, 14, 22);
+
+    // Add table
+    const tableData = data.map(item => [
+      format(new Date(this.year, item.month - 1, 1), 'MMMM yyyy'),
+      item.total_income.toFixed(2),
+      item.total_expense.toFixed(2),
+      item.net_income.toFixed(2)
+    ]);
+
+    autoTable(doc, {
+      head: [['Month', 'Total Income', 'Total Expense', 'Net Income']],
+      body: tableData,
+      startY: 30,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [66, 139, 202] }
+    });
+
+    // Add totals
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    doc.text(`Total Income: ${this.totalIncome.toFixed(2)}`, 14, finalY);
+    doc.text(`Total Expense: ${this.totalExpense.toFixed(2)}`, 14, finalY + 7);
+
+    doc.save(`financial_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  }
 
   // Calculate total income for all months
   calculateTotalIncome(data: any[]): number {
@@ -44,11 +211,6 @@ export class ReportsComponent {
   // Calculate total expense for all months
   calculateTotalExpense(data: any[]): number {
     return data.reduce((sum, item) => sum + (item.total_expense || 0), 0);
-  }
-
-  ngOnInit(): void {
-    this.initializeDataTable();
-    this.permissionService.hasPermission(PermissionCode.CAN_VIEW_REPORT).subscribe(has => this.canviewReport = has);
   }
 
   initializeDataTable(): void {
@@ -61,22 +223,23 @@ export class ReportsComponent {
         this.loading = true;
         this.reportService.getFinancialSummaryForDataTables(dataTablesParameters).subscribe({
           next: (response) => {
-            // Add the year from the response to each monthly summary item and filter out records with no income or expense
-            const dataWithYearAndFiltered = response.monthly_summary
+            this.financialSummary = response.monthly_summary
               .filter((item: any) => item.total_income !== 0 || item.total_expense !== 0)
               .map((item: any) => ({
                 ...item,
                 year: response.year
               }));
 
+            this.filteredData = [...this.financialSummary];
+            
             // Calculate totals
-            this.totalIncome = this.calculateTotalIncome(dataWithYearAndFiltered);
-            this.totalExpense = this.calculateTotalExpense(dataWithYearAndFiltered);
+            this.totalIncome = this.calculateTotalIncome(this.financialSummary);
+            this.totalExpense = this.calculateTotalExpense(this.financialSummary);
 
             callback({
-              recordsTotal: dataWithYearAndFiltered.length,
-              recordsFiltered: dataWithYearAndFiltered.length,
-              data: dataWithYearAndFiltered
+              recordsTotal: this.financialSummary.length,
+              recordsFiltered: this.financialSummary.length,
+              data: this.financialSummary
             });
             this.loading = false;
           },
