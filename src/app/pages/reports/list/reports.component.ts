@@ -265,8 +265,6 @@ export class ReportsComponent implements OnInit {
         firstValueFrom(expenses$)
       ]);
 
-      console.log('Fetched Expenses from service:', allExpenses.length);
-
       // Create daily data structure
       this.dailyData = days.map(date => {
         const dayIncomes = (allIncomes as Income[] || []).filter(income => 
@@ -289,7 +287,6 @@ export class ReportsComponent implements OnInit {
           expenses: dayExpenses
         };
       });
-      // console.log('Processed dailyData:', this.dailyData);
 
     } catch (error) {
       console.error('Error loading daily data:', error);
@@ -404,8 +401,6 @@ export class ReportsComponent implements OnInit {
 
       // Collect all expenses from all days
       const allExpenses = this.dailyData.reduce((acc, day) => acc.concat(day.expenses), [] as Expense[]);
-
-      console.log(`Total number of expense records collected: ${allExpenses.length}`);
 
       if (allExpenses.length > 0) {
         // Check if we need a new page before adding expenses table
