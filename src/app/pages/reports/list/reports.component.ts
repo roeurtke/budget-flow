@@ -142,7 +142,12 @@ export class ReportsComponent implements OnInit {
   }
 
   exportToExcel(): void {
-    const data = this.filteredData.length > 0 ? this.filteredData : this.financialSummary;
+    if (this.filteredData.length === 0) {
+      // If no data is filtered, do not export
+      console.log('No data to export to Excel.');
+      return;
+    }
+    const data = this.filteredData;
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data.map(item => ({
       'Month': format(new Date(this.year, item.month - 1, 1), 'MMMM yyyy'),
       'Total Income': item.total_income,
@@ -155,7 +160,12 @@ export class ReportsComponent implements OnInit {
   }
 
   printReport(): void {
-    const data = this.filteredData.length > 0 ? this.filteredData : this.financialSummary;
+    if (this.filteredData.length === 0) {
+      // If no data is filtered, do not print
+      console.log('No data to print.');
+      return;
+    }
+    const data = this.filteredData;
     const doc = new jsPDF();
     
     // Add title
