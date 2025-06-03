@@ -297,6 +297,7 @@ export class ReportsComponent implements OnInit {
           yPosition += lineHeight;
 
           const incomeTableData = day.incomes.map(income => [
+            format(parseISO(income.date), 'dd/MM/yyyy'),
             income.income_category?.name || 'Uncategorized',
             income.description || '-',
             (income.amount || 0).toFixed(2)
@@ -304,13 +305,12 @@ export class ReportsComponent implements OnInit {
 
           autoTable(doc, {
             startY: yPosition,
-            head: [['Category', 'Description', 'Amount']],
+            head: [['Date', 'Category', 'Description', 'Amount']],
             body: incomeTableData,
             theme: 'grid',
             styles: { fontSize: 8 },
             headStyles: { fillColor: [41, 128, 185] },
             margin: { left: margin }
-             // Removed didDrawPage from here to handle page numbers globally later
           });
 
           yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
@@ -341,6 +341,7 @@ export class ReportsComponent implements OnInit {
           yPosition += lineHeight;
 
           const expenseTableData = day.expenses.map(expense => [
+            format(parseISO(expense.date), 'dd/MM/yyyy'),
             expense.expense_category?.name || 'Uncategorized',
             expense.description || '-',
             (expense.amount || 0).toFixed(2)
@@ -348,13 +349,12 @@ export class ReportsComponent implements OnInit {
 
           autoTable(doc, {
             startY: yPosition,
-            head: [['Category', 'Description', 'Amount']],
+            head: [['Date', 'Category', 'Description', 'Amount']],
             body: expenseTableData,
             theme: 'grid',
             styles: { fontSize: 8 },
             headStyles: { fillColor: [231, 76, 60] },
             margin: { left: margin }
-             // Removed didDrawPage from here to handle page numbers globally later
           });
 
           yPosition = (doc as any).lastAutoTable.finalY + tableMarginTop;
