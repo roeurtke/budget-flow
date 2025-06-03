@@ -79,6 +79,12 @@ button {
     cursor: pointer;
 }
 
+.btn-link {
+    color: #475f7b;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
 button:active {
     transform: translateY(0);
 }
