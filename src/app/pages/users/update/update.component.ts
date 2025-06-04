@@ -6,6 +6,7 @@ import { RoleService } from '../../../services/role.service';
 import { Role } from '../../../interfaces/fetch-data.interface';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-user-update',
@@ -85,10 +86,30 @@ export class UpdateComponent implements OnInit {
     const userData = this.updateForm.value;
     this.userService.updateUser(Number(this.userId), userData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/users']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'User updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/users']);
+        });
       },
       error: (err) => {
         console.error('Failed to update user:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update user. Please try again.',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }
