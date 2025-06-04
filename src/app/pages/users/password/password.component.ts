@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractContro
 import { UserService } from '../../../services/user.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-password',
@@ -61,7 +62,18 @@ export class PasswordComponent implements OnInit {
     const passwordData = this.passwordForm.value;
     this.userService.updatePassword(Number(this.userId), passwordData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/users']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Password updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/users']);
+        });
       },
       error: (err) => {
         console.error('Failed to update user:', err);
