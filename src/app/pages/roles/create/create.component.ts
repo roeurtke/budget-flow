@@ -50,7 +50,7 @@ export class CreateComponent {
         console.error('Failed to create role:', err);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: 'Role Already Exists',
           text: 'Failed to create role.',
           customClass: {
             confirmButton: 'btn btn-sm btn-primary'

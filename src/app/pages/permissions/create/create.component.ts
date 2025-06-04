@@ -51,7 +51,7 @@ export class CreateComponent {
         console.error('Failed to create permission:', err);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: 'Permission Already Exists',
           text: 'Failed to create permission',
           customClass: {
             confirmButton: 'btn btn-sm btn-primary'

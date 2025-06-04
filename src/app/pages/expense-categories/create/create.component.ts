@@ -47,10 +47,10 @@ export class CreateComponent {
         });
       },
       error: (err) => {
-        console.error('Failed to create role:', err);
+        console.error('Failed to create expense category:', err);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
+          title: 'Expense Category Already Exists',
           text: 'Failed to create expense category',
           customClass: {
             confirmButton: 'btn btn-sm btn-primary'
