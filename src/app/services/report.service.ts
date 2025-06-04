@@ -11,6 +11,7 @@ import { ExpenseService } from './expense.service';
 import { Income, Expense } from '../interfaces/fetch-data.interface';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, parseISO, isSameDay } from 'date-fns';
 import { catchError } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 // Define a type for the daily data structure
 type DailyFinancialEntry = {
@@ -42,7 +43,16 @@ export class ReportService {
   async exportToExcel(startMonth: string, endMonth: string): Promise<void> {
     try {
       if (!startMonth || !endMonth) {
-        console.log('Please select both start and end months.');
+        // console.log('Please select both start and end months.');
+        Swal.fire({
+          icon: 'error',
+          title: 'No month selected!',
+          text: 'Please select both start and end months',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
         return;
       }
 
@@ -160,7 +170,16 @@ export class ReportService {
   async printReport(startMonth: string, endMonth: string): Promise<void> {
     try {
       if (!startMonth || !endMonth) {
-        console.log('Please select both start and end months.');
+        // console.log('Please select both start and end months.');
+        Swal.fire({
+          icon: 'error',
+          title: 'No month selected!',
+          text: 'Please select both start and end months',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
         return;
       }
 
