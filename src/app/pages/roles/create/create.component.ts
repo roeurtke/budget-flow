@@ -47,16 +47,28 @@ export class CreateComponent {
         });
       },
       error: (err) => {
-        console.error('Failed to create role:', err);
-        Swal.fire({
-          icon: 'error',
-          title: 'Role Already Exists',
-          text: 'Failed to create role.',
-          customClass: {
-            confirmButton: 'btn btn-sm btn-primary'
-          },
-          buttonsStyling: false
-        });
+        if (err.status === 400 && (err.error?.name)) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Role Already Exists',
+            text: 'Failed to create role.',
+            customClass: {
+              confirmButton: 'btn btn-sm btn-primary'
+            },
+            buttonsStyling: false
+          })
+        }else {
+          console.error('Failed to create role:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create role.',
+            customClass: {
+              confirmButton: 'btn btn-sm btn-primary'
+            },
+            buttonsStyling: false
+          });
+        }
       }
     });
   }
