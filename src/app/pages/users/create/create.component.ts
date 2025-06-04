@@ -4,6 +4,7 @@ import { UserService } from '../../../services/user.service';
 import { RoleService } from '../../../services/role.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-user-create',
@@ -60,10 +61,42 @@ export class CreateComponent {
     const userData = this.createForm.value;
     this.userService.createUser(userData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/users']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'User created successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/users']);
+        });
       },
       error: (err) => {
-        console.error('Failed to create user:', err);
+        if (err.status === 400 && (err.error?.username || err.error?.email)) {
+          Swal.fire({
+            icon: 'error',
+            title: 'User Already Exists',
+            text: err.error.username ? 'Username already taken' : 'Email already registered',
+            customClass: {
+              confirmButton: 'btn btn-sm btn-primary'
+            },
+            buttonsStyling: false
+          });
+        } else {
+          console.error('Failed to create user:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to create user. Please try again.',
+            customClass: {
+              confirmButton: 'btn btn-sm btn-primary'
+            },
+            buttonsStyling: false
+          });
+        }
       }
     });
   }
