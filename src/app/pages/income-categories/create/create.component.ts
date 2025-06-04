@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup } from '@angula
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { IncomeCategoryService } from '../../../services/income-category.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-income-category-create',
@@ -32,10 +33,30 @@ export class CreateComponent {
     const incomeCategoryData = this.createForm.value;
     this.incomeCategoryService.createIncomeCategory(incomeCategoryData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/income_categories']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Income category created successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/income_categories']);
+        });
       },
       error: (err) => {
         console.error('Failed to create role:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to create income category',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        })
       }
     });
   }

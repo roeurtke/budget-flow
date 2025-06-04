@@ -3,6 +3,8 @@ import { ReactiveFormsModule, FormBuilder, Validators, FormGroup, AbstractContro
 import { RoleService } from '../../../services/role.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-role-create',
   imports: [CommonModule, ReactiveFormsModule],
@@ -31,10 +33,30 @@ export class CreateComponent {
     const roleData = this.createForm.value;
     this.roleService.createRole(roleData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/roles']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Role created successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/roles']);
+        });
       },
       error: (err) => {
         console.error('Failed to create role:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Role Already Exists',
+          text: 'Please use another name',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }

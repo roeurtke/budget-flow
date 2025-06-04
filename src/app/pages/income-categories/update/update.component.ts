@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IncomeCategoryService } from '../../../services/income-category.service';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-income-category-update',
@@ -66,10 +67,30 @@ export class UpdateComponent {
     const incomeCategoryData = this.updateForm.value;
     this.incomeCategoryService.updateIncomeCategory(Number(this.incomeCategoryId), incomeCategoryData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/income_categories']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Income category updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/income_categories']);
+        });
       },
       error: (error) => {
         console.error('Error updating income category:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update income category',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }

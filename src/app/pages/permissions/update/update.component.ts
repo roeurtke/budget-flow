@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PermissionService } from '../../../services/permission.service';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-permission-update',
@@ -71,10 +72,30 @@ export class UpdateComponent {
     const permissionData = this.updateForm.value;
     this.permissionService.updatePermission(Number(this.permissionId), permissionData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/permissions']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Permission updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/permissions']);
+        });
       },
       error: (error) => {
         console.error('Error updating permission:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update permission',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }

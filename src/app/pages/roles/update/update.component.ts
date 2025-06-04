@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '../../../services/role.service';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-role-update',
@@ -66,10 +67,30 @@ export class UpdateComponent {
     const roleData = this.updateForm.value;
     this.roleService.updateRole(Number(this.roleId), roleData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/roles']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Role updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/roles']);
+        });
       },
       error: (error) => {
         console.error('Error updating role:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update role',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }

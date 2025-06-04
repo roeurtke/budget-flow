@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ExpenseCategoryService } from '../../../services/expense-category.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-expense-category-update',
@@ -66,10 +67,30 @@ export class UpdateComponent {
     const expenseCategoryData = this.updateForm.value;
     this.expenseCategoryService.updateExpenseCategory(Number(this.expenseCategoryId), expenseCategoryData).subscribe({
       next: () => {
-        this.router.navigate(['/pages/expense_categories']);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Expense category updated successfully',
+          timer: 1500,
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        }).then(() => {
+          this.router.navigate(['/pages/expense_categories']);
+        });
       },
       error: (error) => {
         console.error('Error updating expense category:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to update expense category',
+          customClass: {
+            confirmButton: 'btn btn-sm btn-primary'
+          },
+          buttonsStyling: false
+        });
       }
     });
   }
