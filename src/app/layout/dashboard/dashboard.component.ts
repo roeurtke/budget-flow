@@ -129,6 +129,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private aggregateMonthlyData(incomes: Income[], expenses: Expense[]): { monthYear: string, earnings: number }[] {
     const monthlyTotals: { [key: string]: { income: number, expense: number } } = {};
 
+    // Iterate through both incomes and expenses to aggregate by month
     [...incomes, ...expenses].forEach(item => {
       const date = parseISO(item.date);
       const monthYear = format(date, 'MMM yyyy');
@@ -140,10 +141,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       if ('income_amount' in item) {
         monthlyTotals[monthYear].income += (item as Income).income_amount || 0;
       } else if ('spent_amount' in item) {
-        monthlyTotals[monthYear].expense += (item as Expense).spent_amount || 0;
+        // We no longer need to sum expenses for total income chart
+        // monthlyTotals[monthYear].expense += (item as Expense).spent_amount || 0;
       }
     });
 
+    // Sort months chronologically
     const sortedMonths = Object.keys(monthlyTotals).sort((a, b) => {
       const [monthA, yearA] = a.split(' ');
       const [monthB, yearB] = b.split(' ');
@@ -152,9 +155,11 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       return dateA.getTime() - dateB.getTime();
     });
 
+    // Map to the desired format, using only income total
     return sortedMonths.map(monthYear => ({
       monthYear,
-      earnings: monthlyTotals[monthYear].income - monthlyTotals[monthYear].expense
+      // Changed to display total income instead of net earnings
+      earnings: monthlyTotals[monthYear].income
     }));
   }
 
@@ -186,7 +191,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         data: {
           labels: monthlyData.map(data => data.monthYear),
           datasets: [{
-            label: 'Net Earnings',
+            label: 'Total Income',
             data: monthlyData.map(data => data.earnings),
             backgroundColor: 'rgba(78, 115, 223, 0.05)',
             borderColor: 'rgba(78, 115, 223, 1)',
