@@ -19,7 +19,7 @@ import Chart from 'chart.js/auto';
     }
   `]
 })
-export class RevenueSourcesChartComponent implements OnInit, AfterViewInit, OnChanges {
+export class RevenueSourcesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('revenueSourcesChartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() chartData: { category: string, amount: number }[] = [];
 

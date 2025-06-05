@@ -5,12 +5,12 @@ import { ExpenseService } from '../../services/expense.service';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, format, parseISO } from 'date-fns';
 import { Income, Expense } from '../../interfaces/fetch-data.interface';
 import { ChartComponent } from '../../shared/chart/chart.component';
-import { RevenueSourcesChartComponent } from '../../shared/revenue-sources-chart/revenue-sources-chart.component';
+import { RevenueSourcesComponent } from '../../shared/chart/revenue-sources.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ChartComponent, RevenueSourcesChartComponent],
+  imports: [CommonModule, ChartComponent, RevenueSourcesComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
