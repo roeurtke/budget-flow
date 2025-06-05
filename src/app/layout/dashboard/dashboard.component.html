@@ -105,7 +105,7 @@
 
 <!-- Content Row -->
 <div class="row">
-    <!-- Area Chart -->
+    <!-- Earnings Overview Chart -->
     <div class="col-xl-8 col-lg-7">
         <div class="card shadow mb-4">
             <!-- Card Header - Dropdown -->
@@ -126,8 +126,14 @@
             </div>
             <!-- Card Body -->
             <div class="card-body">
-                <div class="chart-area">
-                    <canvas id="myAreaChart"></canvas>
+                 <div *ngIf="loading" class="text-center">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i> Loading Chart...
+                </div>
+                 <div *ngIf="error" class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                <div *ngIf="!loading && !error" class="chart-area">
+                    <canvas id="earningsOverviewChart" #earningsOverviewChart></canvas>
                 </div>
             </div>
         </div>
