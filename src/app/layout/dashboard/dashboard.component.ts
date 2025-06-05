@@ -5,11 +5,12 @@ import { ExpenseService } from '../../services/expense.service';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, format, parseISO } from 'date-fns';
 import { Income, Expense } from '../../interfaces/fetch-data.interface';
 import { ChartComponent } from '../../shared/chart/chart.component';
+import { RevenueSourcesChartComponent } from '../../shared/revenue-sources-chart/revenue-sources-chart.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, ChartComponent],
+  imports: [CommonModule, ChartComponent, RevenueSourcesChartComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -21,6 +22,7 @@ export class DashboardComponent implements OnInit {
   loading: boolean = true;
   error: string | null = null;
   monthlyEarningsData: { monthYear: string, earnings: number }[] = [];
+  revenueSourcesData: { category: string, amount: number }[] = [];
 
   constructor(
     private incomeService: IncomeService,
@@ -80,6 +82,10 @@ export class DashboardComponent implements OnInit {
 
       // Prepare data for the chart
       this.monthlyEarningsData = this.aggregateMonthlyData(allIncomes, allExpenses);
+
+      // Aggregate income data by category for revenue sources chart
+      this.revenueSourcesData = this.aggregateIncomeByCategory(allIncomes);
+
       this.loading = false;
     }).catch(err => {
       this.error = 'Failed to load financial data';
@@ -140,6 +146,23 @@ export class DashboardComponent implements OnInit {
       monthYear,
       // Changed to display total income instead of net earnings
       earnings: monthlyTotals[monthYear].income
+    }));
+  }
+
+  private aggregateIncomeByCategory(incomes: Income[]): { category: string, amount: number }[] {
+    const categoryTotals: { [key: string]: number } = {};
+
+    incomes.forEach(income => {
+      const category = income.income_category?.name || 'Uncategorized'; // Access the nested category name
+      if (!categoryTotals[category]) {
+        categoryTotals[category] = 0;
+      }
+      categoryTotals[category] += income.income_amount || 0;
+    });
+
+    return Object.keys(categoryTotals).map(category => ({
+      category,
+      amount: categoryTotals[category]
     }));
   }
 
