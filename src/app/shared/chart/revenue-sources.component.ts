@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
 
 @Component({
-  selector: 'app-revenue-sources-chart',
+  selector: 'app-revenue-sources',
   standalone: true,
   imports: [CommonModule],
   template: `
