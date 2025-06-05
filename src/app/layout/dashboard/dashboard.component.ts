@@ -60,9 +60,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       const allIncomes: Income[] = incomes || [];
       const allExpenses: Expense[] = expenses || [];
 
-      console.log('Fetched Incomes:', allIncomes);
-      console.log('Fetched Expenses:', allExpenses);
-
       // Calculate monthly income
       this.monthlyIncome = this.calculateIncomeForPeriod(
         allIncomes,
@@ -93,7 +90,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
       // Prepare data for the chart and store it
       this.monthlyEarningsData = this.aggregateMonthlyData(allIncomes, allExpenses);
-      console.log('Monthly Earnings Data:', this.monthlyEarningsData);
 
       // If the view is already initialized, render the chart now
       if (this.isViewInitialized) {
@@ -164,8 +160,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   private renderEarningsChart(monthlyData: { monthYear: string, earnings: number }[]): void {
-    console.log('Rendering chart with data:', monthlyData);
-
     // Defer rendering to ensure canvas is available
     setTimeout(() => {
       // Use the ViewChild reference to get the canvas element
