@@ -1,29 +1,26 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IncomeService } from '../../services/income.service';
 import { ExpenseService } from '../../services/expense.service';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, format, parseISO } from 'date-fns';
 import { Income, Expense } from '../../interfaces/fetch-data.interface';
-import Chart from 'chart.js/auto';
+import { ChartComponent } from '../../shared/chart/chart.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, ChartComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit {
   monthlyIncome: number = 0;
   annualIncome: number = 0;
   monthlyExpense: number = 0;
   annualExpense: number = 0;
   loading: boolean = true;
   error: string | null = null;
-  chart: Chart | undefined;
   monthlyEarningsData: { monthYear: string, earnings: number }[] = [];
-  isViewInitialized: boolean = false;
-
-  @ViewChild('earningsOverviewChart') chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   constructor(
     private incomeService: IncomeService,
@@ -32,13 +29,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadFinancialData();
-  }
-
-  ngAfterViewInit(): void {
-    this.isViewInitialized = true;
-    if (this.monthlyEarningsData.length > 0 || (!this.loading && this.error === null)) {
-      this.renderEarningsChart(this.monthlyEarningsData);
-    }
   }
 
   loadFinancialData(): void {
@@ -88,14 +78,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         endOfCurrentYear
       );
 
-      // Prepare data for the chart and store it
+      // Prepare data for the chart
       this.monthlyEarningsData = this.aggregateMonthlyData(allIncomes, allExpenses);
-
-      // If the view is already initialized, render the chart now
-      if (this.isViewInitialized) {
-         this.renderEarningsChart(this.monthlyEarningsData);
-      }
-
       this.loading = false;
     }).catch(err => {
       this.error = 'Failed to load financial data';
@@ -157,123 +141,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       // Changed to display total income instead of net earnings
       earnings: monthlyTotals[monthYear].income
     }));
-  }
-
-  private renderEarningsChart(monthlyData: { monthYear: string, earnings: number }[]): void {
-    // Defer rendering to ensure canvas is available
-    setTimeout(() => {
-      // Use the ViewChild reference to get the canvas element
-      const canvas = this.chartCanvas?.nativeElement;
-      if (!canvas) {
-        console.error('Earnings overview chart canvas not found!');
-        return;
-      }
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-          console.error('Could not get canvas context for chart');
-          return;
-      }
-
-      if (this.chart) {
-        this.chart.destroy(); // Destroy existing chart if it exists
-      }
-
-
-      this.chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: monthlyData.map(data => data.monthYear),
-          datasets: [{
-            label: 'Total Income',
-            data: monthlyData.map(data => data.earnings),
-            backgroundColor: 'rgba(78, 115, 223, 0.05)',
-            borderColor: 'rgba(78, 115, 223, 1)',
-            pointRadius: 3,
-            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-            pointBorderColor: 'rgba(78, 115, 223, 1)',
-            pointHoverRadius: 3,
-            pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
-            pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
-            pointHitRadius: 10,
-            pointBorderWidth: 2,
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          maintainAspectRatio: false,
-          layout: {
-            padding: {
-              left: 10,
-              right: 25,
-              top: 25,
-              bottom: 25
-            }
-          },
-          scales: {
-            x: {
-              time: {
-                  unit: 'month'
-              },
-              grid: {
-                display: false,
-                // Removed: drawBorder: false
-              },
-              ticks: {
-                  maxTicksLimit: 12
-              }
-            },
-            y: {
-              ticks: {
-                maxTicksLimit: 5,
-                padding: 10,
-                // Include a dollar sign in the ticks
-                callback: function(value: any, index: any, values: any) {
-                  return '$' + value;
-                }
-              },
-              grid: {
-                color: 'rgb(234, 236, 244)',
-                // Removed: drawBorder: false,
-                // Removed: zeroLineColor: 'rgb(234, 236, 244)',
-                // Removed: zeroLineWidth: 1
-              }
-            },
-          },
-          plugins: {
-              legend: {
-                  display: false
-              },
-              tooltip: {
-                  backgroundColor: 'rgb(255,255,255)',
-                  bodyColor: '#858796',
-                  titleMarginBottom: 10,
-                  titleColor: '#6e707e',
-                  titleFont: { weight: 'bold' },
-                  borderColor: '#dddfeb',
-                  borderWidth: 1,
-                  xAlign: 'center',
-                  intersect: false,
-                  mode: 'index',
-                  caretPadding: 10,
-                  callbacks: {
-                      label: function(context: any) {
-                          let label = context.dataset.label || '';
-                          if (label) {
-                              label += ': ';
-                          }
-                          if (context.raw !== null) {
-                              label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.raw);
-                          }
-                          return label;
-                      }
-                  }
-              }
-          }
-        }
-      });
-    }, 0); // Use a minimal delay
   }
 
   onClick(event: Event): void {
