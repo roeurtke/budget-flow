@@ -98,11 +98,6 @@ export class UsersComponent implements OnInit {
           title: 'Last Name',
           render: (data: string) => data || '-'
         },
-        { data: 'spending_limit',
-          title: 'Limit (USD)',
-          type: 'number',
-          render: (data: number) => data || '-'
-        },
         {
           data: 'role',
           title: 'Role',

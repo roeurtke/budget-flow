@@ -25,7 +25,6 @@ export class CreateComponent {
     this.createForm = this.fb.group({
       first_name: ['', Validators.required],
       last_name: ['', Validators.required],
-      spending_limit: ['', [Validators.required, Validators.min(0)]],
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
       role: ['', Validators.required],
