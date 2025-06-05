@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IncomeService } from '../../services/income.service';
-import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
-import { Income } from '../../interfaces/fetch-data.interface';
+import { ExpenseService } from '../../services/expense.service';
+import { startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
+import { Income, Expense } from '../../interfaces/fetch-data.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,16 +14,21 @@ import { Income } from '../../interfaces/fetch-data.interface';
 export class DashboardComponent implements OnInit {
   monthlyIncome: number = 0;
   annualIncome: number = 0;
+  monthlyExpense: number = 0;
+  annualExpense: number = 0;
   loading: boolean = true;
   error: string | null = null;
 
-  constructor(private incomeService: IncomeService) {}
+  constructor(
+    private incomeService: IncomeService,
+    private expenseService: ExpenseService
+  ) {}
 
   ngOnInit(): void {
-    this.loadIncomeData();
+    this.loadFinancialData();
   }
 
-  loadIncomeData(): void {
+  loadFinancialData(): void {
     this.loading = true;
     this.error = null;
 
@@ -33,9 +39,12 @@ export class DashboardComponent implements OnInit {
     const startOfCurrentYear = startOfYear(now);
     const endOfCurrentYear = endOfYear(now);
 
-    // Load all incomes
-    this.incomeService.getIncomes().subscribe({
-      next: (incomes: Income[]) => {
+    // Load both incomes and expenses
+    Promise.all([
+      this.incomeService.getIncomes().toPromise(),
+      this.expenseService.getExpenses().toPromise()
+    ]).then(([incomes, expenses]) => {
+      if (incomes) {
         // Calculate monthly income
         this.monthlyIncome = this.calculateIncomeForPeriod(
           incomes,
@@ -49,14 +58,29 @@ export class DashboardComponent implements OnInit {
           startOfCurrentYear,
           endOfCurrentYear
         );
-
-        this.loading = false;
-      },
-      error: (err) => {
-        this.error = 'Failed to load income data';
-        this.loading = false;
-        console.error('Error loading income data:', err);
       }
+
+      if (expenses) {
+        // Calculate monthly expense
+        this.monthlyExpense = this.calculateExpenseForPeriod(
+          expenses,
+          startOfCurrentMonth,
+          endOfCurrentMonth
+        );
+
+        // Calculate annual expense
+        this.annualExpense = this.calculateExpenseForPeriod(
+          expenses,
+          startOfCurrentYear,
+          endOfCurrentYear
+        );
+      }
+
+      this.loading = false;
+    }).catch(err => {
+      this.error = 'Failed to load financial data';
+      this.loading = false;
+      console.error('Error loading financial data:', err);
     });
   }
 
@@ -67,6 +91,15 @@ export class DashboardComponent implements OnInit {
         return incomeDate >= startDate && incomeDate <= endDate;
       })
       .reduce((sum, income) => sum + (income.income_amount || 0), 0);
+  }
+
+  private calculateExpenseForPeriod(expenses: Expense[], startDate: Date, endDate: Date): number {
+    return expenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.date);
+        return expenseDate >= startDate && expenseDate <= endDate;
+      })
+      .reduce((sum, expense) => sum + (expense.spent_amount || 0), 0);
   }
 
   onClick(event: Event): void {
