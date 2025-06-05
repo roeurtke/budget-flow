@@ -11,14 +11,9 @@ import Chart from 'chart.js/auto';
       <canvas #revenueSourcesChartCanvas></canvas>
     </div>
   `,
-  styles: [`
-    .chart-container {
-      position: relative;
-      height: 300px; // Adjust height as needed
-      width: 100%;
-    }
-  `]
+  styleUrl: './revenue-sources.component.css'
 })
+
 export class RevenueSourcesComponent implements OnInit, AfterViewInit, OnChanges {
   @ViewChild('revenueSourcesChartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @Input() chartData: { category: string, amount: number }[] = [];
