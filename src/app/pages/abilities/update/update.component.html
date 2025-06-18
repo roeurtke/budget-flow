@@ -17,7 +17,7 @@
                         <tr>
                             <td width="10%" class="text-right"><label for="role">Role</label></td>
                             <td width="10%">
-                                <select id="role" formControlName="role" class="form-control">
+                                <select id="role" formControlName="role" class="form-control" [disabled]="true">
                                     <option value="" disabled>Select a role</option>
                                     <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
                                 </select>

@@ -53,6 +53,7 @@ export class UpdateComponent implements OnInit {
 
   ngOnInit(): void {
     const roleId = this.route.snapshot.paramMap.get('id');
+    this.updateForm.get('role')?.disable();
     if (roleId) {
       this.roleId = +roleId;
       this.loadRoleAndPermissions(this.roleId);
